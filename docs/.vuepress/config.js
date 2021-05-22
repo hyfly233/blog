@@ -37,11 +37,14 @@ module.exports = {
     cache: true,
     plugins: [
         [
+            '@vuepress/back-to-top',
             '@vuepress/last-updated',
+            '@vuepress/google-analytics',
             {
                 transformer: (timestamp) => {
                     return moment(timestamp).format("LLLL")
-                }
+                },
+                'ga': 'G-T3CEQ49QFR'
             }
         ]
     ]
