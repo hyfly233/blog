@@ -44,7 +44,7 @@ module.exports = {
                 transformer: (timestamp) => {
                     return moment(timestamp).format("LLLL")
                 },
-                'ga': 'G-T3CEQ49QFR'
+                'ga': 'UA-197638551-1'
             }
         ]
     ]
