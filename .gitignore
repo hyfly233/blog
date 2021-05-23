@@ -108,3 +108,5 @@ dist
 
 .idea/
 /package-lock.json
+/docs/.vuepress/dist/
+/docs/.vuepress/config/secret.js
