@@ -107,3 +107,4 @@ dist
 /deploy.sh
 
 .idea/
+/package-lock.json
