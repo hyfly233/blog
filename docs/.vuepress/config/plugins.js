@@ -4,18 +4,12 @@ const moment = require('moment')
 moment.locale("zh-cn")
 
 module.exports = {
+    '@vuepress/search': {
+        searchMaxSuggestions: 10
+    },
     '@vuepress/pwa': {
         serviceWorker: true,
-        updatePopup: {
-            '/': {
-                message: "New content is available.",
-                buttonText: "Refresh"
-            },
-            '/zh/': {
-                message: "侦测到在途核打击",
-                buttonText: "确认"
-            }
-        }
+        updatePopup: true
     },
     '@vuepress/back-to-top': {},
     '@vuepress/last-updated': {
