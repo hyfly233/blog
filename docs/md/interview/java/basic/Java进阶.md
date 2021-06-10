@@ -23,5 +23,3 @@
 - 具体实现：实现 Serializable 接口，或实现 Externalizable 接口（Serializable接口的子接口）中的 writeExternal()与 readExternal()方法
 
 ------
-
-## 文档注释
