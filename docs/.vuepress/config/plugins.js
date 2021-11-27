@@ -7,18 +7,11 @@ module.exports = {
     '@vuepress/search': {
         searchMaxSuggestions: 10
     },
-    '@vuepress/pwa': {
-        serviceWorker: true,
-        updatePopup: true
-    },
     '@vuepress/back-to-top': {},
     '@vuepress/last-updated': {
         transformer: (timestamp) => {
             return moment(timestamp).format("LLLL")
         }
-    },
-    '@vuepress/google-analytics': {
-        'ga': secret.ga
     },
     '@vssue/vuepress-plugin-vssue': {
         platform: 'github-v4',
