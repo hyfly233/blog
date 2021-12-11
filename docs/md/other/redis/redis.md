@@ -298,6 +298,162 @@ blpop(brpop) key timeout、lpop 阻塞版，阻塞 timeout 时间，timeout = 0 
 
 ## Set
 
+### 单个set命令
+
+#### sadd、srem
+
+sadd（srem）key vals、向集合 key 添加（删除）vals，（vals 已存在添加失败），O(1)
+
+#### scard、sismember、srandmember、smembers
+
+scard key、计算集合大小
+
+sismember key val、判断 val 是否在集合中
+
+srandmember key n、随机获取 n 个元素
+
+smembers key、获取所有元素、无序的
+
+#### spop
+
+spop key、随机弹出一个元素
+
+### set间命令
+
+#### sdiff、sinter、sunion
+
+差、交、并集
+
+sdiff key1 key2、差集
+
+sinter key1 key2、交集
+
+sunion key1 key2、并集
+
+sdiff | sinter | sunion + store key、将差集、交集、并集结果保持到 key 中
+
+
+
+## zset
+
+key val 结构、val 由 score 和 value 组成、通过 score 来排序
+
+#### zadd
+
+zadd key score vals、添加 score 和 vals、O(logN)
+
+#### zrem
+
+zrem key vals、删除单个或多个元素
+
+#### zscore
+
+zscore key val、返回元素的分数、O(1)
+
+#### zincrby
+
+zincrby key increScore val、增加或减少元素的分数、O(1)
+
+#### zcard
+
+zcard key、返回元素的个数、O(1)
+
+#### zrange、zrangebyscore
+
+zrange(zrangebyscore) key start end [withscores]、返回指定索引（分数）范围内的升序元素[分值]、O(logN + m)
+
+#### zcount
+
+zcount key minScore maxScore、返回有序集合内在指定分数范围内的个数、O(logN + m)
+
+#### zremrangebyrank、zremrangebyscore
+
+zremrangebyrank key start end、删除指定排名内的升序元素、O(logN + m)
+
+#### zrevrank、zrevrange、zrevrangebyscore、zinterstore、zunionstore
+
+
+
+# 慢查询
+
++ 生命周期
+
+  + 客户端发送命令
+  + 命令在 Redis 中排队
+  + Redis 执行命令
+  + Redis 返回结果
+
+  慢查询发生在第三阶段
+
+  客户端超时不一定慢查询
+
+  
+
++ 两个配置
+
+  + slowlog-max-len
+
+    1、先进先出队列
+
+    2、固定长度
+
+    3、保存在内存中
+
+  + slowlog-log-slower-than
+
+    1、慢查询阈值（微秒）
+
+    2、slowlog-log-slower-than = 0，记录所有命令
+
+    3、slowlog-log-slower-than < 0，不记录命令
+
+  
+
++ 三个命令
+
+  1、slowlog get [n]、获取慢查询队列
+
+  2、slowlog len、获取慢查询队列长度
+
+  3、slowlog reset、清空慢查询队列
+
+  
+
++ 运维经验
+
+  1、slowlog-max-len、不要设置过大，默认 10 ms，通常设置 1ms
+
+  2、slowlog-log-slower-than、不要设置过小，通常 1000
+
+  3、理解命令生命周期
+
+  4、定期持久化慢查询
+
+
+
+# pipeline
+
+# 发布订阅
+
+# bitmap
+
+# geo
+
+# 持久化
+
+# RDB
+
+# AOF
+
+# fork
+
+# AOF阻塞
+
+# 全量复杂
+
+# 故障处理
+
+# sentinel
 
 
 
@@ -305,16 +461,7 @@ blpop(brpop) key timeout、lpop 阻塞版，阻塞 timeout 时间，timeout = 0 
 
 
 
-
-
-
-
-
-
-
-
-
-
+# Jedis
 
 
 
