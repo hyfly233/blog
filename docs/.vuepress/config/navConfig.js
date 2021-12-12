@@ -38,7 +38,7 @@ module.exports = [
         text: 'Other',
         items: [
             {text: 'SQL', link: '/'},
-            {text: 'Redis', link: '/'},
+            {text: 'Redis', link: '/md/other/redis/redis'},
             {text: 'FastDFS', link: '/'},
             {text: 'Algorithm', link: '/about/'},
             {text: 'Design Patterns', link: '/about/'},
