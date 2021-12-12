@@ -429,53 +429,349 @@ zremrangebyrank key start end、删除指定排名内的升序元素、O(logN + 
 
   4、定期持久化慢查询
 
-
-
 # pipeline
+
+将多个命令打包发给 Redis 处理、1 次网络请求 + n 次命令
+
+```java
+Jedis jedis = new Jedis("127.0.0.1", 6379);
+
+Pipeline pipeline = jedis.pipeline();
+
+for(int i = 0; i < 10000; i++) {
+    pipeline.hset("key" + i, "field" + i, "val" + i);
+}
+
+pipeline.syncAndReturnAll();
+```
+
++ 注意每次 pipeline 携带数据量，适时拆分成多条命令
++ pipeline 每次只能作用在一个 redis 节点
++ M 操作与 pipeline 区别
 
 # 发布订阅
 
 # bitmap
 
+# hyperloglog
+
 # geo
+
+
+
+
 
 # 持久化
 
-# RDB
+将数据的更新异步保存在磁盘中，可将磁盘中的数据恢复到内存中
 
-# AOF
++ 快照：MySQL Dump、Redis RDB
++ 日志：MySQL Binlog、Hbase HLog、Redis AOF
+
+## RDB
+
+### 3 种触发机制
+
++ save（同步）：
+
+  客户端执行 save 命令，同步生存 RDB 二进制文件，新文件替换老文件，阻塞，O(n)
+
+  
+
++ bgsave（异步）：
+
+  客户端执行 bgsave 命令，Redis 通过 fork() 生存子进程，子进程生存 RDB 二进制文件后，通知主进程、fork() 函数会阻塞主进程并消耗额外的内存，新文件替换老文件，O(n)
+
+  
+
++ 自动：
+
+  通过 save 配置设置自动保存，save n m，在 n 秒中 m 次操作就自动保存
+  
+  + dbfilename dump-${port}.rdb：改名
+  + dir ./：文件位置
+  + stop-writes-on-bgsave-error yes：bgsave 出错时是否停止写入
+  + rdbcompression yes：是否压缩
+  + rdbchecksum yes：是否做校验和检测
+
+### 触发机制 - 不容忽视方式
+
+1. 全量复制：主从复制时，主数据库会生存 rdb 文件
+2. debug reload：不清空内存的 debug 模式重启
+3. shutdown：shutdown save
+
+### RDB 的问题
+
+耗时，耗性能，不可控，数据易丢失
+
+
+
+## AOF
+
+根据日志操作，记录数据，可通过 AOF 对 RDB 丢失的数据进行修复
+
+### 3种策略
+
++ always：每一次操作都记录，不会丢失数据，IO 开销大
++ everysec：每一秒记录一次，可能丢失一秒的数据，
++ no：操作系统决定记录操作，不可控
+
+### AOF重写
+
+去掉无用的命令，减少磁盘占用量，加速恢复速度
+
++ bgrewriteaof：fork() 出子进程，重写 aof
+
++ AOF 重写配置：
+
+  + auto-aof-rewrite-min-size：AOF 文件重写需要的尺寸
+
+  + auto-aof-rewrite-percentage：AOF 文件增长率
+
+  + aof_current_size：AOF 当前尺寸
+
+  + aof_base_size：AOF 上次启动和重写的尺寸
+
+  + 触发时机
+
+    aof_current_size > auto-aof-rewrite-min-size
+
+    (aof_current_size - aof_base_size) / aof_base_size > auto-aof-rewrite-percentage
+
+  + appendonly yes
+
+  + appendfilename "appendonly-${port}.aof"
+
+  + appendfsync everysec
+
+  + no-appendfsync-on-rewrite yes
+
+### 阻塞
+
+
+
+## 选择
+
+|            | RDB    | AOF          |
+| ---------- | ------ | ------------ |
+| 启动优先级 | 低     | 高           |
+| 体积       | 小     | 大           |
+| 恢复速度   | 快     | 慢           |
+| 数据安全性 | 丢数据 | 根据策略决定 |
+| 轻重       | 重     | 轻           |
+
+
+
+### RDB 最佳策略
+
+主从都 "关" 了，集中管理定时备份，从节点开
+
+### AOF 最佳策略
+
+"开" 缓存和存储，AOF 重写集中管理，everysec
 
 # fork
 
-# AOF阻塞
 
-# 全量复杂
 
-# 故障处理
+# 主从复制
+
+解决机器故障、容量瓶颈、QPS 瓶颈等问题
+
++ 一个 master 可有多个 slave
++ 一个 slave 只能有一个 master
++ 数据流向是单向的，master 到 slave
+
+## 配置
+
++ slaveof 命令：不方便管理
+
+  slaveof 127.0.0.1 6378，清空从节点数据，异步复制
+
+  slaveof no one，取消复制，不会清除原先复制的数据
+
++ 配置文件：需要重启
+
+  slaveof ip port
+
+  slave-read-only yes：从节点不可写操作
+
+## runid
+
+每个节点的标识
+
+## 偏移量 offset
+
+# 全量复制
+
+pysnc {offset} {runid}
+
+开销巨大
+
++ bgsave 时间
++ RDB 文件网络传输时间
++ 从节点清空数据时间
++ 从节点加载 RDB 的时间
++ 可能的 AOF 重写时间
 
 # sentinel
 
+多个 Sentinel 进行 Redis 故障判断，故障转移选出一个 slave 作为 master，通知客户端，客户端从 Sentinel 获取 Redis 信息
 
+## 安装和配置
 
+1. 配置开启主从节点
+2. 配置开启 sentinel 监控主节点
 
++ port ${port}
++ dir "/opt/soft/redis/data"
++ logfile "${port}.log"
++ sentinel monitor mymaster 127.0.0.1 7000 2
++ sentinel down-after-milliseconds mymaster 30000
++ sentinel pararllel-syncs mymaster 1
++ sentinel failover-timeout mymaster 180000
 
+## Java
 
+获取所有 sentinel，和主节点，选择一个可用的 sentinel
+
+```java
+JedisSentinelPool sentinelPool = new JedisSentinelPool(masterName, sentinelSet, poolConfig, timeout);
+Jedis jedis = null;
+
+try {
+    jedis = sentinelPool.getResource();
+    jedis.set("hello", "world");
+} catch (Exception e) {
+    
+} finally {
+    if (jedis != null) {
+        jedis.close();
+    }
+}
+```
 
 # Jedis
 
+```java
+Jedis jedis = new Jedis("127.0.0.1", 6379);
+jedis.set("hello", "world");
+jedis.get("hello");
+```
+
+` Jedis(String host, int port, int connectionTimeout, int soTimeout) `
+
++ host：Redis节点的所在机器的IP 
++ port：Redis节点的端口 
++ connectionTimeout：客户端连接超时
++ soTimeout：客户端读写超时 
 
 
 
+## 字符串
+
++ jedis.set(key，value)
++ jedis.get(key)
++ jedis.incr(key)
+
+## hash
+
++ jedis.hset(key，vkey，val)
++ jedis.hgetAll(key)
+
+## list
+
++ jedis.rpush(key，value)
++ jedis.lrange(key，start，end)
+
+## set
+
++ jedis.sadd(key，val)
++ jedis.smembers(key)
+
+## zset
+
++ jedis.zadd(key，score，val)
++ jedis.zrangeWithScores(key，start，end)
+
+## Jedis 连接池
+
+### Jedis 直连
+
+1. 生成 Jedis 对象
+2. Jedis 执行命令
+3. 返回执行结果
+4. 关闭 Jedis 连接
 
 
 
+### JedisPool
+
+1. 从资源池借用 Jedis 对象
+2. Jedis 执行命令
+3. 返回执行结果
+4. 归还 Jedis 对象给连接池
+
+```java
+// 初始化 Jedis 连接池
+GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+JedisPool jedisPool = new JedisPool(poolConfig, "127.0.0.1", 6379);
+
+Jedis jedis = null;
+
+try {
+    // 从连接池中获取 jedis 对象
+    jedis = jedisPool.getResource();
+    jedis.set("hello", "world");
+} catch (Exception e) {
+    
+} finally {
+    if (jedis != null) {
+        // 使用 JedisPool 时，close() 方法表示归还连接池
+        jedis.close();
+    }
+}
+```
 
 
 
+## 配置
+
+### 1、资源数控制
+
++ maxTotal：最大连接数，默认 8，建议 命令平均执行时间 * 业务量
++ maxIdle：最大空闲数，默认 8，建议 maxIdle = maxTotal
++ minIdle：最小空闲数，默认 0
++ jmxEnabled：是否开启 jmx 监控，默认 true
+
+### 2、借还
+
++  blockWhenExhausted：当资源池用尽后，调用者是否要等待。只有当为true时，maxWaitMillis 才会生效，默认 true，建议默认
++  maxWaitMillis：当资源池连接用尽后，调用者的最大等待时间（毫秒），默认 -1 永不超时
++  testOnBorrow：向资源池借用连接时是否做连接有效性检测（ping），无效连接会被移除，默认 false，建议 false
++  testOnReturn： 向资源池归还连接时是否做连接有效性检测（ping），无效连接会被移除，默认 false，建议 false
 
 
 
+## 常见问题
 
+```java
+java.util.NoSuchElementException:Timeout waiting for idle object
+
+java.util.NoSuchElementException:Pool exhausted
+```
+
+### 解决思路
+
+1. 慢查询阻塞：池子连接被阻塞
+2. 资源池参数不合理：QPS高、池子小
+3. 连接泄露（没有 close）：client list、netstat 查连接情况
+4. DNS 异常
+
+## Java 客户端优化
+
+1. 避免多个应用使用一个 Redis 实例，不相干的业务拆分，公共数据做服务化（微服务）
+2. 使用连接池
 
 
 
