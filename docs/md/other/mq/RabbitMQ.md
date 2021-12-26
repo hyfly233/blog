@@ -138,3 +138,238 @@ list、purge、delete、-- help
 
 
 
+## 发送确认机制
+
++ 单条确认
+
+  配置 channel，开启确认模式：`channel.confirmSelect()`
+
+  每发送一条消息，调用`channel.waitForConfirms()`方法，等待确认
+
++ 多条确认
+
+  配置 channel，开启确认模式：`channel.confirmSelect()`
+
+  发送多条消息后，调用`channel.waitForConfirms()`方法，等待确认
+
++ 异步确认
+
+  配置 channel，开启确认模式：`channel.confirmSelect()`
+
+  在channel上添加监听，`addConfirmListener`方法，发送消息后，回调此方法，通知是否发送成功
+
+  异步确认可能是单条，或多条，取决于MQ
+
+## 消息返回机制
+
++ RabbitMQ 基础配置中配置：Mandatory，为 false，MQ 将直接丢弃无法路由的消息
+
+## 消费端限流机制
+
+QoS 机制、服务质量保证，保证在一定数目的消息未被确认前，不消费新的消息
+
+**前提是不使用自动确认**
+
++ prefetchCount：针对一个消费端最多推送多少未确认消息
++ global：true、针对整个消费端限流，false：针对当前 channel
++ prefetchSize：0、单个消息大小限制，一般为 0
++ prefetchSize 和 global 两项，RabbitMq 未实现
+
+消费端限流后，其他消息可由其他服务使用，这些消息是 Ready 状态，否则为 unacked 状态就不能被其他服务使用
+
+
+
+## 消费端确认机制
+
+手动 ACK
+
++ 单条手动ACK：multiple = false （推荐）
++ 多条手动ACK：multiple = true
+
+### 重回队列
+
+设置了重回队列，消息被 nack 之后，会返回队列末尾，等待进一步被处理，
+
+但因为消费者业务代码是一样的，其他消费者接受消息多半都会失败，将进入死循环，所以不建议开启
+
+## 消息过期机制
+
+`TTL（Time to Live）`过期时间，分为 单条消息TTL 和 队列中所有消息TTL，两个不能重复设置
+
+TTL 应该明显长于服务的平均重启时间
+
+TTL 长于业务高峰期时间
+
+### 死信队列
+
++ 队列被配置 DLX 属性（Dead-Letter-Exchange）
++ 当一个消息变成死信后，能重新被发布到另一个 Exchange，这个 Exchange 也是一个普通交换机
++ 死信被死信交换机路由后，一般进入一个固定队列，死信队列
+
+### 消息变成死信
+
++ 消息被拒绝（reject / nack）并且 requeue = false
++ 消息过期
++ 队列达到最大长度
+
+### 设置死信队列
+
+#### 新建转发、接收死信的交换机和队列
+
++ Exchange：dlx.exchange
++ Queue：dlx.queue
++ RoutingKey：#
+
+#### 在需要设置死信的队列加入参数
+
++ x-dead-letter-exchange = dlx.exchange
+
+```java
+channel.exchangeDeclare("exchange.dlx", BuiltinExchangeType.TOPIC, true, false, null);
+channel.queueDeclare("queue.dlx", true, false, false, null);
+channel.queueBind("queue.dlx", "exchange.dlx", "#");
+```
+
+
+
+
+
+
+
+## Spring AMQP
+
++ 异步消息监听容器
++ 原生提供 RabbitTemplate，方便收发消息
++ 原生提供 RabbitAdmin，方便队列，交换机声明
++ Spring Boot Config 原生支持 RabbitMQ
+
+### RabbitAdmin
+
++ declareExchange：创建交换机
++ deleteExchange：删除
++ declareQueue：创建队列
++ deleteQueue：删除
++ purgeQueue：清空队列
++ declareBinding：新建绑定关系
++ removeBinding：删除
++ getQueueProperties：查询队列属性
+
+RabbitAdmin 代码实现
+
+```java
+@Configuration
+public class RabbitConfig {
+
+    public static final String EXCHANGE_ORDER_RESTAURANT = "exchange.order.restaurant";
+    public static final String EXCHANGE_ORDER_DELIVERYMAN = "exchange.order.deliveryman";
+    public static final String EXCHANGE_ORDER_SETTLEMENT = "exchange.order.settlement";
+    public static final String EXCHANGE_SETTLEMENT_ORDER = "exchange.settlement.order";
+    public static final String EXCHANGE_ORDER_REWARD = "exchange.order.reward";
+
+    public static final String QUEUE_ORDER = "queue.order";
+
+    public static final String KEY_ORDER = "key.order";
+
+    @Autowired
+    public void initRabbit() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setHost("localhost");
+        connectionFactory.setPort(5672);
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
+
+        RabbitAdmin rabbitAdmin = new RabbitAdmin(connectionFactory);
+
+        DirectExchange directExchange;
+        FanoutExchange fanoutExchange;
+        TopicExchange topicExchange;
+        Queue queue;
+        Binding binding;
+
+        /* restaurant */
+        directExchange = new DirectExchange(EXCHANGE_ORDER_RESTAURANT);
+        rabbitAdmin.declareExchange(directExchange);
+
+        queue = new Queue(QUEUE_ORDER);
+        rabbitAdmin.declareQueue(queue);
+
+        binding = new Binding(QUEUE_ORDER, Binding.DestinationType.QUEUE, EXCHANGE_ORDER_RESTAURANT, KEY_ORDER, null);
+        rabbitAdmin.declareBinding(binding);
+
+        /* deliveryman */
+        directExchange = new DirectExchange(EXCHANGE_ORDER_DELIVERYMAN);
+        rabbitAdmin.declareExchange(directExchange);
+
+        binding = new Binding(QUEUE_ORDER, Binding.DestinationType.QUEUE, EXCHANGE_ORDER_DELIVERYMAN, KEY_ORDER, null);
+        rabbitAdmin.declareBinding(binding);
+
+        /* settlement */
+        fanoutExchange = new FanoutExchange(EXCHANGE_SETTLEMENT_ORDER);
+        rabbitAdmin.declareExchange(fanoutExchange);
+
+        fanoutExchange = new FanoutExchange(EXCHANGE_ORDER_SETTLEMENT);
+        rabbitAdmin.declareExchange(fanoutExchange);
+
+        binding = new Binding(QUEUE_ORDER, Binding.DestinationType.QUEUE, EXCHANGE_SETTLEMENT_ORDER, KEY_ORDER, null);
+        rabbitAdmin.declareBinding(binding);
+
+        /* reward */
+        topicExchange = new TopicExchange(EXCHANGE_ORDER_REWARD);
+        rabbitAdmin.declareExchange(topicExchange);
+
+        binding = new Binding(QUEUE_ORDER, Binding.DestinationType.QUEUE, EXCHANGE_ORDER_REWARD, KEY_ORDER, null);
+        rabbitAdmin.declareBinding(binding);
+
+    }
+}
+
+```
+
+
+
+RabbitAdmin 声明式配置
+
+1. 将 Exchange、Queue、Binding 声明为 Bean
+2. 再将 RabbitAdmin 声明为 Bean
+3. Exchange、Queue、Binding 即可以自动创建
+
++ 将声明和创建工作分开，解耦
++ 不用显示声明，减少代码量，减少 Bug
+
+
+
+### SimpleMessageListenerContainer 简单消息监听容器
+
++ 设置同时监听多个队列，自动启动，自动配置 RabbitMQ
++ 设置消费者数量
+
+
+
+### MessageListenerAdapter 消息监听适配器
+
++ 适配器模式
++ 解决业务代码无法修改的问题
++ 简单模式：实现 handleMessage 方法
+
+
+
+## RabbiListener
+
+`@RabbitListener`也可以在 SpringBoot 配置文件中声明
+
+可嵌套注解
+
++ `@Exchange`：自动声明 Exchange
++ `@Queue`：自动声明 Queue 
++ `@QueueBinding`：自动声明绑定关系
+
+
+
+
+
+
+
+
+
+
+
