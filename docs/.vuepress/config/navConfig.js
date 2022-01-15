@@ -3,12 +3,12 @@ module.exports = [
     {
         text: 'Java',
         items: [
-            {text: 'EJB', link: '/'},
-            {text: 'MultiThread', link: '/'},
-            {text: 'Spring', link: '/about/'},
-            {text: 'Spring MVC', link: '/about/'},
-            {text: 'Spring Boot', link: '/about/'},
-            {text: 'Spring Cloud', link: '/about/'},
+            {text: 'Basis', link: '/md/java/basis/basis'},
+            {text: 'MultiThread', link: '/md/java/multiThread/multiThread'},
+            {text: 'Spring', link: '/md/java/spring/spring'},
+            {text: 'Spring MVC', link: '/md/java/springMvc/springMvc'},
+            {text: 'Spring Boot', link: '/md/java/springBoot/springBoot'},
+            {text: 'Spring Cloud', link: '/md/java/springCloud/springCloud'},
         ]
     },
     {
