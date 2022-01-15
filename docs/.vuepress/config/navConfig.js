@@ -1,48 +1,78 @@
 module.exports = [
     {text: 'Home', link: '/'},
     {
-        text: 'Java',
-        items: [
-            {text: 'Basis', link: '/md/java/basis/basis'},
-            {text: 'MultiThread', link: '/md/java/multiThread/multiThread'},
-            {text: 'Spring', link: '/md/java/spring/spring'},
-            {text: 'Spring MVC', link: '/md/java/springMvc/springMvc'},
-            {text: 'Spring Boot', link: '/md/java/springBoot/springBoot'},
-            {text: 'Spring Cloud', link: '/md/java/springCloud/springCloud'},
-        ]
-    },
-    {
-        text: 'Go',
+        text: 'Back End',
         items: [
             {text: 'Go', link: '/'},
-            {text: 'Gin', link: '/about/'},
-            {text: 'Tensorflow', link: '/about/'},
-        ]
-    },
-    {
-        text: 'Rust',
-        items: [
+            {
+                text: 'Java',
+                items: [
+                    {text: 'Basis', link: '/md/backEnd/java/basis/basis'},
+                    {text: 'MultiThread', link: '/md/backEnd/java/multiThread/multiThread'},
+                    {text: 'JVM', link: '/md/backEnd/java/jvm/jvm'},
+                    {text: 'IO', link: '/md/backEnd/java/io/io'},
+                    {text: 'Spring', link: '/md/backEnd/java/spring/spring'},
+                    {text: 'Spring MVC', link: '/md/backEnd/java/springMvc/springMvc'},
+                    {text: 'Spring Boot', link: '/md/backEnd/java/springBoot/springBoot'},
+                    {text: 'Spring Cloud', link: '/md/backEnd/java/springCloud/springCloud'},
+                ]
+            },
             {text: 'Rust', link: '/'},
-            {text: 'About', link: '/about/'},
         ]
     },
     {
         text: 'Front End',
         items: [
-            {text: 'Vue', link: '/'},
-            {text: 'Uni-app', link: '/about/'},
-            {text: 'TypeScript', link: '/about/'},
+            {text: 'Web', link: '/md/frontEnd/web/web'},
+            {text: 'Vue', link: '/md/frontEnd/vue/vue'},
+            {text: 'Uni-App', link: '/about/'}
+        ]
+    },
+    {
+        text: 'Database',
+        items: [
+            {text: 'Basis', link: '/md/database/basis/basis'},
+            {text: 'MongoDB', link: '/md/database/mongoDB/mongoDB'},
+            {text: 'MySQL', link: '/md/database/mysql/mysql'},
+        ]
+    },
+    {
+        text: 'Middleware',
+        items: [
+            {
+                text: 'Cache', items: [
+                    {text: 'Basis', link: '/md/middleware/cache/basis/basis'},
+                    {text: 'Redis', link: '/md/middleware/cache/redis/redis'},
+                ]
+            },
+            {
+                text: 'Message', items: [
+                    {text: 'Basis', link: '/md/middleware/message/basis/basis'},
+                    {text: 'ActiveMQ', link: '/'},
+                    {text: 'RabbitMQ', link: '/md/middleware/message/rabbitMQ/rabbitMQ'},
+                    {text: 'RocketMQ', link: '/'},
+                    {text: 'Kafka', link: '/'},
+                ]
+            },
+            {
+                text: 'Search', items: [
+                    {text: 'Elastic Search', link: '/md/middleware/search/es/es'}
+                ]
+            },
+            {
+                text: 'Storage', items: [
+                    {text: 'FastDFS', link: '/md/frontEnd/web/web'},
+                    {text: 'HDFS', link: '/md/frontEnd/vue/vue'}
+                ]
+            }
         ]
     },
     {
         text: 'Other',
         items: [
-            {text: 'SQL', link: '/'},
-            {text: 'Redis', link: '/md/other/redis/redis'},
-            {text: 'FastDFS', link: '/'},
-            {text: 'Algorithm', link: '/about/'},
-            {text: 'Design Patterns', link: '/about/'},
-            {text: 'RabbitMQ', link: '/about/'},
+            {text: 'Algorithm', link: '/md/other/algorithm/algorithm'},
+            {text: 'Design Patterns', link: '/md/other/designPatterns/designPatterns'},
+            {text: 'Data Structure', link: '/md/other/dataStructure/dataStructure'},
         ]
     },
     {text: 'About', link: '/about/'},

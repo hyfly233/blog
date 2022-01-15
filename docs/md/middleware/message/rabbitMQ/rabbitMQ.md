@@ -1,3 +1,7 @@
+---
+title: RabbitMQ
+---
+
 ## 消息中间件
 
 是 软件 和 软件 之间发送消息的 软件
@@ -55,7 +59,7 @@ Binding Key：
 
 ## 管理工具
 
-在 Rabbitmq 目录 sbin 中，cmd 输入 rabbitmq-plugins enable rabbitmq_management 
+在 Rabbitmq 目录 sbin 中，cmd 输入 rabbitmq-plugins enable rabbitmq_management
 
 访问 ` [127.0.0.1](http://127.0.0.1:15672/) ` 账号密码 guest/guest
 
@@ -360,7 +364,7 @@ RabbitAdmin 声明式配置
 可嵌套注解
 
 + `@Exchange`：自动声明 Exchange
-+ `@Queue`：自动声明 Queue 
++ `@Queue`：自动声明 Queue
 + `@QueueBinding`：自动声明绑定关系
 
 
@@ -373,3 +377,23 @@ RabbitAdmin 声明式配置
 
 
 
+
+
+
+# 消息队列基础
+
+## 消息队列的使用场景
+
+## 消息的重发补偿解决思路
+
+## 消息的幂等性解决思路
+
+## 消息的堆积解决思路
+
+## 自己如何实现消息队列
+
+## 如何保证消息的有序性
+
+## 如何解决消息队列丢失消息和重复消费问题
+
+## 异步队列怎么实现
