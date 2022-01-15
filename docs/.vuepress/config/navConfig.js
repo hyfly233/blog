@@ -3,7 +3,12 @@ module.exports = [
     {
         text: 'Back End',
         items: [
-            {text: 'Go', link: '/'},
+            {
+                text: 'Go', items: [
+                    {text: 'Basis', link: '/md/backEnd/go/basis/basis'},
+                    {text: 'Gin', link: '/md/backEnd/go/gin/gin'}
+                ]
+            },
             {
                 text: 'Java',
                 items: [
@@ -16,8 +21,7 @@ module.exports = [
                     {text: 'Spring Boot', link: '/md/backEnd/java/springBoot/springBoot'},
                     {text: 'Spring Cloud', link: '/md/backEnd/java/springCloud/springCloud'},
                 ]
-            },
-            {text: 'Rust', link: '/'},
+            }
         ]
     },
     {
@@ -48,9 +52,7 @@ module.exports = [
             {
                 text: 'Message', items: [
                     {text: 'Basis', link: '/md/middleware/message/basis/basis'},
-                    {text: 'ActiveMQ', link: '/'},
                     {text: 'RabbitMQ', link: '/md/middleware/message/rabbitMQ/rabbitMQ'},
-                    {text: 'RocketMQ', link: '/'},
                     {text: 'Kafka', link: '/'},
                 ]
             },
@@ -61,8 +63,8 @@ module.exports = [
             },
             {
                 text: 'Storage', items: [
-                    {text: 'FastDFS', link: '/md/frontEnd/web/web'},
-                    {text: 'HDFS', link: '/md/frontEnd/vue/vue'}
+                    {text: 'Basis', link: '/md/middleware/storage/basis/basis'},
+                    {text: 'FastDFS', link: '/md/middleware/storage/fastDfs/fastDfs'}
                 ]
             }
         ]
