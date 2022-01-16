@@ -1,7 +1,8 @@
 ---
 title: About
+sidebar: false
 ---
 
-# About
+# About Me
 
 不知道写啥 。。。

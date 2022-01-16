@@ -628,3 +628,30 @@ Stack是一个扩展自Vector的类，而Queue是一个接口。
 
 参考：[Collections.sort()和Arrays.sort()排序算法选择](https://blog.csdn.net/TimHeath/article/details/68930482)
 
+
+
+
+
+# Object 类
+
+## Object 类常用方法
+
+`toString、hashCode、equals、clone、finalized、wait、notify、notifyAll`
+
++ toString：默认返回`类的全路径名 + @ + 对象的哈希码`，可重写返回自己想要的东西
++ hashCode：
++ equals：
++ clone：
++ finalized：
++ wait：
++ notify：
++ notifyAll：
+
+
+
+# 集合
+
+## 普通集合
+
+## JUC
+
