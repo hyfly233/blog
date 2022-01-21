@@ -286,7 +286,7 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 1. pom.xml
 
-   ```
+   ```xml
    <dependency>
    	<groupId>org.springframework.cloud</groupId>
    	<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
@@ -297,7 +297,7 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 2. application.yml
 
-   ```
+   ```yaml
    eureka: 
      client:
        #是否将自己注册到Eureka Server,默认为true，由于当前就是server，故而设置成false，表明该服务不会向eureka注册自己的信息
@@ -311,7 +311,7 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 3. application.properties
 
-   ```
+   ```properties
    #是否将自己注册到Eureka Server,默认为true，由于当前就是server，故而设置成false，表明该服务不会向eureka注册自己的信息
    eureka.client.register-with-eureka=false
    #是否从eureka server获取注册信息，由于单节点，不需要同步其他节点数据，用false
@@ -322,8 +322,8 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 4. 代码
 
-   ```
-   启动类上添加此注解标识该服务为配置中心
+   ```java
+   // 启动类上添加此注解标识该服务为配置中心
    @EnableEurekaServer
    ```
 
@@ -395,16 +395,16 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 1. pom.xml
 
-```
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
 ```
 
 1. application.yml
 
-```
+```yaml
 #注册中心
 eureka: 
   client:
@@ -415,7 +415,7 @@ eureka:
 
 ps:不想注册，设置成false即可，实例演示结果：注册中心没有实例信息。找控制台204信息也没有找到。
 
-```
+```yaml
 spring: 
   cloud:
     service-registry:
@@ -455,7 +455,7 @@ Eureka Client将定时从Eureka Server中拉取注册表中的信息，并将这
 
 **节点 1:**
 
-```
+```properties
 #是否将自己注册到其他Eureka Server,默认为true 需要
 eureka.client.register-with-eureka=true
 #是否从eureka server获取注册信息， 需要
@@ -472,7 +472,7 @@ server.port=7901
 
 **节点 2:**
 
-```
+```properties
 #是否将自己注册到其他Eureka Server,默认为true 需要
 eureka.client.register-with-eureka=true
 #是否从eureka server获取注册信息， 需要
@@ -501,7 +501,7 @@ server.port=7902
 
 ### 开启监控
 
-```
+```xml
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-actuator</artifactId>
@@ -520,7 +520,7 @@ Spring Boot 2.0 的Actuator只暴露了health和info端点，提供的监控信�
 
 *代表所有节点都加载
 
-```
+```properties
 #开启所有端点
 management.endpoints.web.exposure.include=*
 ```
@@ -545,7 +545,7 @@ management.endpoints.web.exposure.include=*
 
 开启远程关闭功能
 
-```
+```properties
 management.endpoint.shutdown.enabled=true
 ```
 
@@ -659,7 +659,7 @@ Http协议下的Rest请求
 
 ### 客户端配置选项
 
-```
+```properties
 #续约发送间隔默认30秒，心跳间隔
 eureka.instance.lease-renewal-interval-in-seconds=5
 #表示eureka client间隔多久去拉取服务注册信息，默认为30秒，对于api-gateway，如果要迅速获取服务注册状态，可以缩小该值，比如5秒
@@ -670,7 +670,7 @@ eureka.instance.lease-expiration-duration-in-seconds=60
 
 ### 服务器端配置选项
 
-```
+```properties
 #关闭自我保护模式
 eureka.server.enable-self-preservation=false
 #失效服务间隔
@@ -704,7 +704,7 @@ https://github.com/Netflix/eureka/wiki/Eureka-REST-operations
 
 使用浏览器请求url会返回服务器状态信息
 
-```
+```xml
 <com.netflix.eureka.util.StatusInfo>
   <generalStats>
     <environment>test</environment>
@@ -757,7 +757,7 @@ https://github.com/Netflix/eureka/wiki/Eureka-REST-operations
 
 如果需要json格式 可以加个请求头`Accept:application/json`
 
-```
+```json
 {
     "generalStats": {
         "environment": "test",
@@ -856,7 +856,7 @@ eureka.instance.metadata-map.dalao=mashibing
 
 #### 客户端：
 
-```
+```json
 {
     "applications": {
         "versions__delta": "1",
@@ -970,11 +970,11 @@ org.springframework.cloud.client.discovery定义用来服务发现的客户端�
 
 代表通用于服务发现的读操作，例如在 eureka或consul中。
 
-```
+```java
 有
-	String description();//获取实现类的描述。
-	List<String> getServices();//获取所有服务实例id。
-	List<ServiceInstance> getInstances(String serviceId);//通过服务id查询服务实例信息列表。
+String description();//获取实现类的描述。
+List<String> getServices();//获取所有服务实例id。
+List<ServiceInstance> getInstances(String serviceId);//通过服务id查询服务实例信息列表。
 ```
 
 com.netflix.discovery.DiscoveryClient为Eureka注册中心客户端的接口，功能更丰富
@@ -1007,7 +1007,7 @@ Eureka Server通过自我保护模式来解决整个问题，当Server在短时�
 
 剔除：
 
-```
+```java
     AbstractInstanceRegistry
     
     public void evict(long additionalLeaseMs) {
@@ -1033,7 +1033,7 @@ PeerAwareInstanceRegistryImpl
 
 ### 关闭
 
-```
+```properties
 eureka.server.enable-self-preservation=false
 ```
 
@@ -1045,7 +1045,7 @@ eureka.server.enable-self-preservation=false
 
 默认60秒
 
-```
+```properties
 eureka.server.eviction-interval-timer-in-ms=3000
 ```
 
@@ -1053,7 +1053,7 @@ eureka.server.eviction-interval-timer-in-ms=3000
 
 1. ip注册
 
-```
+```yaml
 eureka:
   instance:
     prefer-ip-address: true
@@ -1064,7 +1064,7 @@ eureka:
 
 2. 指定Ip
 
-   ```
+   ```yaml
    eureka:
      instance:
        prefer-ip-address: true
@@ -1073,7 +1073,7 @@ eureka:
 
    如果设置了此时的ip-address，在元数据查看到就是此ip，其他服务也通过此ip来调用。
 
-   ```
+   ```json
    {
    	"host": "127.0.0.1",
    	"port": 8084,
@@ -1147,7 +1147,7 @@ eureka:
 
 在client端配置：将自己真正的健康状态传播到server。
 
-```
+```yaml
 eureka:
   client:
     healthcheck:
@@ -1156,7 +1156,7 @@ eureka:
 
 ### Client端配置Actuator
 
-```
+```properties
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -1165,7 +1165,7 @@ eureka:
 
 ### 改变健康状态的Service
 
-```
+```java
 @Service
 public class HealthStatusService implements HealthIndicator{
 
@@ -1191,7 +1191,7 @@ public class HealthStatusService implements HealthIndicator{
 
 ### 测试用的Controller
 
-```
+```java
 	@GetMapping("/health")
 	public String health(@RequestParam("status") Boolean status) {
 		
@@ -1204,7 +1204,7 @@ public class HealthStatusService implements HealthIndicator{
 
 ### 开启Eureka安全连接
 
-```
+```properties
 spring.security.user.name=yiming
 spring.security.user.password=123
 ```
@@ -1223,7 +1223,7 @@ Root name 'timestamp' does not match expected ('instance') for type [simple
 
 在服务端增加配置类
 
-```
+```java
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
@@ -1291,7 +1291,7 @@ https://developer.github.com/v3/
 
 ### 依赖注入
 
-```
+```java
 	@Bean
 	// 开启负载均衡
 	@LoadBalanced
@@ -1302,7 +1302,7 @@ https://developer.github.com/v3/
 
 接下来便可以使用资源地址调用服务
 
-```
+```java
 String url ="http://provider/getHi";
 String respStr = restTemplate.getForObject(url, String.class);
 		
@@ -1322,7 +1322,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **调用方**
 
-```
+```java
 		String url ="http://provider/getMap";
 		   
 		ResponseEntity<Map> entity = restTemplate.getForEntity(url, Map.class);
@@ -1332,7 +1332,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **生产方**
 
-```
+```java
 	@GetMapping("/getMap")
 	public Map<String, String> getMap() {
 		
@@ -1346,7 +1346,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **调用方**
 
-```
+```java
 		ResponseEntity<Person> entity = restTemplate.getForEntity(url, Person.class);
 		   
 		System.out.println("respStr: "  + ToStringBuilder.reflectionToString(entity.getBody() ));
@@ -1354,7 +1354,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **生产方**
 
-```
+```java
 	@GetMapping("/getObj")
 	public Person getObj() {
 
@@ -1368,7 +1368,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **Person类**
 
-```
+```java
 	private int id;
 	private String name;
 ```
@@ -1377,7 +1377,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **使用占位符**
 
-```
+```java
 	String url ="http://provider/getObjParam?name={1}";
 	   
 	ResponseEntity<Person> entity = restTemplate.getForEntity(url, Person.class,"hehehe...");
@@ -1385,7 +1385,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 **使用map**
 
-```
+```java
 		String url ="http://provider/getObjParam?name={name}";
 		   
 		Map<String, String> map = Collections.singletonMap("name", " memeda");
@@ -1394,7 +1394,7 @@ getForEntity方法的返回值是一个ResponseEntity，ResponseEntity是Spring�
 
 #### 返回对象
 
-```
+```java
 Person person = restTemplate.getForObject(url, Person.class,map);
 ```
 
@@ -1402,7 +1402,7 @@ Person person = restTemplate.getForObject(url, Person.class,map);
 
 **调用方**
 
-```
+```java
 		String url ="http://provider/postParam";
 		   
 		Map<String, String> map = Collections.singletonMap("name", " memeda");
