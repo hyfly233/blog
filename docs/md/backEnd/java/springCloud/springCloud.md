@@ -280,6 +280,16 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
 
 看代码。
 
+
+
+
+
+
+
+
+
+
+
 ## 服务注册与发现
 
 ### Eureka 单节点搭建
@@ -325,11 +335,21 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
    ```java
    // 启动类上添加此注解标识该服务为配置中心
    @EnableEurekaServer
+   @SpringBootApplication
+   public class EurekaServerApplication {
+   
+       public static void main(String[] args) {
+           SpringApplication.run(EurekaServerApplication.class, args);
+       }
+   
+   }
    ```
 
 5. PS：Eureka会暴露一些端点。端点用于Eureka Client注册自身，获取注册表，发送心跳。
 
 6. 简单看一下eureka server控制台，实例信息区，运行环境信息区，Eureka Server自身信息区。
+
+
 
 ### Eureka 介绍
 
@@ -365,6 +385,10 @@ https://docs.spring.io/spring-boot/docs/2.1.7.RELEASE/
    ```
    https://github.com/Netflix/Eureka
    ```
+
+
+
+
 
 #### 注册中心和微服务间的关系
 
@@ -593,39 +617,29 @@ metrics/jvm.memory.max
 
 返回程序运行中的线程信息
 
+
+
+
+
+
+
 ## Eureka原理
 
-eureka来源于古希腊词汇，意为“发现了”
+`eureka`来源于古希腊词汇，意为“发现了”
 
-eureka分为两部分，Server端和Client端
+`eureka`分为两部分，`Server端和Client端`
 
-### Register
+### Register 服务注册
 
-**服务注册**
+想要参与服务注册发现的实例首先需要向`Eureka服务器`注册信息，注册在第一次心跳发生时提交
 
-想要参与服务注册发现的实例首先需要向Eureka服务器注册信息
+### Renew 续租，心跳
 
-注册在第一次心跳发生时提交
+`Eureka客户端`需要每30秒发送一次心跳来续租，更新通知`Eureka服务器`实例仍然是活动的。如果服务器在90秒内没有看到更新，它将从其注册表中删除实例
 
-## Renew
+### Fetch Registry
 
-**续租，心跳**
-
-Eureka客户需要每30秒发送一次心跳来续租
-
-10:00 00 第一次
-
-10:00 30
-
-10:01
-
-10:01 30 最后
-
-更新通知Eureka服务器实例仍然是活动的。如果服务器在90秒内没有看到更新，它将从其注册表中删除实例
-
-## Fetch Registry
-
-Eureka客户端从服务器获取注册表信息并将其缓存在本地。
+Eureka客户端从服务器获取注册表信息并将其`缓存在本地`
 
 之后，客户端使用这些信息来查找其他服务。
 
@@ -635,17 +649,17 @@ Eureka客户端从服务器获取注册表信息并将其缓存在本地。
 
 在获得增量之后，Eureka客户机通过比较服务器返回的实例计数来与服务器协调信息，如果由于某种原因信息不匹配，则再次获取整个注册表信息。
 
-## Cancel
+### Cancel
 
 Eureka客户端在关闭时向Eureka服务器发送取消请求。这将从服务器的实例注册表中删除实例，从而有效地将实例从通信量中取出。
 
-## Time Lag
+### Time Lag
 
 同步时间延迟
 
 来自Eureka客户端的所有操作可能需要一段时间才能反映到Eureka服务器上，然后反映到其他Eureka客户端上。这是因为eureka服务器上的有效负载缓存，它会定期刷新以反映新信息。Eureka客户端还定期地获取增量。因此，更改传播到所有Eureka客户机可能需要2分钟。
 
-## Communication mechanism
+### Communication mechanism
 
 通讯机制
 
