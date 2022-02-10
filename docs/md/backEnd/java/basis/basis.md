@@ -773,3 +773,949 @@ Stack是一个扩展自Vector的类，而Queue是一个接口。
 34、Java Collections和Arrays的sort方法默认的排序方法是什么？
 
 参考：[Collections.sort()和Arrays.sort()排序算法选择](
+
+
+
+
+
+
+
+# 面试
+
+# java 后端面试题答案<1>
+
+说明：以下所有答案均为个人的理解和网上的一些资料的整合
+
+## List 和 Set 的区别
+
+List , Set 都是继承自 Collection 接口 List 特点：元素有放入顺序，元素可重复 ，
+
+Set 特点：元素无放入顺序，元素不可重复，重复元素会覆盖掉，（元素虽然无放入顺序，但是元素在set中的位置是有该元素的 HashCode 决定的，其位置其实是固定的，加入Set 的 Object 必须定义 equals ()方法 ，另外list支持for循环，也就是通过下标来遍历，也可以用迭代器，但是set只能用迭代，因为他无序，无法用下标来取得想要的值。） Set和List对比 Set：检索元素效率低下，删除和插入效率高，插入和删除不会引起元素位置改变。List：和数组类似，List可以动态增长，查找元素效率高，插入删除元素效率低，因为会引起其他元素位置改变
+
+## HashSet 是如何保证不重复的
+
+向 HashSet 中 add ()元素时，判断元素是否存在的依据，不仅要比较hash值，同时还要结合 equles 方法比较。
+
+HashSet 中的 add ()方法会使用 HashMap 的 add ()方法。以下是 HashSet 部分源码：
+
+ ```
+private static final Object PRESENT = new Object(); private transient HashMap<E,Object> map;
+public HashSet() {
+map = new HashMap<>();
+}
+public boolean add(E e) {
+return map.put(e, PRESENT)==null;
+}
+ ```
+
+`HashMap 的 key 是唯一的，由上面的代码可以看出 HashSet 添加进去的值就是作为 HashMap 的key。所以不会重复（ HashMap 比较key是否相等是先比较 hashcode 在比较 equals ）。`
+
+## HashMap 是线程安全的吗，为什么不是线程安全的（最好画图说明多线程环境下不安全）?不是线程安全的；
+
+如果有两个线程A和B，都进行插入数据，刚好这两条不同的数据经过哈希计算后得到的哈希码是一样的，且该位置还没有其他的数据。所以这两个线程都会进入我在上面标记为1的代码中。假设一种情况，线程A通过if判断，该位置没有哈希冲突，进入了if语句，还没有进行数据插入，这时候 CPU 就把资源让给了线程B，线程A停在了if语句里面，线程B判断该位置没有哈希冲突（线程A的数据还没插入），也进入了if语句，线程B执行完后，轮到线程A执行，现在线程A直接在该位置插入而不用再判断。这时候，你会发现线程A把线程B插入的数据给覆盖了。发生了线程不安全情况。本来在 HashMap 中，发生哈希冲突是可以用链表法或者红黑树来解决的，但是在多线程中，可能就直接给覆盖了。
+
+上面所说的是一个图来解释可能更加直观。如下面所示，两个线程在同一个位置添加数据，后面添加的数据就覆盖住了前面添加的。
+
+![1](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1java后端面试题答案.assets/1.jpg)
+
+如果上述插入是插入到链表上，如两个线程都在遍历到最后一个节点，都要在最后添加一个数据，那么后面添加数据的线程就会把前面添加的数据给覆盖住。则![2](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1java后端面试题答案.assets/2.jpg)
+
+在扩容的时候也可能会导致数据不一致，因为扩容是从一个数组拷贝到另外一个数组。
+
+ 
+
+## HashMap 的扩容过程
+
+ 
+
+当向容器添加元素的时候，会判断当前容器的元素个数，如果大于等于阈值(知道这个阈字怎么念吗？不念 fa 值，念 yu 值四声)---即当前数组的长度乘以加载因子的值的时候，就要自动扩容啦。
+
+扩容( resize )就是重新计算容量，向 HashMap 对象里不停的添加元素，而 HashMap 对象内部的数组无法装载更多的元素时，对象就需要扩大数组的长度，以便能装入更多的元素。当然 Java 里的数组是无法自动扩容的，方法是使用一个新的数组代替已有的容量小的数组，就像我们用一个小桶装水，如果想装更多的水，就得换大水桶。
+
+`HashMap hashMap=new HashMap(cap);`
+
+cap =3， hashMap 的容量为4；
+
+cap =4， hashMap 的容量为4；
+
+cap =5， hashMap 的容量为8；
+
+cap =9， hashMap 的容量为16；
+
+如果 cap 是2的n次方，则容量为 cap ，否则为大于 cap 的第一个2的n次方的数。
+
+## HashMap 1.7 与 1.8 的 区别，说明 1.8 做了哪些优化，如何优化的？
+
+ 
+
+HashMap结构图![3](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1java后端面试题答案.assets/3.jpg)
+
+在 JDK1.7 及之前的版本中， HashMap 又叫散列链表：基于一个数组以及多个链表的实现，hash值冲突的时候，就将对应节点以链表的形式存储。 
+
+JDK1.8 中，当同一个hash值（ Table 上元素）的链表节点数不小于8时，将不再以单链表的形式存储了，会被
+
+调整成一颗红黑树。这就是 JDK7 与 JDK8 中 HashMap 实现的最大区别。 
+
+其下基于 JDK1.7.0_80 与 JDK1.8.0_66 做的分析
+
+JDK1.7中
+
+使用一个 Entry 数组来存储数据，用key的 hashcode 取模来决定key会被放到数组里的位置，如果 hashcode 相同，或者 hashcode 取模后的结果相同（ hash collision ），那么这些 key 会被定位到 Entry 数组的同一个格子里，这些 key 会形成一个链表。
+
+在 hashcode 特别差的情况下，比方说所有key的 hashcode 都相同，这个链表可能会很长，那么 put/get 操作都可能需要遍历这个链表，也就是说时间复杂度在最差情况下会退化到 O(n)
+
+JDK1.8中 
+
+使用一个 Node 数组来存储数据，但这个 Node 可能是链表结构，也可能是红黑树结构
+
+- 如果插入的 key 的 hashcode 相同，那么这些key也会被定位到 Node 数组的同一个格子里。
+- 如果同一个格子里的key不超过8个，使用链表结构存储。
+- 如果超过了8个，那么会调用 treeifyBin 函数，将链表转换为红黑树。
+
+那么即使 hashcode 完全相同，由于红黑树的特点，查找某个特定元素，也只需要O(log n)的开销也就是说put/get的操作的时间复杂度最差只有 O(log n)
+
+听起来挺不错，但是真正想要利用 JDK1.8 的好处，有一个限制：key的对象，必须正确的实现了 Compare 接口
+
+如果没有实现 Compare 接口，或者实现得不正确（比方说所有 Compare 方法都返回0）那 JDK1.8 的 HashMap 其实还是慢于 JDK1.7 的
+
+简单的测试数据如下：
+
+向 HashMap 中 put/get 1w 条 hashcode 相同的对象
+
+JDK1.7: put 0.26s ， get 0.55s
+
+JDK1.8 （未实现 Compare 接口）： put 0.92s ， get 2.1s
+
+但是如果正确的实现了 Compare 接口，那么 JDK1.8 中的 HashMap 的性能有巨大提升，这次 put/get 100W条hashcode 相同的对象
+
+JDK1.8 （正确实现 Compare 接口，）： put/get 大概开销都在320 ms 左右
+
+`final finally finalize`
+
+- final可以修饰类、变量、方法，修饰类表示该类不能被继承、修饰方法表示该方法不能被重写、修饰变量表示该变量是一个常量不能被重新赋值。
+- finally一般作用在try-catch代码块中，在处理异常的时候，通常我们将一定要执行的代码方法finally代码块中，表示不管是否出现异常，该代码块都会执行，一般用来存放一些关闭资源的代码。
+- finalize是一个方法，属于Object类的一个方法，而Object类是所有类的父类，该方法一般由垃圾回收器来调用，当我们调用 System.gc() 方法的时候，由垃圾回收器调用finalize()，回收垃圾，一个对象是否可回收的最后判断。
+
+ 
+
+## 对象的四种引用
+
+ 
+
+强引用 只要引用存在，垃圾回收器永远不会回收
+
+```
+Object obj = new Object(); 
+User user=new User();
+```
+
+可直接通过obj取得对应的对象 如 obj.equels(new Object()); 而这样 obj 对象对后面 new Object 的一个强引用，只有当 obj 这个引用被释放之后，对象才会被释放掉，这也是我们经常所用到的编码形式。
+
+软引用 非必须引用，内存溢出之前进行回收，可以通过以下代码实现
+
+```
+Object obj = new Object();
+SoftReference<Object> sf = new SoftReference<Object>(obj);
+obj = null;
+sf.get();//有时候会返回null
+```
+
+这时候sf是对obj的一个软引用，通过sf.get()方法可以取到这个对象，当然，当这个对象被标记为需要回收的对象时，则返回null； 软引用主要用户实现类似缓存的功能，在内存足够的情况下直接通过软引用取值，无需从繁忙的真实来源查询数据，提升速度；当内存不足时，自动删除这部分缓存数据，从真正的来源查询这些数据。
+
+弱引用 第二次垃圾回收时回收，可以通过如下代码实现
+
+```
+Object obj = new Object();
+WeakReference<Object> wf = new WeakReference<Object>(obj);
+obj = null;
+wf.get();//有时候会返回null
+wf.isEnQueued();//返回是否被垃圾回收器标记为即将回收的垃圾
+```
+
+弱引用是在第二次垃圾回收时回收，短时间内通过弱引用取对应的数据，可以取到，当执行过第二次垃圾回收时，
+
+将返回null。弱引用主要用于监控对象是否已经被垃圾回收器标记为即将回收的垃圾，可以通过弱引用的
+
+isEnQueued 方法返回对象是否被垃圾回收器标记。ThreadLocal 中有使用到弱引用，	
+
+```
+public class ThreadLocal<T> {
+	static class ThreadLocalMap {
+		static class Entry extends WeakReference<ThreadLocal<?>> { /** The 			value associated with this ThreadLocal. */ Object value;
+			Entry(ThreadLocal<?> k, Object v) {
+			super(k); value = v;
+			}
+		}
+		//....
+	}
+	//.....
+}
+```
+
+虚引用 垃圾回收时回收，无法通过引用取到对象值，可以通过如下代码实现
+
+```
+Object obj = new Object();
+PhantomReference<Object> pf = new PhantomReference<Object>(obj);
+obj=null;
+pf.get();//永远返回null pf.isEnQueued();//返回是否从内存中已经删除
+```
+
+虚引用是每次垃圾回收的时候都会被回收，通过虚引用的get方法永远获取到的数据为null，因此也被成为幽灵引用。虚引用主要用于检测对象是否已经从内存中删除。
+
+ 
+
+## Java获取反射的三种方法
+
+ 
+
+1.通过new对象实现反射机制 2.通过路径实现反射机制 3.通过类名实现反射机制
+
+ ```
+public class Student { 
+	private int id; 
+	String name;
+	protected boolean sex; 
+	public float score;
+}
+ ```
+
+```
+public class Get {
+//获取反射机制三种方式
+
+	public static void main(String[] args) throws ClassNotFoundException {
+	//方式一(通过建立对象)
+
+		Student stu = new Student();
+
+		Class classobj1 = stu.getClass(); 								
+		System.out.println(classobj1.getName()); //方式二（所在通过路径-相对路径）
+
+		Class classobj2 = Class.forName("fanshe.Student");
+
+		System.out.println(classobj2.getName());
+		//方式三（通过类名）
+
+		Class classobj3 = Student.class; 			
+		System.out.println(classobj3.getName());
+	}
+
+}
+```
+
+## Java反射机制
+
+ 
+
+Java 反射机制是在运行状态中，对于任意一个类，都能够获得这个类的所有属性和方法，对于任意一个对象都能够调用它的任意一个属性和方法。这种在运行时动态的获取信息以及动态调用对象的方法的功能称为 Java 的反射机制。
+
+ 
+
+Class 类与 java.lang.reflect 类库一起对反射的概念进行了支持，该类库包含了 Field,Method,Constructor 类 (每个类都实现了 Member 接口)。这些类型的对象时由 JVM 在运行时创建的，用以表示未知类里对应的成员。
+
+ 
+
+这样你就可以使用 Constructor 创建新的对象，用 get() 和 set() 方法读取和修改与 Field 对象关联的字段，用invoke() 方法调用与 Method 对象关联的方法。另外，还可以调用 getFields() getMethods() 和
+
+getConstructors() 等很便利的方法，以返回表示字段，方法，以及构造器的对象的数组。这样匿名对象的信息
+
+就能在运行时被完全确定下来，而在编译时不需要知道任何事情。
+
+```
+import java.lang.reflect.Constructor;
+
+public class ReflectTest {
+
+	public static void main(String[] args) throws Exception {
+	
+		Class clazz = null;
+
+		clazz = Class.forName("com.jas.reflect.Fruit"); 
+		Constructor<Fruit> constructor1 = clazz.getConstructor();
+		Constructor<Fruit> constructor2 = clazz.getConstructor(String.class);
+
+		Fruit fruit1 = constructor1.newInstance();
+
+		Fruit fruit2 = constructor2.newInstance("Apple");
+
+	}
+
+}
+
+class Fruit{
+
+	public Fruit(){
+		System.out.println("无参构造器  Run...........");
+
+	}
+
+	public Fruit(String type){
+		System.out.println("有参构造器  Run..........." + type);
+
+	}
+
+}
+
+```
+
+`运行结果： 无参构造器 Run……….. 有参构造器 Run………..Apple `
+
+## Arrays.sort 和 Collections.sort 实现原理 和区别
+
+Collection和Collections区别
+
+java.util.Collection 是一个集合接口。它提供了对集合对象进行基本操作的通用接口方法。
+
+java.util.Collections 是针对集合类的一个帮助类，他提供一系列静态方法实现对各种集合的搜索、排序、线程安全等操作。 然后还有混排（Shuffling）、反转（Reverse）、替换所有的元素（fill）、拷贝（copy）、返回Collections中最小元素（min）、返回Collections中最大元素（max）、返回指定源列表中最后一次出现指定目标列表的起始位置（ lastIndexOfSubList ）、返回指定源列表中第一次出现指定目标列表的起始位置（ IndexOfSubList ）、根据指定的距离循环移动指定列表中的元素（Rotate）;
+
+事实上Collections.sort方法底层就是调用的array.sort方法，
+
+```
+public static void sort(Object[] a) {
+
+	if (LegacyMergeSort.userRequested)
+		legacyMergeSort(a);
+	else
+		ComparableTimSort.sort(a, 0, a.length, null, 0, 0);
+}
+
+//void java.util.ComparableTimSort.sort()
+static void sort(Object[] a, int lo, int hi, Object[] work, int workBase, int workLen) {
+
+	assert a != null && lo >= 0 && lo <= hi && hi <= a.length; 
+	int nRemaining = hi - lo;
+	if (nRemaining < 2)
+
+		return; // Arrays of size 0 and 1 are always sorted
+
+	// If array is small, do a "mini-TimSort" with no merges 
+	if (nRemaining < MIN_MERGE) {
+		int initRunLen = countRunAndMakeAscending(a, lo, hi); 
+		binarySort(a, lo, hi, lo + initRunLen);
+		return;
+
+	}
+  
+}
+```
+
+legacyMergeSort (a)：归并排序 ComparableTimSort.sort() ： Timsort 排序
+
+Timsort 排序是结合了合并排序（merge sort）和插入排序（insertion sort）而得出的排序算法
+
+Timsort的核心过程
+
+> TimSort 算法为了减少对升序部分的回溯和对降序部分的性能倒退，将输入按其升序和降序特点进行了分区。排序的输入的单位不是一个个单独的数字，而是一个个的块-分区。其中每一个分区叫一个run。针对这些 run 序列，每次拿一个 run 出来按规则进行合并。每次合并会将两个 run合并成一个 run。合并的结果保存到栈中。合并直到消耗掉所有的 run，这时将栈上剩余的 run合并到只剩一个 run 为止。这时这个仅剩的run 便是排好序的结果。
+
+综上述过程，Timsort算法的过程包括
+
+（0）如何数组长度小于某个值，直接用二分插入排序算法
+
+（1）找到各个run，并入栈
+
+（2）按规则合并run
+
+
+
+## LinkedHashMap 的应用
+
+ 
+
+基于 LinkedHashMap 的访问顺序的特点，可构造一个 LRU（Least Recently Used） 最近最少使用简单缓存。也有一些开源的缓存产品如 ehcache 的淘汰策略（ LRU ）就是在 LinkedHashMap 上扩展的。
+
+
+
+## Cloneable 接口实现原理
+
+Cloneable接口是Java开发中常用的一个接口， 它的作用是使一个类的实例能够将自身拷贝到另一个新的实例中，注意，这里所说的“拷贝”拷的是对象实例，而不是类的定义，进一步说，拷贝的是一个类的实例中各字段的值。
+
+`在开发过程中，拷贝实例是常见的一种操作，如果一个类中的字段较多，而我们又采用在客户端中逐字段复制的方法进行拷贝操作的话，将不可避免的造成客户端代码繁杂冗长，而且也无法对类中的私有成员进行复制，而如果让需要具备拷贝功能的类实现Cloneable接口，并重写clone()方法，就可以通过调用clone()方法的方式简洁地实现实例拷贝功能`
+
+深拷贝(深复制)和浅拷贝(浅复制)是两个比较通用的概念，尤其在C++语言中，若不弄懂，则会在delete的时候出问题，但是我们在这幸好用的是Java。虽然Java自动管理对象的回收，但对于深拷贝(深复制)和浅拷贝(浅复制)，我们还是要给予足够的重视，因为有时这两个概念往往会给我们带来不小的困惑。
+
+浅拷贝是指拷贝对象时仅仅拷贝对象本身（包括对象中的基本变量），而不拷贝对象包含的引用指向的对象。深拷贝不仅拷贝对象本身，而且拷贝对象包含的引用指向的所有对象。举例来说更加清楚：对象 A1 中包含对 B1 的引用， B1 中包含对 C1 的引用。浅拷贝 A1 得到 A2 ， A2 中依然包含对 B1 的引用， B1 中依然包含对 C1 的引用。深拷贝则是对浅拷贝的递归，深拷贝 A1 得到 A2 ， A2 中包含对 B2 （ B1 的 copy ）的引用， B2 中包含对 C2 （ C1 的 copy ）的引用。
+
+若不对clone()方法进行改写，则调用此方法得到的对象即为浅拷贝
+
+ 
+
+## 异常分类以及处理机制
+
+![4](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1java后端面试题答案.assets/4.jpg)
+
+Java标准库内建了一些通用的异常，这些类以Throwable为顶层父类。Throwable又派生出Error类和Exception类。
+
+错误：Error类以及他的子类的实例，代表了JVM本身的错误。错误不能被程序员通过代码处理，Error很少出现。因此，程序员应该关注Exception为父类的分支下的各种异常类。
+
+异常：Exception以及他的子类，代表程序运行时发送的各种不期望发生的事件。可以被Java异常处理机制使用，是异常处理的核心。
+
+# **1.面向对象和面向过程的区别**
+
+## 面向过程
+
+**优点：** 性能比面向对象高，因为类调用时需要实例化，开销比较大，比较消耗
+
+资源;比如单片机、嵌入式开发、Linux/Unix 等一般采用面向过程开发，性能是最重要的因素。 
+
+**缺点：** 没有面向对象易维护、易复用、易扩展 
+
+## 面向对象
+
+**优点：** 易维护、易复用、易扩展，由于面向对象有封装、继承、多态性的特性，可以设计出低耦合的系统，使系统更加灵活、更加易于维护 
+
+**缺点：** 性能比面向过程低 
+
+# **2. Java** **语言有哪些特点** 
+
+1. 简单易学； 
+
+2. 面向对象（封装，继承，多态）； 
+
+3. 平台无关性（ Java 虚拟机实现平台无关性）； 
+
+4. 可靠性； 
+
+5. 安全性； 
+
+6. 支持多线程（ C++ 语言没有内置的多线程机制，因此必须调用操作系
+
+统的多线程功能来进行多线程程序设计，而 Java 语言却提供了多线程支持）； 
+
+7.   支持网络编程并且很方便（ Java 语言诞生本身就是为简化网络编程设
+
+计的，因此 Java 语言不仅支持网络编程而且很方便）； 
+
+8.   编译与解释并存； 
+
+# 3. 关于 JVM JDK 和 JRE 最详细通俗的解答 
+
+## JVM 
+
+Java 虚拟机（JVM）是运行 Java 字节码的虚拟机。JVM 有针对不同系统的特
+
+定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们都会给出相同的结果。 
+
+**什么是字节码?采用字节码的好处是什么?** 
+
+在 Java 中，JVM 可以理解的代码就叫做字节码（即扩展名为 .class 的文
+
+件），它不面向任何特定的处理器，只面向虚拟机。Java 语言通过字节码的方式，在一定程度上解决了传统解释型语言执行效率低的问题，同时又保留了解释型语言可移植的特点。所以 Java 程序运行时比较高效，而且，由于字节码
+
+并不专对一种特定的机器，因此，Java 程序无须重新编译便可在多种不同的计算机上运行。 
+
+**Java 程序从源代码到运行一般有下面** **3 步：** 
+
+我们需要格外注意的是 .class->机器码 这一步。在这一步 jvm 类加载器首先加载字节码文件，然后通过解释器逐行解释执行，这种方式的执行速度会相对比较慢。而且，有些方法和代码块是经常需要被调用的，也就是所谓的热点代码，所以后面引进了 JIT 编译器，JIT 属于运行时编译。当 JIT 编译器完成第一
+
+次编译后，其会将字节码对应的机器码保存下来，下次可以直接使用。而我们知道，机器码的运行效率肯定是高于 Java 解释器的。这也解释了我们为什
+
+么经常会说 Java 是编译与解释共存的语言。 
+
+HotSpot 采用了惰性评估(Lazy Evaluation)的做法，根据二八定律，消耗大部分系统资源的只有那一小部分的代码（热点代码），而这也就是 JIT 所需要编译
+
+的部分。JVM 会根据代码每次被执行的情况收集信息并相应地做出一些优化，
+
+因此执行的次数越多，它的速度就越快。JDK 9 引入了一种新的编译模式
+
+AOT(Ahead of Time Compilation)，它是直接将字节码编译成机器码，这样就
+
+避免了 JIT 预热等各方面的开销。JDK 支持分层编译和 AOT 协作使用。但是 ，
+
+AOT 编译器的编译质量是肯定比不上 JIT 编译器的。 
+
+总结：Java 虚拟机（JVM）是运行 Java 字节码的虚拟机。JVM 有针对不同系
+
+统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们
+
+都会给出相同的结果。字节码和不同系统的 JVM 实现是 Java 语言“一次编译，随处可以运行”的关键所在。 
+
+## JDK 和 JRE 
+
+JDK 是 Java Development Kit，它是功能齐全的 Java SDK。它拥有 JRE 所拥有
+
+的一切，还有编译器（javac）和工具（如 javadoc 和 jdb）。它能够创建和编译程序。 
+
+JRE 是 Java 运行时环境。它是运行已编译 Java 程序所需的所有内容的集合，
+
+包括 Java 虚拟机（JVM），Java 类库，java 命令和其他的一些基础构件。但是，它不能用于创建新程序。 
+
+如果你只是为了运行一下 Java 程序的话，那么你只需要安装 JRE 就可以了。
+
+如果你需要进行一些 Java 编程方面的工作，那么你就需要安装 JDK 了。但是，这不是绝对的。有时，即使您不打算在计算机上进行任何 Java 开发，仍然需要安装 JDK。例如，如果要使用 JSP 部署 Web 应用程序，那么从技术上讲，您只是在应用程序服务器中运行 Java 程序。那你为什么需要 JDK 呢？因为应用
+
+程序服务器会将 JSP 转换为 Java servlet，并且需要使用 JDK 来编译 
+
+servlet。 
+
+# 4. Oracle JDK 和 OpenJDK 的对比 
+
+
+
+可能在看这个问题之前很多人和我一样并没有接触和使用过 OpenJDK 。那么
+
+Oracle 和 OpenJDK 之间是否存在重大差异？下面通过我通过我收集到一些资料对你解答这个被很多人忽视的问题。 
+
+对于 Java 7，没什么关键的地方。OpenJDK 项目主要基于 Sun 捐赠的 HotSpot
+
+源代码。此外，OpenJDK 被选为 Java 7 的参考实现，由 Oracle 工程师维护。
+
+关于 JVM，JDK，JRE 和 OpenJDK 之间的区别，Oracle 博客帖子在 2012 年有一个更详细的答案： 
+
+问：OpenJDK 存储库中的源代码与用于构建 Oracle JDK 的代码之间有什么区别？ 
+
+答：非常接近 - 我们的 Oracle JDK 版本构建过程基于 OpenJDK 7 构建，只添
+
+加了几个部分，例如部署代码，其中包括 Oracle 的 Java 插件和 Java WebStart 的实现，以及一些封闭的源代码派对组件，如图形光栅化器，一些开源的第三方组件，如 Rhino，以及一些零碎的东西，如附加文档或第三方字体。展望未
+
+来，我们的目的是开源 Oracle JDK 的所有部分，除了我们考虑商业功能的部
+
+分。 
+
+总结： 
+
+1.   Oracle JDK 版本将每三年发布一次，而 OpenJDK 版本每三个月发布一
+
+次； 
+
+2.   OpenJDK 是一个参考模型并且是完全开源的，而 Oracle JDK 是
+
+OpenJDK 的一个实现，并不是完全开源的； 
+
+3.   Oracle JDK 比 OpenJDK 更稳定。OpenJDK 和 Oracle JDK 的代码几乎相同，但 Oracle JDK 有更多的类和一些错误修复。因此，如果您想开发
+
+企业/商业软件，我建议您选择 Oracle JDK，因为它经过了彻底的测试和稳定。某些情况下，有些人提到在使用 OpenJDK 可能会遇到了许多应用程序崩溃的问题，但是，只需切换到 Oracle JDK 就可以解决问题； 
+
+4.   顶级公司正在使用 Oracle JDK，例如 Android Studio，Minecraft 和
+
+IntelliJ IDEA 开发工具，其中 Open JDK 不太受欢迎； 
+
+5. 在响应性和 JVM 性能方面，Oracle JDK 与 OpenJDK 相比提供了更好的性能； 
+
+6. Oracle JDK 不会为即将发布的版本提供长期支持，用户每次都必须通过更新到最新版本获得支持来获取最新版本； 
+
+7. Oracle JDK 根据二进制代码许可协议获得许可，而 OpenJDK 根据 GPL v2 许可获得许可。 
+
+# 5. Java 和 C++的区别 
+
+
+
+我知道很多人没学过 C++，但是面试官就是没事喜欢拿咱们 Java 和 C++ 比呀！没办法！！！就算没学过 C++，也要记下来！ 
+
+•    都是面向对象的语言，都支持封装、继承和多态 
+
+•    Java 不提供指针来直接访问内存，程序内存更加安全 
+
+•    Java 的类是单继承的，C++ 支持多重继承；虽然 Java 的类不可以多
+
+继承，但是接口可以多继承。 
+
+•    Java 有自动内存管理机制，不需要程序员手动释放无用内存 
+
+# **6.**   **什么是** **Java** **程序的主类** **应用程序和小程序的主类有何不同** 
+
+一个程序中可以有多个类，但只能有一个类是主类。在 Java 应用程序中，这
+
+个主类是指包含 main（）方法的类。而在 Java 小程序中，这个主类是一个继
+
+承自系统类 JApplet 或 Applet 的子类。应用程序的主类不一定要求是 public 
+
+类，但小程序的主类要求必须是 public 类。主类是 Java 程序执行的入口点。 
+
+# **7.**   **Java** **应用程序与小程序之间有那些差别** 
+
+简单说应用程序是从主线程启动(也就是 main() 方法)。applet 小程序没有
+
+main 方法，主要是嵌在浏览器页面上运行(调用 init()线程或者 run()来启动)，嵌
+
+入浏览器这点跟 flash 的小游戏类似。 
+
+# **8.**   **字符型常量和字符串常量的区别** 
+
+
+
+1.   形式上: 字符常量是单引号引起的一个字符 字符串常量是双引号引起的
+
+若干个字符 
+
+2.   含义上: 字符常量相当于一个整形值( ASCII 值),可以参加表达式运算 字符串常量代表一个地址值(该字符串在内存中存放位置) 
+
+3.   占内存大小 字符常量只占 2 个字节 字符串常量占若干个字节(至少一个
+
+字符结束标志) (**注意：** **char 在** **Java 中占两个字节**) 
+
+java 编程思想第四版：2.2.2 节
+
+![1](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1Java基础面试题.assets/1.png)
+
+# 9. 构造器 Constructor 是否可被 override 
+
+在讲继承的时候我们就知道父类的私有属性和构造方法并不能被继承，所以 
+
+Constructor 也就不能被 override（重写）,但是可以 overload（重载）,所以你可以看到一个类中有多个构造函数的情况。 
+
+# **10.**   **重载和重写的区别** 
+
+**重载：** 发生在同一个类中，方法名必须相同，参数类型不同、个数不同、顺序不同，方法返回值和访问修饰符可以不同，发生在编译时。 　　 
+
+**重写：** 发生在父子类中，方法名、参数列表必须相同，返回值范围小于等于父类，抛出的异常范围小于等于父类，访问修饰符范围大于等于父类；如果父类方法访问修饰符为 private 则子类就不能重写该方法。 
+
+# **11.**   **Java** **面向对象编程三大特性:** **封装** **继承** **多态** 
+
+## 封装 
+
+封装把一个对象的属性私有化，同时提供一些可以被外界访问的属性的方法，如果属性不想被外界访问，我们大可不必提供方法给外界访问。但是如果一个类没有提供给外界访问的方法，那么这个类也没有什么意义了。 
+
+## 继承 
+
+继承是使用已存在的类的定义作为基础建立新类的技术，新类的定义可以增加新的数据或新的功能，也可以用父类的功能，但不能选择性地继承父类。通过使用继承我们能够非常方便地复用以前的代码。**关于继承如下** **3 点请记住：** 
+
+1.   子类拥有父类非 private 的属性和方法。 
+
+2.   子类可以拥有自己属性和方法，即子类可以对父类进行扩展。 
+
+3.   子类可以用自己的方式实现父类的方法。（以后介绍）。 
+
+## 多态 
+
+所谓多态就是指程序中定义的引用变量所指向的具体类型和通过该引用变量发出的方法调用在编程时并不确定，而是在程序运行期间才确定，即一个引用变量倒底会指向哪个类的实例对象，该引用变量发出的方法调用到底是哪个类中实现的方法，必须在由程序运行期间才能决定。 
+
+在 Java 中有两种形式可以实现多态：继承（多个子类对同一方法的重写）和接口（实现接口并覆盖接口中同一方法）。 
+
+# 12. String StringBuffer 和 StringBuilder 的区别是什么 String 为什么是不可变的 
+
+**可变性** 　 
+
+简单的来说：String 类中使用 final 关键字字符数组保存字符串，private　
+
+final　char　value[]，所以 String 对象是不可变的。而 StringBuilder 与 
+
+StringBuffer 都继承自 AbstractStringBuilder 类，在 AbstractStringBuilder 中
+
+也是使用字符数组保存字符串char[]value 但是没有用 final 关键字修饰，所以这两种对象都是可变的。 
+
+StringBuilder 与 StringBuffer 的构造方法都是调用父类构造方法也就是 AbstractStringBuilder 实现的，大家可以自行查阅源码。 
+
+AbstractStringBuilder.java 
+
+```
+abstract class AbstractStringBuilder implements Appendable, CharSequence {     char[] value;     
+	int count; 
+    AbstractStringBuilder() { 
+    } 
+    AbstractStringBuilder(int capacity) {         
+    value = new char[capacity]; 
+    } 
+```
+
+**线程安全性** 
+
+String 中的对象是不可变的，也就可以理解为常量，线程安全。
+
+AbstractStringBuilder 是 StringBuilder 与 StringBuffer 的公共父类，定义了一些字符串的基本操作，如 expandCapacity、append、insert、indexOf 等公共方法。StringBuffer 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。StringBuilder 并没有对方法进行加同步锁，所以是非线程安全的。 　　**性能** 
+
+每次对 String 类型进行改变的时候，都会生成一个新的 String 对象，然后将指针指向新的 String 对象。StringBuffer 每次都会对 StringBuffer 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 
+
+StringBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。**对于三者使用的总结：** 
+
+1. 操作少量的数据 = String 
+
+2. 单线程操作字符串缓冲区下操作大量数据 = StringBuilder 
+
+3. 多线程操作字符串缓冲区下操作大量数据 = StringBuffer 
+
+# **13.**   **自动装箱与拆箱** 
+
+**装箱**：将基本类型用它们对应的引用类型包装起来；**拆箱**：将包装类型转换为基本数据类型； 
+
+# **14.**   **在一个静态方法内调用一个非静态成员为什么是非法的** 
+
+由于静态方法可以不通过对象进行调用，因此在静态方法里，不能调用其他非静态变量，也不可以访问非静态变量成员。 
+
+# **15.**   **在** **Java** **中定义一个不做事且没有参数的构造方法的作用** 
+
+　Java 程序在执行子类的构造方法之前，如果没有用 super() 来调用父类特定的构造方法，则会调用父类中“没有参数的构造方法”。因此，如果父类中只定义了有参数的构造方法，而在子类的构造方法中又没有用 super() 来调用父类
+
+中特定的构造方法，则编译时将发生错误，因为 Java 程序在父类中找不到没有参数的构造方法可供执行。解决办法是在父类里加上一个不做事且没有参数的构造方法。 　 
+
+# 16. import java 和 javax 有什么区别 
+
+刚开始的时候 JavaAPI 所必需的包是 java 开头的包，javax 当时只是扩展 
+
+API 包来说使用。然而随着时间的推移，javax 逐渐的扩展成为 Java API 的组
+
+成部分。但是，将扩展从 javax 包移动到 java 包将是太麻烦了，最终会破坏
+
+一堆现有的代码。因此，最终决定 javax 包将成为标准 API 的一部分。 
+
+所以，实际上 java 和 javax 没有区别。这都是一个名字。 
+
+# **17.**   **接口和抽象类的区别是什么** 
+
+1. 接口的方法默认是 public，所有方法在接口中不能有实现(Java 8 开始
+
+接口方法可以有默认实现），抽象类可以有非抽象的方法 
+
+2.   接口中的实例变量默认是 final 类型的，而抽象类中则不一定 
+
+3.   一个类可以实现多个接口，但最多只能实现一个抽象类 
+
+4.   一个类实现接口的话要实现接口的所有方法，而抽象类不一定 
+
+5.   接口不能用 new 实例化，但可以声明，但是必须引用一个实现该接口的对象 从设计层面来说，抽象是对类的抽象，是一种模板设计，接口是行为的抽象，是一种行为的规范。 
+
+# **18.**   **成员变量与局部变量的区别有那些** 
+
+1.   从语法形式上，看成员变量是属于类的，而局部变量是在方法中定义的变量或是方法的参数；成员变量可以被 public,private,static 等修饰符所
+
+修饰，而局部变量不能被访问控制修饰符及 static 所修饰；但是，成员
+
+变量和局部变量都能被 final 所修饰； 
+
+2. 从变量在内存中的存储方式来看，成员变量是对象的一部分，而对象存在于堆内存，局部变量存在于栈内存 
+
+3. 从变量在内存中的生存时间上看，成员变量是对象的一部分，它随着对象的创建而存在，而局部变量随着方法的调用而自动消失。 
+
+4. 成员变量如果没有被赋初值，则会自动以类型的默认值而赋值（一种情况例外被 final 修饰的成员变量也必须显示地赋值）；而局部变量则不
+
+会自动赋值。 
+
+# **19.**   **创建一个对象用什么运算符?对象实体与对象引用有何不同?** 
+
+new 运算符，new 创建对象实例（对象实例在堆内存中），对象引用指向对象实例（对象引用存放在栈内存中）。一个对象引用可以指向 0 个或 [[1\]](#_ftn1) 个对象
+
+（一根绳子可以不系气球，也可以系一个气球）;一个对象可以有 n 个引用指向
+
+它（可以用 n 条绳子系住一个气球）。 
+
+
+
+------
+
+[[1\]](#_ftnref1) . 名字与类名相同； 
+
+# **20.**   **什么是方法的返回值?返回值在类的方法里的作用是什么?** 
+
+方法的返回值是指我们获取到的某个方法体中的代码执行后产生的结果！（前提是该方法可能产生结果）。返回值的作用:接收出结果，使得它可以用于其他的操作！ 
+
+# **21.**   **一个类的构造方法的作用是什么** **若一个类没有声明构造方法,该程序能正确执行吗** **?为什么?** 
+
+主要作用是完成对类对象的初始化工作。可以执行。因为一个类即使没有声明构造方法也会有默认的不带参数的构造方法。 
+
+# **22.**   **构造方法有哪些特性** 
+
+1. 名字与类名相同
+
+2. 没有返回值，但不能用 void 声明构造函数； 
+
+3. 生成类的对象时自动执行，无需调用。 
+
+# **23.**   **静态方法和实例方法有何不同** 
+
+1. 在外部调用静态方法时，可以使用"类名.方法名"的方式，也可以使用"对
+
+象名.方法名"的方式。而实例方法只有后面这种方式。也就是说，调用
+
+静态方法可以无需创建对象。 
+
+2. 静态方法在访问本类的成员时，只允许访问静态成员（即静态成员变量和静态方法），而不允许访问实例成员变量和实例方法；实例方法则无此限制. 
+
+# **24.**   **对象的相等与指向他们的引用相等，两者有什么不同？** 
+
+对象的相等，比的是内存中存放的内容是否相等。而引用相等，比较的是他们指向的内存地址是否相等。 
+
+# **25.**   **在调用子类构造方法之前会先调用父类没有参数的构造方法，其目的是?** 
+
+帮助子类做初始化工作。 
+
+# 26. == 与 equals(重要) 
+
+**==** : 它的作用是判断两个对象的地址是不是相等。即，判断两个对象是不是同
+
+一个对象。(基本数据类型==比较的是值，引用数据类型==比较的是内存地址) 
+
+**equals()** : 它的作用也是判断两个对象是否相等。但它一般有两种使用情况： 
+
+•    情况 1：类没有覆盖 equals() 方法。则通过 equals() 比较该类的两个
+
+对象时，等价于通过“==”比较这两个对象。 
+
+•    情况 2：类覆盖了 equals() 方法。一般，我们都覆盖 equals() 方法来
+
+两个对象的内容相等；若它们的内容相等，则返回 true (即，认为这两
+
+个对象相等)。 
+
+**举个例子：** 
+
+```
+public class test1 { 
+    public static void main(String[] args) {     
+    String a = new String("ab"); // a 为一个引用 
+        String b = new String("ab"); // b为另一个引用,对象的内容一样 
+        String aa = "ab"; // 放在常量池中        
+        String bb = "ab"; // 从常量池中查找       
+        if (aa == bb) // true 
+            System.out.println("aa==bb");       
+            if (a == b) // false，非同一对象   
+            System.out.println("a==b");      
+            if (a.equals(b)) // true      
+            System.out.println("aEQb");        
+            if (42 == 42.0) { // true      
+            System.out.println("true"); 
+        } 
+    } 
+} 
+
+```
+
+**说明：** 
+
+•    String 中的 equals 方法是被重写过的，因为 object 的 equals 方法是
+
+比较的对象的内存地址，而 String 的 equals 方法比较的是对象的值。 
+
+•    当创建 String 类型的对象时，虚拟机会在常量池中查找有没有已经存
+
+在的值和要创建的值相同的对象，如果有就把它赋给当前引用。如果没有就在常量池中重新创建一个 String 对象。 
+
+# 27. hashCode 与 equals（重要） 
+
+面试官可能会问你：“你重写过 hashcode 和 equals 么，为什么重写 equals
+
+时必须重写 hashCode 方法？” 
+
+## hashCode（）介绍 
+
+hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返回一个 int 整数。这个哈希码的作用是确定该对象在哈希表中的索引位置。hashCode() 定义
+
+在 JDK 的 Object.java 中，这就意味着 Java 中的任何类都包含有 hashCode() 函数。 
+
+散列表存储的是键值对(key-value)，它的特点是：能根据“键”快速的检索出对应的“值”。这其中就利用到了散列码！（可以快速找到所需要的对象） 
+
+## 为什么要有 hashCode 
+
+**我们以“HashSet 如何检查重复”为例子来说明为什么要有** **hashCode：** 
+
+当你把对象加入 HashSet 时，HashSet 会先计算对象的 hashcode 值来判断
+
+对象加入的位置，同时也会与其他已经加入的对象的 hashcode 值作比较，如
+
+果没有相符的 hashcode，HashSet 会假设对象没有重复出现。但是如果发现有
+
+相同 hashcode 值的对象，这时会调用 equals（）方法来检查 hashcode 相等的对象是否真的相同。如果两者相同，HashSet 就不会让其加入操作成功。
+
+如果不同的话，就会重新散列到其他位置。（摘自我的 Java 启蒙书《Head 
+
+first java》第二版）。这样我们就大大减少了 equals 的次数，相应就大大提高了执行速度。 
+
+## hashCode（）与 equals（）的相关规定 
+
+1. 如果两个对象相等，则 hashcode 一定也是相同的 
+
+2. 两个对象相等,对两个对象分别调用 equals 方法都返回 true 
+
+3. 两个对象有相同的 hashcode 值，它们也不一定是相等的 
+
+4. **因此，equals 方法被覆盖过，则** **hashCode 方法也必须被覆盖** 
+
+5. hashCode() 的默认行为是对堆上的对象产生独特值。如果没有重写 hashCode()，则该 class 的两个对象无论如何都不会相等（即使这两个对象指向相同的数据） 
+
+# **28.**   **为什么** **Java** **中只有值传递** 
+
+
+
+# **29.**   **简述线程，程序、进程的基本概念。以及他们之间关系是什么** 
+
+**线程**与进程相似，但线程是一个比进程更小的执行单位。一个进程在其执行的过程中可以产生多个线程。与进程不同的是同类的多个线程共享同一块内存空间和一组系统资源，所以系统在产生一个线程，或是在各个线程之间作切换工作时，负担要比进程小得多，也正因为如此，线程也被称为轻量级进程。 
+
+**程序**是含有指令和数据的文件，被存储在磁盘或其他的数据存储设备中，也就是说程序是静态的代码。 
+
+**进程**是程序的一次执行过程，是系统运行程序的基本单位，因此进程是动态的。系统运行一个程序即是一个进程从创建，运行到消亡的过程。简单来说，一个进程就是一个执行中的程序，它在计算机中一个指令接着一个指令地执行着，同时，每个进程还占有某些系统资源如 CPU 时间，内存空间，文件，文件，输入输出设备的使用权等等。换句话说，当程序在执行时，将会被操作系统载入内存中。 线程是进程划分成的更小的运行单位。线程和进程最大的不同在于基本上各进程是独立的，而各线程则不一定，因为同一进程中的线程极有可能会相互影响。从另一角度来说，进程属于操作系统的范畴，主要是同一段时间内，可以同时执行一个以上的程序，而线程则是在同一程序内几乎同时执行一个以上的程序段。 
+
+# **30.**   **线程有哪些基本状态?** 
+
+参考《Java 并发编程艺术》4.1.4 节。 
+
+Java 线程在运行的生命周期中的指定时刻只可能处于下面 6 种不同状态的其中一个状态。 
+
+线程在生命周期中并不是固定处于某一个状态而是随着代码的执行在不同状态之间切换。Java 线程状态变迁如下图所示： 
+
+# **31** **关于** **final** **关键字的一些总结** 
+
+
+final 关键字主要用在三个地方：变量、方法、类。 
+
+1. 对于一个 final 变量，如果是基本数据类型的变量，则其数值一旦在初始化之后便不能更改；如果是引用类型的变量，则在对其初始化之后便不能再让其指向另一个对象。 
+
+2. 当用 final 修饰一个类时，表明这个类不能被继承。final 类中的所有成员方法都会被隐式地指定为 final 方法。 
+
+3. 使用 final 方法的原因有两个。第一个原因是把方法锁定，以防任何继承类修改它的含义；第二个原因是效率。在早期的 Java 实现版本中，会将final 方法转为内嵌调用。但是如果方法过于庞大，可能看不到内嵌调用带来的任何性能提升（现在的 Java 版本已经不需要使用 final 方法进行这些优化了）。类中所有的 private 方法都隐式地指定为 final。 
+
+# 32 Java 中的异常处理 
+
+## Java 异常类层次结构图 
+
+![2](E:/面试/金三银四 面试突击班/3月面试突击班/突击班面经/04-常见面试题汇总(有选择看)/1Java基础面试题.assets/2.jpg)
+
+ 在 Java 中，所有的异常都有一个共同的祖先 java.lang 包中的 **Throwable类**。Throwable： 有两个重要的子类：**Exception（异常）** 和 **Error（错误）** ，二者都是 Java 异常处理的重要子类，各自都包含大量子类。 
+
+**Error（错误）:是程序无法处理的错误**，表示运行应用程序中较严重问题。大多数错误与代码编写者执行的操作无关，而表示代码运行时 JVM（Java 虚拟机）出现的问题。例如，Java 虚拟机运行错误（Virtual MachineError），当 JVM 不再有继续执行操作所需的内存资源时，将出现 OutOfMemoryError。这些异常发生时，Java 虚拟机（JVM）一般会选择线程终止。 
+
+这些错误表示故障发生于虚拟机自身、或者发生在虚拟机试图执行应用时，如Java 虚拟机运行错误（Virtual MachineError）、类定义错误（NoClassDefFoundError）等。这些错误是不可查的，因为它们在应用程序的控制和处理能力之 外，而且绝大多数是程序运行时不允许出现的状况。对于设计合理的应用程序来说，即使确实发生了错误，本质上也不应该试图去处理它所引起的异常状况。在 Java 中，错误通过 Error 的子类描述。 
+
+**Exception（异常）:是程序本身可以处理的异常**。Exception 类有一个重要的子类**RuntimeException**。RuntimeException 异常由 Java 虚拟机抛出。
+
+**NullPointerException**（要访问的变量没有引用任何对象时，抛出该异常）、**ArithmeticException**（算术运算异常，一个整数除以 0 时，抛出该异常）和 **ArrayIndexOutOfBoundsException** （下标越界异常）。 
+
+**注意：异常和错误的区别：异常能被程序本身可以处理，错误是无法处理。** 
+
+## Throwable 类常用方法 
+
+•    **public string getMessage()**:返回异常发生时的详细信息 
+
+•    **public string toString()**:返回异常发生时的简要描述 
+
+•    **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用 Throwable 的子类覆盖这个方法，可以声称本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 getMessage（）返回的结果相同 
+
+•    **public void printStackTrace()**:在控制台上打印 Throwable 对象封装的异常信息 
+
+### 异常处理总结 
+
+•    try 块：用于捕获异常。其后可接零个或多个 catch 块，如果没有 catch
+
+块，则必须跟一个 finally 块。 
+
+•    catch 块：用于处理 try 捕获到的异常。 
+
+•    finally 块：无论是否捕获或处理异常，finally 块里的语句都会被执行。
+
+当在 try 块或 catch 块中遇到 return 语句时，finally 语句块将在方法返回之前被执行。**在以下** **4 种特殊情况下，finally 块不会被执行：** 
+
+1.   在 finally 语句块中发生了异常。 
+
+2.   在前面的代码中用了 System.exit()退出程序。 
+
+3.   程序所在的线程死亡。 
+
+4.   关闭 CPU。 
+
+# **33**   **Java** **序列化中如果有些字段不想进行序列化** **怎么办** 
+
+对于不想进行序列化的变量，使用 transient 关键字修饰。 
+
+transient 关键字的作用是：阻止实例中那些用此关键字修饰的的变量序列化；当对象被反序列化时，被 transient 修饰的变量值不会被持久化和恢复。 transient 只能修饰变量，不能修饰类和方法。 
+
+# **34**   **获取用键盘输入常用的的两种方法** 
+
+方法 1：通过 Scanner 
+
+`Scanner input = new Scanner(System.in); `
+
+ `String s = input.nextLine(); input.close(); `
+
+方法 2：通过 BufferedReader 
+
+`BufferedReader input = new BufferedReader(new InputStreamReader(System.in));  `
+
+  `String s = input.readLine();  `

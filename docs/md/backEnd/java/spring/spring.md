@@ -3239,6 +3239,12 @@ Spring AOP使用动态代理技术在运行期织入增强代码。使用两种�
 
 
 
+
+
+
+
+
+
 # 1.谈谈Spring IOC的理解，原理与实现?
 
 **总：**
@@ -3269,7 +3275,13 @@ Spring AOP使用动态代理技术在运行期织入增强代码。使用两种�
 
 8、销毁过程
 
+面试官，这是我对ioc的整体理解，包含了一些详细的处理过程，您看一下有什么问题，可以指点我一下（允许你把整个流程说完）
 
+您由什么想问的？
+
+​			老师，我没看过源码怎么办？
+
+​		具体的细节我记不太清了，但是spring中的bean都是通过反射的方式生成的，同时其中包含了很多的扩展点，比如最常用的对BeanFactory的扩展，对bean的扩展（对占位符的处理），我们在公司对这方面的使用是比较多的，除此之外，ioc中最核心的也就是填充具体bean的属性，和生命周期（背一下）。
 
 # 2.谈一下spring IOC的底层实现
 
@@ -3291,4 +3303,514 @@ createBeanFactory，getBean,doGetBean,createBean,doCreateBean,createBeanInstance
 
 5、进行其他的初始化操作（initializingBean）
 
-# 3.描述一下bean的生命
+# 3.描述一下bean的生命周期 ？
+
+背图：记住图中的流程
+
+在表述的时候不要只说图中有的关键点，要学会扩展描述
+
+1、实例化bean：反射的方式生成对象
+
+2、填充bean的属性：populateBean(),循环依赖的问题（三级缓存）
+
+3、调用aware接口相关的方法：invokeAwareMethod(完成BeanName,BeanFactory,BeanClassLoader对象的属性设置)
+
+4、调用BeanPostProcessor中的前置处理方法：使用比较多的有（ApplicationContextPostProcessor,设置ApplicationContext,Environment,ResourceLoader,EmbeddValueResolver等对象）
+
+5、调用initmethod方法：invokeInitmethod(),判断是否实现了initializingBean接口，如果有，调用afterPropertiesSet方法，没有就不调用
+
+6、调用BeanPostProcessor的后置处理方法：spring的aop就是在此处实现的，AbstractAutoProxyCreator
+
+​		注册Destuction相关的回调接口：钩子函数
+
+7、获取到完整的对象，可以通过getBean的方式来进行对象的获取
+
+8、销毁流程，1；判断是否实现了DispoableBean接口，2，调用destroyMethod方法
+
+# 4.Spring 是如何解决循环依赖的问题的？
+
+三级缓存，提前暴露对象，aop
+
+总：什么是循环依赖问题，A依赖B,B依赖A
+
+分：先说明bean的创建过程：实例化，初始化（填充属性）
+
+​		1、先创建A对象，实例化A对象，此时A对象中的b属性为空，填充属性b
+
+​		2、从容器中查找B对象，如果找到了，直接赋值不存在循环依赖问题（不通），找不到直接创建B对象
+
+​		3、实例化B对象，此时B对象中的a属性为空，填充属性a
+
+​		4、从容器中查找A对象，找不到，直接创建
+
+​		形成闭环的原因
+
+​		此时，如果仔细琢磨的话，会发现A对象是存在的，只不过此时的A对象不是一个完整的状态，只完成了实例化但是未完成初始化，如果在程序调用过程中，拥有了某个对象的引用，能否在后期给他完成赋值操作，可以优先把非完整状态的对象优先赋值，等待后续操作来完成赋值，相当于提前暴露了某个不完整对象的引用，所以解决问题的核心在于实例化和初始化分开操作，这也是解决循环依赖问题的关键，
+
+​		当所有的对象都完成实例化和初始化操作之后，还要把完整对象放到容器中，此时在容器中存在对象的几个状态，完成实例化=但未完成初始化，完整状态，因为都在容器中，所以要使用不同的map结构来进行存储，此时就有了一级缓存和二级缓存，如果一级缓存中有了，那么二级缓存中就不会存在同名的对象，因为他们的查找顺序是1，2，3这样的方式来查找的。一级缓存中放的是完整对象，二级缓存中放的是非完整对象
+
+​		为什么需要三级缓存？三级缓存的value类型是ObjectFactory,是一个函数式接口，存在的意义是保证在整个容器的运行过程中同名的bean对象只能有一个。
+
+​		如果一个对象需要被代理，或者说需要生成代理对象，那么要不要优先生成一个普通对象？要
+
+​		普通对象和代理对象是不能同时出现在容器中的，因此当一个对象需要被代理的时候，就要使用代理对象覆盖掉之前的普通对象，在实际的调用过程中，是没有办法确定什么时候对象被使用，所以就要求当某个对象被调用的时候，优先判断此对象是否需要被代理，类似于一种回调机制的实现，因此传入lambda表达式的时候，可以通过lambda表达式来执行对象的覆盖过程，getEarlyBeanReference()
+
+​		因此，所有的bean对象在创建的时候都要优先放到三级缓存中，在后续的使用过程中，如果需要被代理则返回代理对象，如果不需要被代理，则直接返回普通对象
+
+# 4.1缓存的放置时间和删除时间
+
+​		三级缓存：createBeanInstance之后：addSingletonFactory
+
+​		二级缓存：第一次从三级缓存确定对象是代理对象还是普通对象的时候，同时删除三级缓存 getSingleton
+
+​		一级缓存：生成完整对象之后放到一级缓存，删除二三级缓存:addSingleton
+
+# 5.Bean Factory与FactoryBean有什么区别？
+
+相同点：都是用来创建bean对象的
+
+不同点：使用BeanFactory创建对象的时候，必须要遵循严格的生命周期流程，太复杂了，，如果想要简单的自定义某个对象的创建，同时创建完成的对象想交给spring来管理，那么就需要实现FactroyBean接口了
+
+​			isSingleton:是否是单例对象
+
+​			getObjectType:获取返回对象的类型
+
+​			getObject:自定义创建对象的过程(new，反射，动态代理)
+
+# 6.Spring中用到的设计模式? 
+
+单例模式：bean默认都是单例的
+
+原型模式：指定作用域为prototype
+
+工厂模式：BeanFactory
+
+模板方法：postProcessBeanFactory,onRefresh,initPropertyValue
+
+策略模式：XmlBeanDefinitionReader,PropertiesBeanDefinitionReader
+
+观察者模式：listener，event，multicast
+
+适配器模式：Adapter
+
+装饰者模式：BeanWrapper
+
+责任链模式：使用aop的时候会先生成一个拦截器链
+
+代理模式：动态代理
+
+委托者模式：delegate
+
+。。。。。。。。。
+
+# 7.Spring的AOP的底层实现原理? 
+
+动态代理
+
+aop是ioc的一个扩展功能，先有的ioc，再有的aop，只是在ioc的整个流程中新增的一个扩展点而已：BeanPostProcessor
+
+总：aop概念，应用场景，动态代理
+
+分：
+
+​		bean的创建过程中有一个步骤可以对bean进行扩展实现，aop本身就是一个扩展功能，所以在BeanPostProcessor的后置处理方法中来进行实现
+
+​		1、代理对象的创建过程（advice，切面，切点）
+
+​		2、通过jdk或者cglib的方式来生成代理对象
+
+​		3、在执行方法调用的时候，会调用到生成的字节码文件中，直接回找到DynamicAdvisoredInterceptor类中的intercept方法，从此方法开始执行
+
+​		4、根据之前定义好的通知来生成拦截器链
+
+​		5、从拦截器链中依次获取每一个通知开始进行执行，在执行过程中，为了方便找到下一个通知是哪个，会有一个CglibMethodInvocation的对象，找的时候是从-1的位置一次开始查找并且执行的。
+
+# 8.Spring的事务是如何回滚的?
+
+​		spring的事务管理是如何实现的？
+
+​		总：spring的事务是由aop来实现的，首先要生成具体的代理对象，然后按照aop的整套流程来执行具体的操作逻辑，正常情况下要通过通知来完成核心功能，但是事务不是通过通知来实现的，而是通过一个TransactionInterceptor来实现的，然后调用invoke来实现具体的逻辑
+
+​		分：1、先做准备工作，解析各个方法上事务相关的属性，根据具体的属性来判断是否开始新事务
+
+​				2、当需要开启的时候，获取数据库连接，关闭自动提交功能，开起事务
+
+​				3、执行具体的sql逻辑操作
+
+​				4、在操作过程中，如果执行失败了，那么会通过completeTransactionAfterThrowing看来完成事务的回滚操作，回滚的具体逻辑是通过doRollBack方法来实现的，实现的时候也是要先获取连接对象，通过连接对象来回滚
+
+​				5、如果执行过程中，没有任何意外情况的发生，那么通过commitTransactionAfterReturning来完成事务的提交操作，提交的具体逻辑是通过doCommit方法来实现的，实现的时候也是要获取连接，通过连接对象来提交
+
+​				6、当事务执行完毕之后需要清除相关的事务信息cleanupTransactionInfo
+
+如果想要聊的更加细致的话，需要知道TransactionInfo,TransactionStatus,
+
+# 9.谈一下spring事务传播？
+
+​			传播特性有几种？7种
+
+​			Required,Requires_new,nested,Support,Not_Support,Never,Mandatory
+
+​			某一个事务嵌套另一个事务的时候怎么办？
+
+​			A方法调用B方法，AB方法都有事务，并且传播特性不同，那么A如果有异常，B怎么办，B如果有异常，A怎么办？
+
+--------
+
+​			总：事务的传播特性指的是不同方法的嵌套调用过程中，事务应该如何进行处理，是用同一个事务还是不同的事务，当出现异常的时候会回滚还是提交，两个方法之间的相关影响，在日常工作中，使用比较多的是required，Requires_new,nested
+
+​			分：1、先说事务的不同分类，可以分为三类：支持当前事务，不支持当前事务，嵌套事务
+
+​					2、如果外层方法是required，内层方法是，required,requires_new,nested
+
+​					3、如果外层方法是requires_new，内层方法是，required,requires_new,nested
+
+​					4、如果外层方法是nested，内层方法是，required,requires_new,nested
+
+​	
+
+## 1、什么是 SpringMvc？ 
+
+答：SpringMvc 是 spring 的一个模块，基于 MVC 的一个框架，无需中间整合层来整合。 
+
+## 2、Spring MVC 的优点：答： 
+
+1）它是基于组件技术的.全部的应用对象,无论控制器和视图,还是业务对象之类的都是 java 组件.并且和 Spring 提供的其他基础结构紧密集成.  
+
+2）不依赖于 Servlet API(目标虽是如此,但是在实现的时候确实是依赖于 Servlet 的)  
+
+3）可以任意使用各种视图技术,而不仅仅局限于 JSP  
+
+4）支持各种请求资源的映射策略  
+
+5）它应是易于扩展的 
+
+ 
+
+## 3、SpringMVC 工作原理？答： 
+
+1）客户端发送请求到 DispatcherServlet 
+
+2）DispatcherServlet 查询 handlerMapping 找到处理请求的 Controller  
+
+3）Controller 调用业务逻辑后，返回 ModelAndView 
+
+4）DispatcherServlet 查询 ModelAndView，找到指定视图  
+
+5）视图将结果返回到客户端 
+
+##  4、SpringMVC 流程？答：  
+
+ 1）  用户发送请求至前端控制器 DispatcherServlet。  
+
+ 2）  DispatcherServlet 收到请求调用 HandlerMapping 处理器映射器。 
+
+ 3）  处理器映射器找到具体的处理器(可以根据 xml 配置、注解进行查找)，生成处理器对象及处理器拦截器(如果有则生成)一并返回给 DispatcherServlet。   
+
+4）  DispatcherServlet 调用 HandlerAdapter 处理器适配器。
+
+5）  HandlerAdapter 经过适配调用具体的处理器(Controller，也叫后端控制器)。   
+
+6）  Controller 执行完成返回 ModelAndView。   
+
+7）  HandlerAdapter 将 controller 执行结果 ModelAndView 返回给 DispatcherServlet。   
+
+8）  DispatcherServlet 将 ModelAndView 传给 ViewReslover 视图解析器。   
+
+9）  ViewReslover 解析后返回具体 View。   
+
+10）DispatcherServlet 根据 View 进行渲染视图（即将模型数据填充至视图中）。   
+
+11）DispatcherServlet 响应用户。 
+
+ 
+
+## 6、SpringMvc 的控制器是不是单例模式,如果是,有什么问题,怎么解决？
+
+答：是单例模式,所以在多线程访问的时候有线程安全问题,不要用同步,会影响性能的,解决方案是在控制器里面不能写字段。 
+
+## 7、如果你也用过 struts2.简单介绍下 springMVC 和 struts2 的区别有哪些? 
+
+答：  
+
+1）springmvc 的入口是一个 servlet 即前端控制器，而 struts2 入口是一个 filter 过虑器。 
+
+2）springmvc 是基于方法开发(一个 url 对应一个方法)，请求参数传递到方法的形参，可以设计为单例或多例(建议单例)，struts2 是基于类开发，传递参数是通过类的属性，只能设计为多例。 
+
+3）Struts 采用值栈存储请求和响应的数据，通过 OGNL 存取数据，springmvc 通过参数解析器是将 request 请求内容解析，并给方法形参赋值，将数据和视图封装成 ModelAndView 对象，最后又将 ModelAndView 中的模型数据通过 reques 域传输到页面。Jsp 视图解析器默认使用 jstl。 
+
+ 
+
+## 8、  SpingMvc 中的控制器的注解一般用那个,有没有别的注解可以替代？
+
+答：一般用@Conntroller 注解,表示是表现层,不能用用别的注解代替。 
+
+## 9、  @RequestMapping 注解用在类上面有什么作用？ 
+
+答：是一个用来处理请求地址映射的注解，可用于类或方法上。用于类上，表示类中的所有响应请求的方法都是以该地址作为父路径。 
+
+## 10、怎么样把某个请求映射到特定的方法上面？
+
+答：直接在方法上面加上注解@RequestMapping,并且在这个注解里面写上要拦截的路径 
+
+## 11、如果在拦截请求中,我想拦截 get 方式提交的方法,怎么配置？ 
+
+答：可以在@RequestMapping 注解里面加上 method=RequestMethod.GET
+
+## 12、怎么样在方法里面得到 Request,或者 Session？ 
+
+答：直接在方法的形参中声明 request,SpringMvc 就自动把 request 对象传入 
+
+## 13、我想在拦截的方法里面得到从前台传入的参数,怎么得到？
+
+答：直接在形参里面声明这个参数就可以,但必须名字和传过来的参数一样 
+
+## 14、如果前台有很多个参数传入,并且这些参数都是一个对象的,那么怎么样快速得到这个对象？ 
+
+答：直接在方法中声明这个对象,SpringMvc 就自动会把属性赋值到这个对象里面。 
+
+## 15、SpringMvc 中函数的返回值是什么？
+
+答：返回值可以有很多类型,有 String, ModelAndView,当一般用 String 比较好。 
+
+## 16、SpringMVC 怎么样设定重定向和转发的？
+
+答：在返回值前面加"forward:"就可以让结果转发,譬如"forward:user.do?name=method4" 在返回值前面加"redirect:"就可以让返回值重定向,譬如"redirect:http://www.baidu.com"
+
+## 17、SpringMvc 用什么对象从后台向前台传递数据的？ 
+
+答：通过 ModelMap 对象,可以在这个对象里面用 put 方法,把对象加到里面,前台就可以通过 el 表达式拿到。 
+
+## 18、SpringMvc 中有个类把视图和数据都合并的一起的,叫什么？
+
+答：叫 ModelAndView。 
+
+## 19、怎么样把 ModelMap 里面的数据放入 Session 里面？ 
+
+答：可以在类上面加上@SessionAttributes 注解,里面包含的字符串就是要放入 session 里面的 key 
+
+## 20、SpringMvc 怎么和 AJAX 相互调用的？答： 
+
+ 通过 Jackson 框架就可以把 Java 里面的对象直接转化成 Js 可以识别的 Json 对象。  
+
+  具体步骤如下 ：  
+
+1）加入 Jackson.jar  
+
+2）在配置文件中配置 json 的映射   
+
+3）在接受 Ajax 方法里面可以直接返回 Object,List 等,但方法前面要加上@ResponseBody 注解 
+
+21、当一个方法向 AJAX 返回特殊对象,譬如 Object,List 等,需要做什么处理？答：要加上@ResponseBody 注解 22、SpringMvc 里面拦截器是怎么写的 
+
+答：有两种写法,一种是实现接口,另外一种是继承适配器类,然后在 SpringMvc 的配置文件中配置拦截器即可：  
+
+ 
+
+```
+<!-- 配置 SpringMvc 的拦截器 --> 
+
+<mvc:interceptors>    
+
+   <!-- 配置一个拦截器的 Bean 就可以了 默认是对所有请求都拦截 -->    
+
+   <bean id="myInterceptor" class="com.et.action.MyHandlerInterceptor"></bean>      
+
+   <!-- 只针对部分请求拦截 -->      
+
+   <mvc:interceptor>       
+
+​     <mvc:mapping path="/modelMap.do" />        
+
+​     <bean class="com.et.action.MyHandlerInterceptorAdapter" />  
+
+   </mvc:interceptor>
+
+</mvc:interceptors> 
+```
+
+
+
+## 23、讲下 SpringMvc 的执行流程 
+
+答：系统启动的时候根据配置文件创建 spring 的容器, 首先是发送 http 请求到核心控制器
+
+disPatherServlet，spring 容器通过映射器去寻找业务控制器，使用适配器找到相应的业务类，在进业务类时进行数据封装，在封装前可能会涉及到类型转换，执行完业务类后使用
+
+ModelAndView 进行视图转发，数据放在 model 中，用 map 传递数据进行页面显示。
+
+
+
+**BeanFactory** **和 ApplicationContext 有什么区别** 
+
+\> BeanFactory 可以理解为含有bean集合的工厂类。BeanFactory 包含了种bean的定义，以便在接收到客户端请求时将对应的bean实例化。 
+
+\> BeanFactory还能在实例化对象的时生成协作类之间的关系。此举将bean自身与bean客户端的配置中解放出来。BeanFactory还包含了bean生命周期的控制，调用客户端的初始化方法（initialization methods）和销毁方法（destruction methods）。 
+
+\> 从表面上看，application context如同bean factory一样具有bean定义、bean关联关系的设置，根据请求分发bean的功能。但application context在此基础上还提供了其他的功能。 
+
+\> 提供了支持国际化的文本消息 
+
+\> 统一的资源文件读取方式 
+
+\> 已在监听器中注册的bean的事件 
+
+ 
+
+**Spring Bean** **的生命周期** 
+
+\> Spring Bean的生命周期简单易懂。在一个bean实例被初始化时，需要执行一系列的初始化操作以达到可用的状态。同样的，当一个bean不在被调用时需要进行相关的析构操作，并从bean容器中移除。 
+
+\> Spring bean factory 负责管理在spring容器中被创建的bean的生命周期。Bean的生命周期由两组回调（call back）方法组成。 
+
+\> 初始化之后调用的回调方法。 
+
+\> 销毁之前调用的回调方法。 
+
+\> Spring框架提供了以下四种方式来管理bean的生命周期事件： 
+
+\> InitializingBean和DisposableBean回调接口 
+
+\> 针对特殊行为的其他Aware接口 
+
+\> Bean配置文件中的Custom init()方法和destroy()方法 
+
+\> @PostConstruct和@PreDestroy注解方式 
+
+ 
+
+**Spring IOC** **如何实现** 
+
+\> Spring中的 org.springframework.beans 包和 org.springframework.context包构成了
+
+Spring框架IoC容器的基础。 
+
+\> BeanFactory 接口提供了一个先进的配置机制，使得任何类型的对象的配置成为可能。
+
+ApplicationContex接口对BeanFactory（是一个子接口）进行了扩展，在BeanFactory的基础上添加了其他功能，比如与Spring的AOP更容易集成，也提供了处理message resource的机制（用于国际化）、事件传播以及应用层的特别配置，比如针对Web应用的
+
+WebApplicationContext。 
+
+\> org.springframework.beans.factory.BeanFactory 是Spring IoC容器的具体实现，用来包装和管理前面提到的各种bean。BeanFactory接口是Spring IoC 容器的核心接口。 
+
+ **说说 Spring AOP** 
+
+\> 面向切面编程，在我们的应用中，经常需要做一些事情，但是这些事情与核心业务无关，比如，要记录所有update*方法的执行时间时间，操作人等等信息，记录到日志， 
+
+\> 通过spring的AOP技术，就可以在不修改update*的代码的情况下完成该需求。 
+
+ 
+
+**Spring AOP** **实现原理** 
+
+\> Spring AOP中的动态代理主要有两种方式，JDK动态代理和CGLIB动态代理。JDK动态代理通过反射来接收被代理的类，并且要求被代理的类必须实现一个接口。JDK动态代理的核心是InvocationHandler接口和Proxy类。 
+
+\> 如果目标类没有实现接口，那么Spring AOP会选择使用CGLIB来动态代理目标类。CGLIB （Code Generation Library），是一个代码生成的类库，可以在运行时动态的生成某个类的子类，注意，CGLIB是通过继承的方式做的动态代理，因此如果某个类被标记为final，那么它是无法使用CGLIB做动态代理的。 
+
+**动态代理（cglib 与 JDK）** 
+
+\> JDK 动态代理类和委托类需要都实现同一个接口。也就是说只有实现了某个接口的类可以使用Java动态代理机制。但是，事实上使用中并不是遇到的所有类都会给你实现一个接口。因此，对于没有实现接口的类，就不能使用该机制。而CGLIB则可以实现对类的动态代理。 
+
+ 
+
+**Spring** **事务实现方式** 
+
+\> 1、编码方式 
+
+\> 所谓编程式事务指的是通过编码方式实现事务，即类似于JDBC编程实现事务管理。 
+
+\> 2、声明式事务管理方式 
+
+\> 声明式事务管理又有两种实现方式：基于xml配置文件的方式；另一个实在业务方法上进行@Transaction注解，将事务规则应用到业务逻辑中 
+
+ 
+
+**Spring** **事务底层原理** 
+
+\> a、划分处理单元——IOC 
+
+\> 由于spring解决的问题是对单个数据库进行局部事务处理的，具体的实现首相用spring 中的IOC划分了事务处理单元。并且将对事务的各种配置放到了ioc容器中（设置事务管理器，设置事务的传播特性及隔离机制）。 
+
+\> b、AOP拦截需要进行事务处理的类 
+
+\> Spring事务处理模块是通过AOP功能来实现声明式事务处理的，具体操作（比如事务实行的配置和读取，事务对象的抽象），用TransactionProxyFactoryBean接口来使用AOP
+
+功能，生成proxy代理对象，通过TransactionInterceptor完成对代理方法的拦截，将事务处理的功能编织到拦截的方法中。读取ioc容器事务配置属性，转化为spring事务处理
+
+需要的内部数据结构（TransactionAttributeSourceAdvisor），转化为 TransactionAttribute表示的数据对象。 
+
+\> c、对事物处理实现（事务的生成、提交、回滚、挂起） 
+
+\> spring委托给具体的事务处理器实现。实现了一个抽象和适配。适配的具体事务处理器：DataSource数据源支持、hibernate数据源事务处理支持、JDO数据源事务处理支持，JPA、JTA数据源事务处理支持。这些支持都是通过设计
+
+PlatformTransactionManager、AbstractPlatforTransaction一系列事务处理的支持。 为常用数据源支持提供了一系列的TransactionManager。 
+
+\> d、结合 
+
+\> PlatformTransactionManager实现了TransactionInterception接口，让其与
+
+TransactionProxyFactoryBean结合起来，形成一个Spring声明式事务处理的设计体系。 
+
+ 
+
+**如何自定义注解实现功能** 
+
+\> 创建自定义注解和创建一个接口相似，但是注解的interface关键字需要以@符号开头。 
+
+\> 注解方法不能带有参数； 
+
+\> 注解方法返回值类型限定为：基本类型、String、Enums、Annotation或者是这些类型的数组； 
+
+\> 注解方法可以有默认值； 
+
+\> 注解本身能够包含元注解，元注解被用来注解其它注解。 
+
+ 
+
+# Spring MVC 运行流程 
+
+\> 1.spring mvc将所有的请求都提交给DispatcherServlet,它会委托应用系统的其他模块负责对请求 进行真正的处理工作。 
+
+\> 2.DispatcherServlet查询一个或多个HandlerMapping,找到处理请求的Controller. 
+
+\> 3.DispatcherServlet请请求提交到目标Controller 
+
+\> 4.Controller进行业务逻辑处理后，会返回一个ModelAndView 
+
+\> 5.Dispathcher查询一个或多个ViewResolver视图解析器,找到ModelAndView对象指定的视图对象 
+
+\> 6.视图对象负责渲染返回给客户端。 
+
+ 
+
+# Spring MVC 启动流程 
+
+\> 在 web.xml 文件中给 Spring MVC 的 Servlet 配置了 load-on-startup,所以程序启动的 > 时候会初始化 Spring MVC，在 HttpServletBean 中将配置的 contextConfigLocation 
+
+\> 属性设置到 Servlet 中，然后在 FrameworkServlet 中创建了 WebApplicationContext, 
+
+\> DispatcherServlet 根据 contextConfigLocation 配置的 classpath 下的 xml 文件初始化了 
+
+\> Spring MVC 总的组件。 
+
+ **Spring** **的单例实现原理** 
+
+\> Spring 对 Bean 实例的创建是采用单例注册表的方式进行实现的，而这个注册表的缓存是
+
+ConcurrentHashMap 对象。 
+
+**Spring** **框架中用到了哪些设计模式** 
+
+\> 代理模式—在AOP和remoting中被用的比较多。 
+
+\> 单例模式—在spring配置文件中定义的bean默认为单例模式。 > 模板方法—用来解决代码重复的问题。比如. RestTemplate, JmsTemplate, 
+
+JpaTemplate。 
+
+\> 前端控制器—Spring提供了DispatcherServlet来对请求进行分发。 
+
+\> 视图帮助(View Helper )—Spring提供了一系列的JSP标签，高效宏来辅助将分散的代码整合在视图里。 
+
+\> 依赖注入—贯穿于BeanFactory / ApplicationContext接口的核心理念。 
+
+\> 工厂模式—BeanFactory用来创建对象的实例。 
