@@ -1,4 +1,58 @@
-# 多线程
+# 创建多线程的方式
+
+## 实现 Runnable 接口
+
+```java
+public class RunnableThread implements Runnable {
+	@Override
+    public void run() {
+		System.out.println("用实现Runnable接口实现线程");
+	}
+}
+```
+
+
+
+## 继承 Thread 类
+
+```java
+public class ExtendsThread extends Thread {
+	@Override
+    public void run() {
+		System.out.println("用实现Runnable接口实现线程");
+	}
+}
+```
+
+Thread 实现 Runnable 接口
+
+```java
+public class Thread implements Runnable { }
+```
+
+
+
+## 线程池创建线程
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 多线程面试
 
 ## 什么是进程，什么是线程，为什么需要多线程编程？
 
@@ -6,7 +60,9 @@
 
 线程是进程的一个实体，是CPU调度和分派的基本单位，是比进程更小的能独立运行的基本单位。线程的划分尺度小于进程，这使得多线程程序的并发性高；进程在执行时通常拥有独立的内存单元，而线程之间可以共享内存。
 
-使用多线程的编程通常能够带来更好的性能和用户体验，但是多线程的程序对于其他程序是不友好的，因为它可能占用了更多的CPU资源。当然，也不是线程越多，程序的性能就越好，因为线程之间的调度和切换也会浪费CPU时间。时下很时髦的Node.js就采用了单线程异步I/O的工作模式。
+使用多线程的编程通常能够带来更好的性能和用户体验，但是多线程的程序对于其他程序是不友好的，因为它可能占用了更多的CPU资源。当然，也不是线程越多，程序的性能就越好，因为线程之间的调度和切换也会浪费CPU时间。时下很时髦的Node.js就采用了单线程异步I/O的工作模式
+
+
 
 ## 什么是线程安全
 
