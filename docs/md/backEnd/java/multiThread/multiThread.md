@@ -670,6 +670,29 @@ class DemoApplicationTests {
 
 
 
+## 保证线程安全
+
++ 同步方法
+
+  + 阻塞
+    + Synchronized
+    + ReentrantLock
+  + 非阻塞
+    + CAS
+
+  
+
++ 非同步方法
+
+  + Reentrant code（可重入代码）
+  + ThreadLocal
+
+
+
+
+
+
+
 
 
 
