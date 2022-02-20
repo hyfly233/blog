@@ -3982,3 +3982,6 @@ SpringBoot专注于快速、方便的开发单个微服务个体，SpringCloud�
 
 
 
+# 分布式面试
+
+## CAP原则
