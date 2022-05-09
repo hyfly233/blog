@@ -241,17 +241,40 @@ public Dept hystrixQueryDeptById(@PathVariable("deptno") long id){
 
   
 
-+ 1
++ 配置文件
 
-+ 1
+  ```yml
+  server:
+    port: 10000
+  
+  hystrix:
+    dashboard:
+      proxy-stream-allow-list: "*" # 开放所有端点
+  ```
 
-+ 1
+  
+
++ 启动类
+
+  ```java
+  @SpringBootApplication
+  @EnableHystrixDashboard
+  public class test {
+      public static void main(String[] args) {
+          SpringApplication.run(test.class,args);
+      }
+  }
+  ```
+
+  
+
++ 浏览器中输入` http://localhost:10000/hystrix `进入 Dashboard 的监控首页 
 
 
 
 
 
-
+未完待续 ...
 
 
 
