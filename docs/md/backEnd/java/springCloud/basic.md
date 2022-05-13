@@ -129,9 +129,9 @@ Spring Cloud是实现微服务架构的一系列框架的有机集合。
 
 3. 版本号：M（milestone）：里程碑，
 
-    SR（Service Releases）：稳定版，
+   SR（Service Releases）：稳定版，
 
-    RC(Release Candidate)：稳定版的候选版，也就是稳定版的最后一个版本。
+   RC(Release Candidate)：稳定版的候选版，也就是稳定版的最后一个版本。
 
 ```
 看官网：查询每个cloud版本下面的子模块的版本。
@@ -1525,6 +1525,7 @@ RetryRule（重试策略）：先按照RoundRobinRule(轮询)的策略获取服�
 		//return new RoundRobinRule();
 		//return new RandomRule();
 		return new RetryRule(); 
+
 ```
 
 #### 配置文件
@@ -1533,12 +1534,14 @@ RetryRule（重试策略）：先按照RoundRobinRule(轮询)的策略获取服�
 
 ```
 provider.ribbon.NFLoadBalancerRuleClassName=com.netflix.loadbalancer.RandomRule
+
 ```
 
 给所有服务定ribbon策略：
 
 ```
 ribbon.NFLoadBalancerRuleClassName=com.netflix.loadbalancer.RandomRule
+
 ```
 
 属性配置方式优先级高于Java代码。
@@ -1548,6 +1551,7 @@ ribbon.NFLoadBalancerRuleClassName=com.netflix.loadbalancer.RandomRule
 ```
 ribbon.eureka.enabled=false
 ribbon.listOfServers=localhost:80,localhost:81
+
 ```
 
 为service-sms设置 请求的网络地址列表。
@@ -3255,6 +3259,7 @@ profile 环境名称，开发、测试、生产：dev qa prd
 lable 仓库分支、默认master分支
 
 匹配原则：从前缀开始。
+
 ```
 
 ### 分支读取
@@ -3905,4 +3910,3 @@ SpringBoot专注于快速、方便的开发单个微服务个体，SpringCloud�
 # 分布式面试
 
 ## CAP原则
-

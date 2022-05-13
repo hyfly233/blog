@@ -1,5 +1,6 @@
 module.exports = [
     { text: 'Home', link: '/' },
+    { text: 'Content', link: '/content/' },
     {
         text: 'Back End',
         items: [
@@ -12,14 +13,14 @@ module.exports = [
             {
                 text: 'Java',
                 items: [
-                    { text: 'Basis', link: '/md/backEnd/java/basis/basis' },
+                    { text: 'Basis', link: '/md/backEnd/java/basis/content' },
                     { text: 'MultiThread', link: '/md/backEnd/java/multiThread/multiThread' },
                     { text: 'JVM', link: '/md/backEnd/java/jvm/jvm' },
                     { text: 'IO', link: '/md/backEnd/java/io/io' },
                     { text: 'Spring', link: '/md/backEnd/java/spring/spring' },
                     { text: 'Spring MVC', link: '/md/backEnd/java/springMvc/springMvc' },
                     { text: 'Spring Boot', link: '/md/backEnd/java/springBoot/springBoot' },
-                    { text: 'Spring Cloud', link: '/md/backEnd/java/springCloud/springCloud' },
+                    { text: 'Spring Cloud', link: '/md/backEnd/java/springCloud/content' },
                 ]
             }
         ]
@@ -77,5 +78,4 @@ module.exports = [
             { text: 'Data Structure', link: '/md/other/dataStructure/dataStructure' },
         ]
     },
-    { text: 'About', link: '/about/' },
 ]
