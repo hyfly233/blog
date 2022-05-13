@@ -1,6 +1,6 @@
 # Basis
 
-+ [Basic](.//basis.md)
++ [Basic](./basis.md)
 
 
 
