@@ -1,10 +1,10 @@
 # Basis
 
-+ [Basic](../md/backEnd/java/basis/basis.md)
++ [Basic](.//basis.md)
 
 
 
-+ [面向对象](../md/backEnd/java/basis/basis.md)
++ [面向对象](./basis.md)
 
 方法
 
