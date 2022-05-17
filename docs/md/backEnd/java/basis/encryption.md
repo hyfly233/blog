@@ -184,17 +184,146 @@ public class Main {
 
 Hmac算法就是一种基于密钥的消息认证码算法，它的全称是Hash-based Message Authentication Code，是一种更安全的消息摘要算法
 
-Hmac算法总是和某种哈希算法配合起来用的
+Hmac算法总是和某种哈希算法配合起来用的，HmacMD5算法，它相当于“加盐”的MD5
+
+
+
+## 对称加密算法
+
+常用的WinZIP和WinRAR对压缩包的加密和解密，使用的是对称加密算法
+
+| 算法 | 密钥长度    | 工作模式             | 填充模式                                |
+| :--- | :---------- | :------------------- | :-------------------------------------- |
+| DES  | 56/64       | ECB/CBC/PCBC/CTR/... | NoPadding/PKCS5Padding/...              |
+| AES  | 128/192/256 | ECB/CBC/PCBC/CTR/... | NoPadding/PKCS5Padding/PKCS7Padding/... |
+| IDEA | 128         | ECB                  | PKCS5Padding/PKCS7Padding/...           |
+
+密钥长度直接决定加密强度，而工作模式和填充模式可以看成是对称加密算法的参数和格式选择，Java标准库提供的算法实现并不包括所有的工作模式和所有填充模式，DES算法由于密钥过短，可以在短时间内被暴力破解
+
+
+
+### AES加密
+
++ ECB模式
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 原文:
+        String message = "Hello, world!";
+        System.out.println("Message: " + message);
+        // 128位密钥 = 16 bytes Key:
+        byte[] key = "1234567890abcdef".getBytes("UTF-8");
+        // 加密:
+        byte[] data = message.getBytes("UTF-8");
+        byte[] encrypted = encrypt(key, data);
+        System.out.println("Encrypted: " + Base64.getEncoder().encodeToString(encrypted));
+        // 解密:
+        byte[] decrypted = decrypt(key, encrypted);
+        System.out.println("Decrypted: " + new String(decrypted, "UTF-8"));
+    }
+
+    // 加密:
+    public static byte[] encrypt(byte[] key, byte[] input) throws GeneralSecurityException {
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        SecretKey keySpec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        return cipher.doFinal(input);
+    }
+
+    // 解密:
+    public static byte[] decrypt(byte[] key, byte[] input) throws GeneralSecurityException {
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        SecretKey keySpec = new SecretKeySpec(key, "AES");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        return cipher.doFinal(input);
+    }
+}
+```
+
++ CBC模式
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 原文:
+        String message = "Hello, world!";
+        System.out.println("Message: " + message);
+        // 256位密钥 = 32 bytes Key:
+        byte[] key = "1234567890abcdef1234567890abcdef".getBytes("UTF-8");
+        // 加密:
+        byte[] data = message.getBytes("UTF-8");
+        byte[] encrypted = encrypt(key, data);
+        System.out.println("Encrypted: " + Base64.getEncoder().encodeToString(encrypted));
+        // 解密:
+        byte[] decrypted = decrypt(key, encrypted);
+        System.out.println("Decrypted: " + new String(decrypted, "UTF-8"));
+    }
+
+    // 加密:
+    public static byte[] encrypt(byte[] key, byte[] input) throws GeneralSecurityException {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        // CBC模式需要生成一个16 bytes的initialization vector:
+        SecureRandom sr = SecureRandom.getInstanceStrong();
+        byte[] iv = sr.generateSeed(16);
+        IvParameterSpec ivps = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivps);
+        byte[] data = cipher.doFinal(input);
+        // IV不需要保密，把IV和密文一起返回:
+        return join(iv, data);
+    }
+
+    // 解密:
+    public static byte[] decrypt(byte[] key, byte[] input) throws GeneralSecurityException {
+        // 把input分割成IV和密文:
+        byte[] iv = new byte[16];
+        byte[] data = new byte[input.length - 16];
+        System.arraycopy(input, 0, iv, 0, 16);
+        System.arraycopy(input, 16, data, 0, data.length);
+        // 解密:
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivps = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivps);
+        return cipher.doFinal(data);
+    }
+
+    public static byte[] join(byte[] bs1, byte[] bs2) {
+        byte[] r = new byte[bs1.length + bs2.length];
+        System.arraycopy(bs1, 0, r, 0, bs1.length);
+        System.arraycopy(bs2, 0, r, bs1.length, bs2.length);
+        return r;
+    }
+}
+```
+
+
+
+## 口令加密算法
+
+对称加密算法决定了口令必须是固定长度，然后对明文进行分块加密。又因为安全需求，口令长度往往都是128位以上，即至少16个字符
 
 
 
 
 
+## 密钥交换算法
 
 
 
 
 
+## 非对称加密算法
 
 
 
+
+
+## 签名算法
+
+
+
+
+
+## 数字证书
