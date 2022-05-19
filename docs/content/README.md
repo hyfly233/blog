@@ -10,8 +10,8 @@ sidebar: false
 计划：
 
 1. Vert.x
-2. Rust
 3. DJL
+3. English
 
 
 
