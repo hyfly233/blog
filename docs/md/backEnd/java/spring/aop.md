@@ -58,6 +58,137 @@ AOP对于解决特定问题，例如事务管理非常有用，这是因为分�
 
 
 
+例子
+
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+    
+    // 在执行UserService的每个方法前执行:
+    @Before("execution(public * com.itranswarp.learnjava.service.UserService.*(..))")
+    public void doAccessCheck() {
+        System.err.println("[Before] do access check...");
+    }
+
+    // 在执行MailService的每个方法前后执行:
+    @Around("execution(public * com.itranswarp.learnjava.service.MailService.*(..))")
+    public Object doLogging(ProceedingJoinPoint pjp) throws Throwable {
+        System.err.println("[Around] start " + pjp.getSignature());
+        
+        // 执行后续方法
+        Object retVal = pjp.proceed();
+        
+        System.err.println("[Around] done " + pjp.getSignature());
+        return retVal;
+    }
+}
+```
+
+
+
+`@Before`注解，后面的字符串是告诉AspectJ应该在何处执行该方法，意思是执行`UserService`的每个`public`方法前执行`doAccessCheck()`代码 
+
+`@Around`注解，`@Around`可以决定是否执行目标方法，因此，在`doLogging()`内部先打印日志，再调用方法，最后打印日志后返回结果 
+
+然后，需要给`@Configuration`类加上一个`@EnableAspectJAutoProxy`注解
+
+```java
+@Configuration
+@ComponentScan
+@EnableAspectJAutoProxy
+public class AppConfig {
+    ...
+}
+```
+
+Spring的IoC容器看到这个注解，就会自动查找带有`@Aspect`的Bean，然后根据每个方法的`@Before`、`@Around`等注解把AOP注入到特定的Bean中
+
+
+
+底层实现大致相当于
+
+```java
+// 生成的 UserService 代理类
+public UserServiceAopProxy extends UserService {
+    private UserService target;
+    private LoggingAspect aspect;
+
+    public UserServiceAopProxy(@Autowired UserService target, @Autowired LoggingAspect aspect) {
+        this.target = target;
+        this.aspect = aspect;
+    }
+
+    public User login(String email, String password) {
+        // 先执行Aspect的代码:
+        aspect.doAccessCheck();
+        // 再执行UserService的逻辑:
+        return target.login(email, password);
+    }
+
+    public User register(String email, String password, String name) {
+        aspect.doAccessCheck();
+        return target.register(email, password, name);
+    }
+
+    ...
+}
+```
+
+如果打印从Spring容器获取的`UserService`实例类型，它类似`UserService $$ EnhancerBySpringCGLIB $$ 1f44e01c`，实际上是Spring使用CGLIB动态创建的子类，但对于调用方来说，感觉不到任何区别 
+
+
+
+Spring对接口类型使用JDK动态代理，对普通类使用CGLIB创建子类。如果一个Bean的class是final，Spring将无法为其创建子类
+
+
+
+使用AOP非常简单，一共需要三步：
+
+1. 定义执行方法，并在方法上通过AspectJ的注解告诉Spring应该在何处调用此方法；
+2. 标记`@Component`和`@Aspect`；
+3. 在`@Configuration`类上标注`@EnableAspectJAutoProxy`。
+
+
+
+
+
+### 拦截器类型
+
+- @Before：这种拦截器先执行拦截代码，再执行目标代码。如果拦截器抛异常，那么目标代码就不执行了；
+- @After：这种拦截器先执行目标代码，再执行拦截器代码。无论目标代码是否抛异常，拦截器代码都会执行；
+- @AfterReturning：和@After不同的是，只有当目标代码正常返回时，才执行拦截器代码；
+- @AfterThrowing：和@After不同的是，只有当目标代码抛出了异常时，才执行拦截器代码；
+- @Around：能完全控制目标代码是否执行，并可以在执行前后、抛异常后执行任意拦截代码，可以说是包含了上面所有功能
+
+
+
+
+
+## 注解装配AOP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
