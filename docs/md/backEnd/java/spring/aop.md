@@ -167,31 +167,88 @@ Spring对接口类型使用JDK动态代理，对普通类使用CGLIB创建子类
 
 ## 注解装配AOP
 
+使用复杂的`execution(* xxx.Xyz.*(..))`语法来定义应该如何装配AOP时，容易导致很多不需要AOP代理的Bean也被自动代理了
+
+使用AOP时，被装配的Bean最好自己能清清楚楚地知道自己被代理了
 
 
 
+Spring提供的`@Transactional`就是一个非常好的例子。如果写的Bean希望在一个数据库事务中被调用，就标注上`@Transactional`
 
 
 
+例子，定义一个性能监控的注解
+
+```java
+@Target(METHOD)
+@Retention(RUNTIME)
+public @interface MetricTime {
+    String value();
+}
+```
+
+在需要被监控的关键方法上标注该注解
+
+```java
+@Component
+public class UserService {
+    // 监控register()方法性能:
+    @MetricTime("register")
+    public User register(String email, String password, String name) {
+        ...
+    }
+    ...
+}
+```
+
+定义`MetricAspect`
+
+```java
+@Aspect
+@Component
+public class MetricAspect {
+    
+    @Around("@annotation(metricTime)")
+    public Object metric(ProceedingJoinPoint joinPoint, MetricTime metricTime) throws Throwable {
+        String name = metricTime.value();
+        long start = System.currentTimeMillis();
+        try {
+            return joinPoint.proceed();
+        } finally {
+            long t = System.currentTimeMillis() - start;
+            // 写入日志或发送至JMX:
+            System.err.println("[Metrics] " + name + ": " + t + "ms");
+        }
+    }
+}
+```
+
+`metric()`方法标注了`@Around("@annotation(metricTime)")`，意思是符合条件的目标是带有`@MetricTime`注解的，因为`metric()`方法参数类型是`MetricTime`，通过它获取性能监控的名称。
+
+有了`@MetricTime`注解，再配合`MetricAspect`，任何Bean，只要方法标注了`@MetricTime`注解，就可以自动实现性能监控
 
 
 
+## AOP避坑指南
+
+无论是使用AspectJ语法，还是配合Annotation使用AOP，实际上就是让Spring自动创建一个Proxy，使得调用方能无感知地调用指定方法，但运行期却动态“织入”了其他逻辑，因此，AOP本质上就是一个代理模式
 
 
 
+CGLIB实现的代理模式中，它的构造方法中，并未调用`super()`，因此，从父类继承的成员变量，包括`final`类型的成员变量，统统都没有初始化
+
+原因是，没必要初始化proxy的成员变量，因为proxy的目的是代理方法
 
 
 
+Spring通过CGLIB创建的代理类，不会初始化代理类自身继承的任何成员变量，包括final类型的成员变量！
 
 
 
+正确使用AOP，避坑指南：
 
-
-
-
-
-
-
+1. 访问被注入的Bean时，总是调用方法而非直接访问字段；
+2. 编写Bean时，如果可能会被代理，就不要编写`public final`方法。
 
 
 
