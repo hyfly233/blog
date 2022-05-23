@@ -30,7 +30,7 @@ sidebar: false
 
   + [Spring Cloud Netflix Eureka](./eureka.md)
   + [Spring Cloud Netflix Ribbon](./ribbon.md)
-  + [Spring Cloud Netflix Feign](./fegin.md)
+  + [Spring Cloud Netflix Feign](./feign.md)
   + [Spring Cloud Netflix Hystrix](./hystrix.md)
   + [Spring Cloud Netflix Zuul](./zuul.md)
 
