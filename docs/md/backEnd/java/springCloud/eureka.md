@@ -25,7 +25,7 @@
 
 ## 3.代码实现Eureka注册中心
 
-- 只需要导入依赖，配置参数，并在spring boot项目的入口程序上添加注解@EnableEurekaServer即可实现Eureka注册中心
+- 只需要导入依赖，配置参数，并在spring boot项目的入口程序上添加注解`@EnableEurekaServer`即可实现Eureka注册中心
 
 - 导入依赖
 
@@ -55,14 +55,13 @@
      service-url:
        defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
        #微服务提供者向注册中心的注册服务的地址，它有默认的url，为"http://localhost:8080/eureka/"
-  
   ```
-
   
+  
+  
+- 启动类
 
--  启动类
-
-   ```java
+  ```java
   @SpringBootApplication
   @EnableEurekaServer //开启EurekaServer
   public class test {
@@ -70,9 +69,10 @@
           SpringApplication.run(test.class,args);
       }
   }
-   ```
+  ```
 
-  
+
+
 
 ## 4.服务注册
 
@@ -98,10 +98,11 @@
   
   eureka:
       client:
-          instance:
-          	instance-id: provider-dept-8090
-          service-url:
+      	service-url:
           	defaultZone: http://localhost:8080/eureka/
+  	instance:
+  		instance-id: provider-dept-8090
+  
   ```
 
   
