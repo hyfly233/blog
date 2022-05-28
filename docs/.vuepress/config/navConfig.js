@@ -1,6 +1,5 @@
 module.exports = [
     { text: 'Home', link: '/' },
-    { text: 'Content', link: '/content/' },
     {
         text: 'Back End',
         items: [
