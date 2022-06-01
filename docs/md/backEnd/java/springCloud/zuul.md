@@ -44,7 +44,7 @@
   eureka:
     client:
       service-url:
-        defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/
+        defaultZone: http://eureka7001.com:7001/eureka/
     instance:
       instance-id: springcould-zuul-9002
       prefer-ip-address: true #将描述信息对应的超链接设置为IP格式，而不是主机名称格式
@@ -68,21 +68,106 @@
   }
   ```
 
-  
-
-+ 隐藏服务提供者
-
-  ```yml
-  zuul:
-    routes:
-      xxx.serviceId: springcould-provider-dept #微服务名称，key
-      xxx.path: /yyy/** #代替微服务名称的path变量，即只要是"主机名称:端口号/yyy/"下面的所有请求，都去注册中心的服务springcould-provider-dept中处理
-    ignored-services: zzz #设置不能再在zuul中使用这个微服务进行消费
-    prefix: /xyz  #设置这个zuul模块配置的路由的访问前缀
-  ```
 
 
 
 
 
-未完待续 ...
+## 隐藏服务提供者
+
+配置文件
+
+```yml
+zuul:
+  prefix: /api
+  routes:
+    greeting-service:
+      path: /greeting/**
+      url: forward:/greeting
+    foos-service:
+      path: /foos/**
+      url: http://localhost:8081/spring-zuul-foos-resource/foos
+```
+
+
+
+
+
+## 自定义 ZuulFilter
+
+例如
+
+```java
+@Component
+public class ResponseLogFilter extends ZuulFilter {
+
+    private Logger logger = LoggerFactory.getLogger(ResponseLogFilter.class);
+
+    /**
+     * FilterConstants filterType
+     * pre：可以在请求被路由之前调用
+     * route：在路由请求时候被调用
+     * post：在route和error过滤器之后被调用
+     * error：处理请求时发生错误时被调用
+     *
+     * @return String
+     */
+    @Override
+    public String filterType() {
+        return FilterConstants.POST_TYPE;
+    }
+
+    /**
+     * 决定执行顺序 数字越小，越先执行
+     *
+     * @return int
+     */
+    @Override
+    public int filterOrder() {
+        return 0;
+    }
+
+    /**
+     * 是否启用该 filter
+     *
+     * @return boolean
+     */
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
+
+    /**
+     * filter 的执行逻辑
+     *
+     * @return Object
+     * @throws ZuulException e
+     */
+    @Override
+    public Object run() throws ZuulException {
+
+        RequestContext context = RequestContext.getCurrentContext();
+        try (final InputStream responseDataStream = context.getResponseDataStream()) {
+
+            if (responseDataStream == null) {
+                logger.info("BODY: {}", "");
+                return null;
+            }
+
+            String responseData = CharStreams.toString(new InputStreamReader(responseDataStream, StandardCharsets.UTF_8));
+            logger.info("BODY: {}", responseData);
+
+            context.setResponseBody(responseData);
+        } catch (Exception e) {
+            throw new ZuulException(e, HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+        }
+
+        return null;
+    }
+}
+```
+
+
+
+
+
