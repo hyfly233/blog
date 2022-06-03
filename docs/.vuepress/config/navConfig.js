@@ -3,12 +3,6 @@ module.exports = [
     {
         text: 'Back End',
         items: [
-            // {
-            //     text: 'Go', items: [
-            //         {text: 'Basis', link: '/md/backEnd/go/basis/basis'},
-            //         {text: 'Gin', link: '/md/backEnd/go/gin/gin'}
-            //     ]
-            // },
             {
                 text: 'Java',
                 items: [
