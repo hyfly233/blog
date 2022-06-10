@@ -104,7 +104,7 @@
 
 + 修改sql或者尽量让sql走索引
 
-  ```sql
+  ```mysql
   alter table t1 add index idx_name(col1); // 加索引
   ```
 
@@ -145,13 +145,68 @@ mysql会对复合索引的第一个索引进行排序，然后再根据第一个
 + MyISAM默认用的是表级锁，不支持行级锁
 + InnoDB默认使用行级锁，也支持表级锁
 
+
+
 ### 事务的四大特性
+
++ 原子性
++ 一致性
++ 隔离性
++ 持久性
+
+
 
 ### 事务隔离级别及各个级别下的并发问题
 
+#### 隔离级别
+
++ 读未提交
++ 读已提交
++ 可重复读
++ 串行化
+
+
+
+```mysql
+select @@tx_isolation;  // 查看隔离性
+set session transaction isolation level read uncommitted; // 设置隔离级别
+```
+
+
+
+#### 可引发的问题
+
++ 更新丢失：mysql所有事务隔离级别在数据库层面上均可避免
++ 脏读：read-committed事务隔离级别以上可避免
++ 不可重复读：repeatable-read事务隔离级别以上可避免
++ 幻读：设置为最高隔离级别serializable
+
+
+
+
+
 ### InnoDB可重复读如何避免幻读
 
++ 表象：快照读（非阻塞读）-- 伪MVCC
++ 内在：next-key锁（行锁 + gap锁）
+
+
+
+
+
+
+
 ### RC、RR级别下的InnoDB的非阻塞读如何实现
+
+
+
+
+
+
+
+
+
+
 
 
 
