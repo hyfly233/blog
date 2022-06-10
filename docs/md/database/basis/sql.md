@@ -212,7 +212,17 @@ set session transaction isolation level read uncommitted; // 设置隔离级别
 
 ## 语法
 
+### 关键语法
 
++ group by
++ having
++ 统计相关
+  + count
+  + sum
+  + max
+  + min
+  + avg
++ 
 
 
 
