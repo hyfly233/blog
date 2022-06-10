@@ -1200,3 +1200,82 @@ HashMap 在容量超过负载因子所定义的容量之后，就会扩容。
 - 多线程的put可能导致元素的丢失。
 - put和get并发时，可能导致get为null。
 
+
+
+
+
+
+
+
+
+
+
+## 请用Iterable实现一个随机序列产生器?
+
+```java
+public class RandomStringGenerator<T> implements Iterable<T> {
+
+    private final List<T> list;
+    
+    private void swap(int[] a, int i, int i1) {
+    }
+
+    public RandomStringGenerator(List<T> list) {
+        this.list = list;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public T next() {
+                return list.get((int) (list.size() * Math.random()));
+            }
+        };
+    }
+    
+    public static void main(String[] argv) {
+        var list = Arrays.asList("List", "Tree", "Array");
+        var gen = new RandomStringGenerator<String>(list);
+
+//        for(var s: gen) {
+//            System.out.println(s);
+//        }
+
+//        var it = gen.iterator();
+//        for(int i = 0; i < 100; i++) {
+//            System.out.println(it.next());
+//        }
+    }
+}
+```
+
+
+
+
+
+## Collection和Set的区别？
+
+
+
+
+
+## Map是不是Collection?
+
+
+
+
+
+## TreeMap和HashMap的区别？
+
+
+
+## HashMap vs Hashtable
+
+## 实现Key-Value的LRU缓存
