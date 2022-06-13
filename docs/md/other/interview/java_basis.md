@@ -1279,3 +1279,85 @@ public class RandomStringGenerator<T> implements Iterable<T> {
 ## HashMap vs Hashtable
 
 ## 实现Key-Value的LRU缓存
+
+
+
+
+
+# Java程序如何排除线上问题
+
+## 通用JVM工具
+
++ jps：虚拟机进程状态工具
+
+  ```shell
+  jps -v | grep pid
+  ```
+
+  
+
++ jinfo：jvm参数信息工具
+
+  ```shell
+  jinfo -flags pid
+  ```
+
+  
+
++ jstat：查看虚拟机各种运行状态
+
+  ```shell
+  jstat -gcutil pid
+  ```
+
+  + S0：新生代中 Survivor space 0 区已使用空间的百分比
+  + S1：新生代中 Survivor space 1 区已使用空间的百分比
+  + E：新生代已使用空间的百分比
+  + O：老年代已使用空间的百分比
+  + M：元数据区已使用空间的百分比
+  + CCS：压缩类空间利用率百分比
+  + YGC：从应用程序启动到当前，发生Yang GC的次数
+  + YGCT：从应用程序启动到当前，Yang GC所用的时间【单位秒】
+  + FGC：从应用程序启动到当前，发生Full GC的次数
+  + FGCT：从应用程序启动到当前，Full GC所用的时间
+  + GCT：从应用程序启动到当前，用于垃圾回收的总时间【单位秒】
+
+  
+
++ jstack：线程快照工具
+
+  ```shell
+  jstack -l pid
+  ```
+
+  
+
++ jmap：HeapDump工具
+
+  ```shell
+  jmap -heap pid  // 查看堆信息
+  jmap -dump:format = b, file = xxx.hprof pid  // 导出消息文件
+  
+  jhat -port 8899 xxx.hprof  // 查看文件内容
+  ```
+
+
+
+## 线上OOM问题排查
+
+1、设置启动参数
+
+```shell
+java -Xms20m -Xmx48m -XX:+HeapDumpOnOutOfMemoryError XX:HeapDump=./xxx.hprof -jar xxx.jar
+```
+
+2、使用jprofiler查看hprof文件以及call tree分析
+
+
+
+## jprofiler
+
+
+
+
+

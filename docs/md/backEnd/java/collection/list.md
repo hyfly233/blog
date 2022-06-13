@@ -121,7 +121,18 @@ HEAD ──>│ A │ ●─┼──>│ B │ ●─┼──>│ C │ ●─
 ## 遍历List
 
 + `for`循环
+
 + Iterator
+
+  ```java
+  List<String> list = List.of("apple", "pear", "banana");
+  for (Iterator<String> it = list.iterator(); it.hasNext(); ) {
+      String s = it.next();
+      System.out.println(s);
+  }
+  ```
+
+  
 
 
 
@@ -130,8 +141,26 @@ HEAD ──>│ A │ ●─┼──>│ B │ ●─┼──>│ C │ ●─
 `List`变为`Array`
 
 + 调用`toArray()`方法直接返回一个`Object[]`数组
+
+  ```java
+  Object[] array = list.toArray()
+  ```
+
+  
+
 + `toArray(T[])`传入一个类型相同的`Array`
+
+  ```java
+  Integer[] array = list.toArray(new Integer[3]);
+  ```
+
+  
+
 + 通过`List`接口定义的`T[] toArray(IntFunction generator)`方法
+
+  ```java
+  Integer[] array = list.toArray(Integer[]::new);
+  ```
 
 
 
