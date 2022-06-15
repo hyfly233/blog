@@ -91,9 +91,19 @@ String interval = props.getProperty("xxxx", "120");
 
 
 
+# HashMap
 
 
 
+
+
+# LinkedHashMap
+
+
+
+
+
+# ConcurrentHashMap加锁粒度
 
 
 
