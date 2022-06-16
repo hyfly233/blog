@@ -1094,9 +1094,376 @@ class IdGenerator {
 
 ## Future
 
+Java标准库提供了一个`Callable`接口，和`Runnable`接口比，它多了一个返回值
+
+```java
+class Task implements Callable<String> {
+    public String call() throws Exception {
+        return longTimeCalculation(); 
+    }
+}
+```
+
+并且`Callable`接口是一个泛型接口，可以返回指定类型的结果
+
+`ExecutorService.submit()`方法，它返回了一个`Future`类型，一个`Future`类型的实例代表一个未来能获取结果的对象
+
+```java
+ExecutorService executor = Executors.newFixedThreadPool(4); 
+// 定义任务:
+Callable<String> task = new Task();
+// 提交任务并获得Future:
+Future<String> future = executor.submit(task);
+
+// 从Future获取异步执行返回的结果:
+String result = future.get(); // 可能阻塞
+```
 
 
 
+提交一个`Callable`任务后，会同时获得一个`Future`对象，在主线程某个时刻调用`Future`对象的`get()`方法，就可以获得异步执行的结果。在调用`get()`时，如果异步任务已经完成，就直接获得结果。如果异步任务还没有完成，那么`get()`会阻塞，直到任务完成后才返回结果
+
+一个`Future`接口表示一个未来可能会返回的结果，它定义的方法有：
+
+- `get()`：获取结果（可能会等待）
+- `get(long timeout, TimeUnit unit)`：获取结果，但只等待指定的时间；
+- `cancel(boolean mayInterruptIfRunning)`：取消当前任务；
+- `isDone()`：判断任务是否已完成。
+
+
+
+
+
+## CompletableFuture
+
+使用`Future`获得异步执行结果时，要么调用阻塞方法`get()`，要么轮询看`isDone()`是否为`true`，这两种方法都会使主线程也会被迫等待
+
+`CompletableFuture`，它针对`Future`做了改进，可以传入回调对象，当异步任务完成或者发生异常时，自动调用回调对象的回调方法
+
+
+
+例如
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 创建异步执行任务:
+        CompletableFuture<Double> cf = CompletableFuture.supplyAsync(Main::fetchPrice);
+        // 如果执行成功:
+        cf.thenAccept((result) -> {
+            System.out.println("price: " + result);
+        });
+        // 如果执行异常:
+        cf.exceptionally((e) -> {
+            e.printStackTrace();
+            return null;
+        });
+        // 主线程不要立刻结束，否则CompletableFuture默认使用的线程池会立刻关闭:
+        Thread.sleep(200);
+    }
+
+    static Double fetchPrice() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        if (Math.random() < 0.3) {
+            throw new RuntimeException("fetch price failed!");
+        }
+        return 5 + Math.random() * 20;
+    }
+}
+```
+
+
+
+创建一个`CompletableFuture`是通过`CompletableFuture.supplyAsync()`实现的，它需要一个实现了`Supplier`接口的对象：
+
+```java
+public interface Supplier<T> {
+    T get();
+}
+```
+
+
+
+`CompletableFuture`被提交给默认的线程池执行，然后需要定义的是`CompletableFuture`完成时和异常时需要回调的实例。完成时，`CompletableFuture`会调用`Consumer`对象：
+
+```java
+public interface Consumer<T> {
+    void accept(T t);
+}
+```
+
+异常时，`CompletableFuture`会调用`Function`对象：
+
+```java
+public interface Function<T, R> {
+    R apply(T t);
+}
+```
+
+
+
+
+
+`CompletableFuture`的优点是：
+
+- 异步任务结束时，会自动回调某个对象的方法
+- 异步任务出错时，会自动回调某个对象的方法
+- 主线程设置好回调后，不再关心异步任务的执行
+
+
+
+`CompletableFuture`更强大的功能是，多个`CompletableFuture`可以串行执行
+
+例如，定义两个`CompletableFuture`，第一个`CompletableFuture`根据证券名称查询证券代码，第二个`CompletableFuture`根据证券代码查询证券价格，这两个`CompletableFuture`实现串行操作如下： 
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 第一个任务:
+        CompletableFuture<String> cfQuery = CompletableFuture.supplyAsync(() -> {
+            return queryCode("中国石油");
+        });
+        // cfQuery成功后继续执行下一个任务:
+        CompletableFuture<Double> cfFetch = cfQuery.thenApplyAsync((code) -> {
+            return fetchPrice(code);
+        });
+        // cfFetch成功后打印结果:
+        cfFetch.thenAccept((result) -> {
+            System.out.println("price: " + result);
+        });
+        // 主线程不要立刻结束，否则CompletableFuture默认使用的线程池会立刻关闭:
+        Thread.sleep(2000);
+    }
+
+    static String queryCode(String name) {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        return "601857";
+    }
+
+    static Double fetchPrice(String code) {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        return 5 + Math.random() * 20;
+    }
+}
+```
+
+
+
+除了串行执行外，多个`CompletableFuture`还可以并行执行
+
+如，同时从新浪和网易查询证券代码，只要任意一个返回结果，就进行下一步查询价格，查询价格也同时从新浪和网易查询，只要任意一个返回结果
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 两个CompletableFuture执行异步查询:
+        CompletableFuture<String> cfQueryFromSina = CompletableFuture.supplyAsync(() -> {
+            return queryCode("中国石油", "https://finance.sina.com.cn/code/");
+        });
+        CompletableFuture<String> cfQueryFrom163 = CompletableFuture.supplyAsync(() -> {
+            return queryCode("中国石油", "https://money.163.com/code/");
+        });
+
+        // 用anyOf合并为一个新的CompletableFuture:
+        CompletableFuture<Object> cfQuery = CompletableFuture.anyOf(cfQueryFromSina, cfQueryFrom163);
+
+        // 两个CompletableFuture执行异步查询:
+        CompletableFuture<Double> cfFetchFromSina = cfQuery.thenApplyAsync((code) -> {
+            return fetchPrice((String) code, "https://finance.sina.com.cn/price/");
+        });
+        CompletableFuture<Double> cfFetchFrom163 = cfQuery.thenApplyAsync((code) -> {
+            return fetchPrice((String) code, "https://money.163.com/price/");
+        });
+
+        // 用anyOf合并为一个新的CompletableFuture:
+        CompletableFuture<Object> cfFetch = CompletableFuture.anyOf(cfFetchFromSina, cfFetchFrom163);
+
+        // 最终结果:
+        cfFetch.thenAccept((result) -> {
+            System.out.println("price: " + result);
+        });
+        // 主线程不要立刻结束，否则CompletableFuture默认使用的线程池会立刻关闭:
+        Thread.sleep(200);
+    }
+
+    static String queryCode(String name, String url) {
+        System.out.println("query code from " + url + "...");
+        try {
+            Thread.sleep((long) (Math.random() * 100));
+        } catch (InterruptedException e) {
+        }
+        return "601857";
+    }
+
+    static Double fetchPrice(String code, String url) {
+        System.out.println("query price from " + url + "...");
+        try {
+            Thread.sleep((long) (Math.random() * 100));
+        } catch (InterruptedException e) {
+        }
+        return 5 + Math.random() * 20;
+    }
+}
+```
+
+
+
+异步查询规则实际上是：
+
+```ascii
+┌─────────────┐ ┌─────────────┐
+│ Query Code  │ │ Query Code  │
+│  from sina  │ │  from 163   │
+└─────────────┘ └─────────────┘
+       │               │
+       └───────┬───────┘
+               ▼
+        ┌─────────────┐
+        │    anyOf    │
+        └─────────────┘
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+┌─────────────┐  ┌─────────────┐
+│ Query Price │  │ Query Price │
+│  from sina  │  │  from 163   │
+└─────────────┘  └─────────────┘
+       │                │
+       └────────┬───────┘
+                ▼
+         ┌─────────────┐
+         │    anyOf    │
+         └─────────────┘
+                │
+                ▼
+         ┌─────────────┐
+         │Display Price│
+         └─────────────┘
+```
+
+除了`anyOf()`可以实现“任意个`CompletableFuture`只要一个成功”，`allOf()`可以实现“所有`CompletableFuture`都必须成功”，这些组合操作可以实现非常复杂的异步流程控制。
+
+
+
+`CompletableFuture`可以指定异步处理流程：
+
+- `thenAccept()`处理正常结果；
+- `exceptional()`处理异常结果；
+- `thenApplyAsync()`用于串行化另一个`CompletableFuture`；
+- `anyOf()`和`allOf()`用于并行化多个`CompletableFuture`。
+
+
+
+
+
+## ForkJoin
+
+Fork/Join线程池，它可以执行一种特殊的任务：把一个大任务拆成多个小任务并行执行
+
+
+
+Fork/Join任务的原理：判断一个任务是否足够小，如果是，直接计算，否则，就分拆成几个小任务分别计算。这个过程可以反复“裂变”成一系列小任务
+
+
+
+大数据进行并行求和例子
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // 创建2000个随机数组成的数组:
+        long[] array = new long[2000];
+        long expectedSum = 0;
+        for (int i = 0; i < array.length; i++) {
+            array[i] = random();
+            expectedSum += array[i];
+        }
+        System.out.println("Expected sum: " + expectedSum);
+        // fork/join:
+        ForkJoinTask<Long> task = new SumTask(array, 0, array.length);
+        long startTime = System.currentTimeMillis();
+        
+        Long result = ForkJoinPool.commonPool().invoke(task);
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Fork/join sum: " + result + " in " + (endTime - startTime) + " ms.");
+    }
+
+    static Random random = new Random(0);
+
+    static long random() {
+        return random.nextInt(10000);
+    }
+}
+
+class SumTask extends RecursiveTask<Long> {
+    static final int THRESHOLD = 500;
+    long[] array;
+    int start;
+    int end;
+
+    SumTask(long[] array, int start, int end) {
+        this.array = array;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Long compute() {
+        if (end - start <= THRESHOLD) {
+            // 如果任务足够小,直接计算:
+            long sum = 0;
+            for (int i = start; i < end; i++) {
+                sum += this.array[i];
+                // 故意放慢计算速度:
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                }
+            }
+            return sum;
+        }
+        // 任务太大,一分为二:
+        int middle = (end + start) / 2;
+        System.out.println(String.format("split %d~%d ==> %d~%d, %d~%d", start, end, start, middle, middle, end));
+        
+        SumTask subtask1 = new SumTask(this.array, start, middle);
+        SumTask subtask2 = new SumTask(this.array, middle, end);
+        
+        invokeAll(subtask1, subtask2);
+        
+        Long subresult1 = subtask1.join();
+        Long subresult2 = subtask2.join();
+        
+        Long result = subresult1 + subresult2;
+        System.out.println("result = " + subresult1 + " + " + subresult2 + " ==> " + result);
+        return result;
+    }
+}
+```
+
+一个大的计算任务0~2000首先分裂为两个小任务0~1000和1000~2000，这两个小任务仍然太大，继续分裂为更小的0~500，500~1000，1000~1500，1500~2000，最后，计算结果被依次合并，得到最终结果
+
+
+
+
+
+Java标准库提供的`java.util.Arrays.parallelSort(array)`可以进行并行排序，它的原理就是内部通过Fork/Join对大数组分拆进行并行排序，在多核CPU上就可以大大提高排序的速度
+
+
+
+
+
+## ThreadLocal
 
 
 
