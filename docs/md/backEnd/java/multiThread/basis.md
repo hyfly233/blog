@@ -1465,23 +1465,111 @@ Java标准库提供的`java.util.Arrays.parallelSort(array)`可以进行并行�
 
 ## ThreadLocal
 
+在一个线程中，横跨若干方法调用，需要传递的对象，通常称之为上下文（Context），它是一种状态，可以是用户身份、任务信息等
+
+给每个方法增加一个context参数非常麻烦，而且有些时候，如果调用链有无法修改源码的第三方库，导致对象无法通过传参传进去
+
+
+
+Java标准库提供了一个特殊的`ThreadLocal`，它可以在一个线程中传递同一个对象
+
+`ThreadLocal`实例通常总是以静态字段初始化如下：
+
+```java
+static ThreadLocal<User> threadLocalUser = new ThreadLocal<>();
+```
+
+
+
+典型使用方式如下：
+
+通过设置一个`User`实例关联到`ThreadLocal`中，在移除之前，所有方法都可以随时获取到该`User`实例
+
+```java
+void processUser(user) {
+    try {
+        threadLocalUser.set(user);
+        step1();
+        step2();
+    } finally {
+        threadLocalUser.remove();
+    }
+}
+
+void step1() {
+    User u = threadLocalUser.get();
+    log();
+    printUser();
+}
+
+void log() {
+    User u = threadLocalUser.get();
+    println(u.name);
+}
+
+void step2() {
+    User u = threadLocalUser.get();
+    checkUser(u.id);
+}
+```
+
+普通的方法调用一定是同一个线程执行的，所以，`step1()`、`step2()`以及`log()`方法内，`threadLocalUser.get()`获取的`User`对象是同一个实例
+
+
+
+实际上，可以把`ThreadLocal`看成一个全局`Map`：每个线程获取`ThreadLocal`变量时，总是使用`Thread`自身作为key：
+
+```
+Object threadLocalValue = threadLocalMap.get(Thread.currentThread());
+```
+
+因此，`ThreadLocal`相当于给每个线程都开辟了一个独立的存储空间，各个线程的`ThreadLocal`关联的实例互不干扰。
+
+最后，特别注意`ThreadLocal`一定要在`finally`中清除：
+
+```
+try {
+    threadLocalUser.set(user);
+    ...
+} finally {
+    threadLocalUser.remove();
+}
+```
+
+这是因为当前线程执行完相关代码后，很可能会被重新放入线程池中，如果`ThreadLocal`没有被清除，该线程执行其他代码时，会把上一次的状态带进去
 
 
 
 
 
+为了保证能释放`ThreadLocal`关联的实例，可以通过`AutoCloseable`接口配合`try (resource) {...}`结构，让编译器自动为我们关闭
+
+```java
+public class UserContext implements AutoCloseable {
+
+    static final ThreadLocal<String> ctx = new ThreadLocal<>();
+
+    public UserContext(String user) {
+        ctx.set(user);
+    }
+
+    public static String currentUser() {
+        return ctx.get();
+    }
+
+    @Override
+    public void close() {
+        ctx.remove();
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
+// 在此自动调用UserContext.close()方法释放ThreadLocal关联对象
+try (var ctx = new UserContext("Bob")) {
+    // 可任意调用UserContext.currentUser():
+    String currentUser = UserContext.currentUser();
+}
+```
 
 
 
