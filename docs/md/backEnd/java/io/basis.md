@@ -133,31 +133,135 @@ System.out.println(f3.isFile());
 System.out.println(f3.isDirectory());
 ```
 
+用`File`对象获取到一个文件时，还可以进一步判断文件的权限和大小：
+
+- `boolean canRead()`：是否可读；
+- `boolean canWrite()`：是否可写；
+- `boolean canExecute()`：是否可执行；
+- `long length()`：文件字节大小。
+
+对目录而言，是否可执行表示能否列出它包含的文件和子目录。
+
+
+
+## 创建和删除文件
+
+当File对象表示一个文件时，可以通过`createNewFile()`创建一个新文件，用`delete()`删除该文件：
+
+```java
+File file = new File("/path/to/file");
+if (file.createNewFile()) {
+    // 文件创建成功:
+    // TODO:
+    if (file.delete()) {
+        // 删除文件成功:
+    }
+}
+```
+
+有些时候，程序需要读写一些临时文件，File对象提供了`createTempFile()`来创建一个临时文件，以及`deleteOnExit()`在JVM退出时自动删除该文件。
+
+```java
+File f = File.createTempFile("tmp-", ".txt"); // 提供临时文件的前缀和后缀
+f.deleteOnExit(); // JVM退出时自动删除
+System.out.println(f.isFile());
+System.out.println(f.getAbsolutePath());
+```
 
 
 
 
 
+## 遍历文件和目录
+
+当File对象表示一个目录时，可以使用`list()`和`listFiles()`列出目录下的文件和子目录名。`listFiles()`提供了一系列重载方法，可以过滤不想要的文件和目录：
+
+```java
+public class Main {
+    public static void main(String[] args) throws IOException {
+        File f = new File("C:\\Windows");
+        File[] fs1 = f.listFiles(); // 列出所有文件和子目录
+        printFiles(fs1);
+        File[] fs2 = f.listFiles(new FilenameFilter() { // 仅列出.exe文件
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".exe"); // 返回true表示接受该文件
+            }
+        });
+        printFiles(fs2);
+    }
+
+    static void printFiles(File[] files) {
+        System.out.println("==========");
+        if (files != null) {
+            for (File f : files) {
+                System.out.println(f);
+            }
+        }
+        System.out.println("==========");
+    }
+}
+```
+
+
+
+和文件操作类似，File对象如果表示一个目录，可以通过以下方法创建和删除目录：
+
+- `boolean mkdir()`：创建当前File对象表示的目录；
+- `boolean mkdirs()`：创建当前File对象表示的目录，并在必要时将不存在的父目录也创建出来；
+- `boolean delete()`：删除当前File对象表示的目录，当前目录必须为空才能删除成功。
+
+
+
+## Path
+
+Java标准库还提供了一个`Path`对象，它位于`java.nio.file`包。`Path`对象和`File`对象类似，但操作更加简单
+
+```java
+Path p1 = Paths.get(".", "project", "study"); // 构造一个Path对象
+System.out.println(p1);
+Path p2 = p1.toAbsolutePath(); // 转换为绝对路径
+System.out.println(p2);
+Path p3 = p2.normalize(); // 转换为规范路径
+System.out.println(p3);
+File f = p3.toFile(); // 转换为File对象
+System.out.println(f);
+for (Path p : Paths.get("..").toAbsolutePath()) { // 可以直接遍历Path
+    System.out.println("  " + p);
+}
+```
 
 
 
 
 
+# InputStream
 
+`InputStream`是Java标准库提供的最基本的输入流。它位于`java.io`这个包里。`java.io`包提供了所有同步IO的功能
 
+`InputStream`并不是一个接口，而是一个抽象类，它是所有输入流的超类。这个抽象类定义的一个最重要的方法就是`int read()`，签名如下：
 
+```
+public abstract int read() throws IOException;
+```
 
+这个方法会读取输入流的下一个字节，并返回字节表示的`int`值（0~255）。如果已读到末尾，返回`-1`表示不能继续读取了。
 
+`FileInputStream`是`InputStream`的一个子类。顾名思义，`FileInputStream`就是从文件流中读取数据。下面的代码演示了如何完整地读取一个`FileInputStream`的所有字节：
 
-
-
-
-
-
-
-
-
-
+```java
+public void readFile() throws IOException {
+    // 创建一个FileInputStream对象:
+    InputStream input = new FileInputStream("src/readme.txt");
+    for (;;) {
+        int n = input.read(); // 反复调用read()方法，直到返回-1
+        if (n == -1) {
+            break;
+        }
+        System.out.println(n); // 打印byte的值
+    }
+    input.close(); // 关闭流
+}
+```
 
 
 
