@@ -98,3 +98,74 @@ Java标准库的`java.io`包提供了同步IO功能：
 # File
 
 Java的标准库`java.io`提供了`File`对象来操作文件和目录
+
+
+
+要构造一个`File`对象，需要传入文件路径，既可以传入绝对路径，也可以传入相对路径
+
+```java
+File f = new File("C:\\test.txt");
+```
+
+
+
+
+
+## 文件和目录
+
+`File`对象既可以表示文件，也可以表示目录
+
+特别要注意的是，构造一个`File`对象，即使传入的文件或目录不存在，代码也不会出错，因为构造一个`File`对象，并不会导致任何磁盘操作。只有当调用`File`对象的某些方法的时候，才真正进行磁盘操作
+
+
+
+调用`isFile()`，判断该`File`对象是否是一个已存在的文件，调用`isDirectory()`，判断该`File`对象是否是一个已存在的目录
+
+```java
+File f1 = new File("C:\\Windows");
+File f2 = new File("C:\\Windows\\notepad.exe");
+File f3 = new File("C:\\Windows\\nothing");
+System.out.println(f1.isFile());
+System.out.println(f1.isDirectory());
+System.out.println(f2.isFile());
+System.out.println(f2.isDirectory());
+System.out.println(f3.isFile());
+System.out.println(f3.isDirectory());
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
