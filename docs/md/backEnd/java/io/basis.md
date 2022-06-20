@@ -857,49 +857,139 @@ try (Reader reader = new StringReader("Hello")) {
 
 ## InputStreamReader
 
-`Reader`和`InputStream`有什么关系？
+普通的`Reader`实际上是基于`InputStream`构造的，因为`Reader`需要从`InputStream`中读入字节流（`byte`），然后，根据编码设置，再转换为`char`就可以实现字符流
+
+`FileReader`的源码，它在内部实际上持有一个`FileInputStream`
+
+所以，如果已经有一个`InputStream`，想把它转换为`Reader`，是完全可行的，`InputStreamReader`就可以把任何`InputStream`转换为`Reader` 
+
+```java
+// 持有InputStream:
+InputStream input = new FileInputStream("src/readme.txt");
+// 变换为Reader:
+Reader reader = new InputStreamReader(input, "UTF-8");
+
+try (Reader reader = new InputStreamReader(new FileInputStream("src/readme.txt"), "UTF-8")) {
+    // TODO:
+}
+```
 
 
 
 
 
+# Writer
+
+`Writer`是带编码转换器的`OutputStream`，它把`char`转换为`byte`并输出
 
 
 
+| OutputStream                           | Writer                                   |
+| :------------------------------------- | :--------------------------------------- |
+| 字节流，以`byte`为单位                 | 字符流，以`char`为单位                   |
+| 写入字节（0~255）：`void write(int b)` | 写入字符（0~65535）：`void write(int c)` |
+| 写入字节数组：`void write(byte[] b)`   | 写入字符数组：`void write(char[] c)`     |
+| 无对应方法                             | 写入String：`void write(String s)`       |
+
+`Writer`是所有字符输出流的超类，它提供的方法主要有：
+
+- 写入一个字符（0~65535）：`void write(int c)`；
+- 写入字符数组的所有字符：`void write(char[] c)`；
+- 写入String表示的所有字符：`void write(String s)`
 
 
 
+## FileWriter
+
+`FileWriter`就是向文件中写入字符流的`Writer`。它的使用方法和`FileReader`类似
+
+```java
+try (Writer writer = new FileWriter("readme.txt", StandardCharsets.UTF_8)) {
+    writer.write('H'); // 写入单个字符
+    writer.write("Hello".toCharArray()); // 写入char[]
+    writer.write("Hello"); // 写入String
+}
+```
 
 
 
+## CharArrayWriter
+
+`CharArrayWriter`可以在内存中创建一个`Writer`，它的作用实际上是构造一个缓冲区，可以写入`char`，最后得到写入的`char[]`数组，这和`ByteArrayOutputStream`非常类似
+
+```java
+try (CharArrayWriter writer = new CharArrayWriter()) {
+    writer.write(65);
+    writer.write(66);
+    writer.write(67);
+    char[] data = writer.toCharArray(); // { 'A', 'B', 'C' }
+}
+```
+
+## StringWriter
+
+`StringWriter`也是一个基于内存的`Writer`，它和`CharArrayWriter`类似。实际上，`StringWriter`在内部维护了一个`StringBuffer`，并对外提供了`Writer`接口
 
 
 
+## OutputStreamWriter
+
+除了`CharArrayWriter`和`StringWriter`外，普通的Writer实际上是基于`OutputStream`构造的，它接收`char`，然后在内部自动转换成一个或多个`byte`，并写入`OutputStream`。因此，`OutputStreamWriter`就是一个将任意的`OutputStream`转换为`Writer`的转换器：
+
+```java
+try (Writer writer = new OutputStreamWriter(new FileOutputStream("readme.txt"), "UTF-8")) {
+    // TODO:
+}
+```
 
 
 
+# PrintStream和PrintWriter
+
+`PrintStream`是一种`FilterOutputStream`，它在`OutputStream`的接口上，额外提供了一些写入各种数据类型的方法：
+
+- 写入`int`：`print(int)`
+- 写入`boolean`：`print(boolean)`
+- 写入`String`：`print(String)`
+- 写入`Object`：`print(Object)`，实际上相当于`print(object.toString())`
+- ...
+
+以及对应的一组`println()`方法，它会自动加上换行符
+
+经常使用的`System.out.println()`实际上就是使用`PrintStream`打印各种数据
+
+## PrintWriter
+
+`PrintStream`最终输出的总是byte数据，而`PrintWriter`则是扩展了`Writer`接口，它的`print()`/`println()`方法最终输出的是`char`数据。两者的使用方法几乎是一模一样的
+
+```java
+tringWriter buffer = new StringWriter();
+try (PrintWriter pw = new PrintWriter(buffer)) {
+    pw.println("Hello");
+    pw.println(12345);
+    pw.println(true);
+}
+System.out.println(buffer.toString());
+```
 
 
 
+# Files工具类
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```java
+// 默认使用UTF-8编码读取:
+String content1 = Files.readString(Path.of("/path/to/file.txt"));
+// 可指定编码:
+String content2 = Files.readString(Path.of("/path", "to", "file.txt"), StandardCharsets.ISO_8859_1);
+// 按行读取并返回每行内容:
+List<String> lines = Files.readAllLines(Path.of("/path/to/file.txt"));
+// 写入二进制文件:
+byte[] data = ...
+Files.write(Path.of("/path/to/file.txt"), data);
+// 写入文本并指定编码:
+Files.writeString(Path.of("/path/to/file.txt"), "文本内容...", StandardCharsets.ISO_8859_1);
+// 按行写入文本:
+List<String> lines = ...
+Files.write(Path.of("/path/to/file.txt"), lines);
+```
 
