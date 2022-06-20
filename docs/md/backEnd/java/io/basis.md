@@ -319,3 +319,587 @@ public void readFile() throws IOException {
 
 
 ## InputStream实现类
+
+用`FileInputStream`可以从文件获取输入流，这是`InputStream`常用的一个实现类
+
+此外，`ByteArrayInputStream`可以在内存中模拟一个`InputStream`
+
+```java
+try (InputStream input = new ByteArrayInputStream(data)) {
+    int n;
+    while ((n = input.read()) != -1) {
+        System.out.println((char)n);
+    }
+}
+```
+
+
+
+`ByteArrayInputStream`实际上是把一个`byte[]`数组在内存中变成一个`InputStream`
+
+
+
+Java标准库的`java.io.InputStream`定义了所有输入流的超类：
+
+- `FileInputStream`实现了文件流输入；
+- `ByteArrayInputStream`在内存中模拟一个字节流输入。
+
+
+
+
+
+# OutputStream
+
+`OutputStream`是Java标准库提供的最基本的输出流
+
+`OutputStream`也是抽象类，它是所有输出流的超类。这个抽象类定义的一个最重要的方法就是`void write(int b)`，签名如下：
+
+```java
+public abstract void write(int b) throws IOException;
+```
+
+这个方法会写入一个字节到输出流。要注意的是，虽然传入的是`int`参数，但只会写入一个字节，即只写入`int`最低8位表示字节的部分（相当于`b & 0xff`）。
+
+`OutputStream`也提供了`close()`方法关闭输出流，以便释放系统资源
+
+`OutputStream`还提供了一个`flush()`方法，它的目的是将缓冲区的内容真正输出到目的地
+
+
+
+
+
+## FileOutputStream
+
+以`FileOutputStream`为例，演示如何将若干个字节写入文件流：
+
+```java
+public void writeFile() throws IOException {
+    OutputStream output = new FileOutputStream("out/readme.txt");
+    output.write(72); // H
+    output.write(101); // e
+    output.write(108); // l
+    output.write(108); // l
+    output.write(111); // o
+    output.close();
+}
+```
+
+
+
+每次写入一个字节非常麻烦，更常见的方法是一次性写入若干字节。可以用`OutputStream`提供的重载方法`void write(byte[])`来实现：
+
+```java
+public void writeFile() throws IOException {
+    OutputStream output = new FileOutputStream("out/readme.txt");
+    output.write("Hello".getBytes("UTF-8")); // Hello
+    output.close();
+}
+```
+
+
+
+和`InputStream`一样，上述代码没有考虑到在发生异常的情况下如何正确地关闭资源。写入过程也会经常发生IO错误，例如，磁盘已满，无权限写入等等。需要用`try(resource)`来保证`OutputStream`在无论是否发生IO错误的时候都能够正确地关闭：
+
+```java
+public void writeFile() throws IOException {
+    try (OutputStream output = new FileOutputStream("out/readme.txt")) {
+        output.write("Hello".getBytes("UTF-8")); // Hello
+    } // 编译器在此自动为我们写入finally并调用close()
+}
+```
+
+
+
+## 阻塞
+
+`OutputStream`的`write()`方法也是阻塞的
+
+
+
+## OutputStream实现类
+
+用`FileOutputStream`可以从文件获取输出流，这是`OutputStream`常用的一个实现类
+
+`ByteArrayOutputStream`可以在内存中模拟一个`OutputStream`
+
+```java
+byte[] data;
+try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+    output.write("Hello ".getBytes("UTF-8"));
+    output.write("world!".getBytes("UTF-8"));
+    data = output.toByteArray();
+}
+System.out.println(new String(data, "UTF-8"));
+```
+
+
+
+`ByteArrayOutputStream`实际上是把一个`byte[]`数组在内存中变成一个`OutputStream`
+
+
+
+# Filter模式
+
+Java的IO标准库提供的`InputStream`根据来源可以包括：
+
+- `FileInputStream`：从文件读取数据，是最终数据源；
+- `ServletInputStream`：从HTTP请求读取数据，是最终数据源；
+- `Socket.getInputStream()`：从TCP连接读取数据，是最终数据源；
+- 
+
+
+
+
+
+如果要给`FileInputStream`添加缓冲功能，则可以从`FileInputStream`派生一个类：
+
+```java
+BufferedFileInputStream extends FileInputStream
+```
+
+如果要给`FileInputStream`添加计算签名的功能，类似的，也可以从`FileInputStream`派生一个类：
+
+```java
+DigestFileInputStream extends FileInputStream
+```
+
+如果要给`FileInputStream`添加加密/解密功能，还是可以从`FileInputStream`派生一个类：
+
+```java
+CipherFileInputStream extends FileInputStream
+```
+
+如果要给`FileInputStream`添加缓冲和签名的功能，那么还需要派生`BufferedDigestFileInputStream`
+
+如果要给`FileInputStream`添加缓冲和加解密的功能，则需要派生`BufferedCipherFileInputStream`
+
+
+
+
+
+给`FileInputStream`添加3种功能，至少需要3个子类。这3种功能的组合，又需要更多的子类：
+
+```ascii
+                          ┌─────────────────┐
+                          │ FileInputStream │
+                          └─────────────────┘
+                                   ▲
+             ┌───────────┬─────────┼─────────┬───────────┐
+             │           │         │         │           │
+┌───────────────────────┐│┌─────────────────┐│┌─────────────────────┐
+│BufferedFileInputStream│││DigestInputStream│││CipherFileInputStream│
+└───────────────────────┘│└─────────────────┘│└─────────────────────┘
+                         │                   │
+    ┌─────────────────────────────┐ ┌─────────────────────────────┐
+    │BufferedDigestFileInputStream│ │BufferedCipherFileInputStream│
+    └─────────────────────────────┘ └─────────────────────────────┘
+```
+
+
+
+这还只是针对`FileInputStream`设计，如果针对另一种`InputStream`设计，很快会出现子类爆炸的情况
+
+
+
+
+
+因此，直接使用继承，为各种`InputStream`附加更多的功能，根本无法控制代码的复杂度，很快就会失控
+
+
+
+
+
+为了解决依赖继承会导致子类数量失控的问题，JDK首先将`InputStream`分为两大类：
+
++ 一类是直接提供数据的基础`InputStream`，例如：
+  + FileInputStream
+  + ByteArrayInputStream
+  + ServletInputStream
+  + ...
+
++ 一类是提供额外附加功能的`InputStream`，例如：
+  + BufferedInputStream
+  + DigestInputStream
+  + CipherInputStream
+  + ...
+
+
+
+当需要给一个“基础”`InputStream`附加各种功能时，先确定这个能提供数据源的`InputStream`，因为需要的数据总得来自某个地方，例如，`FileInputStream`，数据来源自文件：
+
+```
+InputStream file = new FileInputStream("test.gz");
+```
+
+紧接着，希望`FileInputStream`能提供缓冲的功能来提高读取的效率，因此用`BufferedInputStream`包装这个`InputStream`，得到的包装类型是`BufferedInputStream`，但它仍然被视为一个`InputStream`：
+
+```
+InputStream buffered = new BufferedInputStream(file);
+```
+
+最后，假设该文件已经用gzip压缩了，希望直接读取解压缩的内容，就可以再包装一个`GZIPInputStream`：
+
+```
+InputStream gzip = new GZIPInputStream(buffered);
+```
+
+无论包装多少次，得到的对象始终是`InputStream`，直接用`InputStream`来引用它，就可以正常读取：
+
+```ascii
+┌─────────────────────────┐
+│GZIPInputStream          │
+│┌───────────────────────┐│
+││BufferedFileInputStream││
+││┌─────────────────────┐││
+│││   FileInputStream   │││
+││└─────────────────────┘││
+│└───────────────────────┘│
+└─────────────────────────┘
+```
+
+上述这种通过一个“基础”组件再叠加各种“附加”功能组件的模式，称之为Filter模式（或者装饰器模式：Decorator）
+
+它可以通过少量的类来实现各种功能的组合：
+
+```ascii
+                 ┌─────────────┐
+                 │ InputStream │
+                 └─────────────┘
+                       ▲ ▲
+┌────────────────────┐ │ │ ┌─────────────────┐
+│  FileInputStream   │─┤ └─│FilterInputStream│
+└────────────────────┘ │   └─────────────────┘
+┌────────────────────┐ │     ▲ ┌───────────────────┐
+│ByteArrayInputStream│─┤     ├─│BufferedInputStream│
+└────────────────────┘ │     │ └───────────────────┘
+┌────────────────────┐ │     │ ┌───────────────────┐
+│ ServletInputStream │─┘     ├─│  DataInputStream  │
+└────────────────────┘       │ └───────────────────┘
+                             │ ┌───────────────────┐
+                             └─│CheckedInputStream │
+                               └───────────────────┘
+```
+
+类似的，`OutputStream`也是以这种模式来提供各种功能：
+
+```ascii
+                  ┌─────────────┐
+                  │OutputStream │
+                  └─────────────┘
+                        ▲ ▲
+┌─────────────────────┐ │ │ ┌──────────────────┐
+│  FileOutputStream   │─┤ └─│FilterOutputStream│
+└─────────────────────┘ │   └──────────────────┘
+┌─────────────────────┐ │     ▲ ┌────────────────────┐
+│ByteArrayOutputStream│─┤     ├─│BufferedOutputStream│
+└─────────────────────┘ │     │ └────────────────────┘
+┌─────────────────────┐ │     │ ┌────────────────────┐
+│ ServletOutputStream │─┘     ├─│  DataOutputStream  │
+└─────────────────────┘       │ └────────────────────┘
+                              │ ┌────────────────────┐
+                              └─│CheckedOutputStream │
+                                └────────────────────┘
+```
+
+
+
+### 编写FilterInputStream
+
+例子，`CountInputStream`，它的作用是对输入的字节进行计数：
+
+```java
+public class Main {
+    public static void main(String[] args) throws IOException {
+        byte[] data = "hello, world!".getBytes("UTF-8");
+        try (CountInputStream input = new CountInputStream(new ByteArrayInputStream(data))) {
+            int n;
+            while ((n = input.read()) != -1) {
+                System.out.println((char)n);
+            }
+            System.out.println("Total read " + input.getBytesRead() + " bytes");
+        }
+    }
+}
+
+class CountInputStream extends FilterInputStream {
+    private int count = 0;
+
+    CountInputStream(InputStream in) {
+        super(in);
+    }
+
+    public int getBytesRead() {
+        return this.count;
+    }
+
+    public int read() throws IOException {
+        int n = in.read();
+        if (n != -1) {
+            this.count ++;
+        }
+        return n;
+    }
+
+    public int read(byte[] b, int off, int len) throws IOException {
+        int n = in.read(b, off, len);
+        if (n != -1) {
+            this.count += n;
+        }
+        return n;
+    }
+}
+```
+
+
+
+在叠加多个`FilterInputStream`，只需要持有最外层的`InputStream`，并且，当最外层的`InputStream`关闭时（在`try(resource)`块的结束处自动关闭），内层的`InputStream`的`close()`方法也会被自动调用，并最终调用到最核心的“基础”`InputStream`，因此不存在资源泄露
+
+
+
+
+
+
+
+# 操作Zip
+
+`ZipInputStream`是一种`FilterInputStream`，它可以直接读取zip包的内容
+
+另一个`JarInputStream`是从`ZipInputStream`派生，它增加的主要功能是直接读取jar文件里面的`MANIFEST.MF`文件。因为本质上jar包就是zip包，只是额外附加了一些固定的描述文件
+
+
+
+
+
+## 读取zip包
+
+要创建一个`ZipInputStream`，通常是传入一个`FileInputStream`作为数据源，然后，循环调用`getNextEntry()`，直到返回`null`，表示zip流结束。
+
+一个`ZipEntry`表示一个压缩文件或目录，如果是压缩文件，用`read()`方法不断读取，直到返回`-1`
+
+```java
+try (ZipInputStream zip = new ZipInputStream(new FileInputStream(...))) {
+    ZipEntry entry = null;
+    while ((entry = zip.getNextEntry()) != null) {
+        String name = entry.getName();
+        if (!entry.isDirectory()) {
+            int n;
+            while ((n = zip.read()) != -1) {
+                ...
+            }
+        }
+    }
+}
+```
+
+
+
+## 写入zip包
+
+`ZipOutputStream`是一种`FilterOutputStream`，它可以直接写入内容到zip包
+
+先创建一个`ZipOutputStream`，通常是包装一个`FileOutputStream`，然后，每写入一个文件前，先调用`putNextEntry()`，然后用`write()`写入`byte[]`数据，写入完毕后调用`closeEntry()`结束这个文件的打包
+
+```java
+try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(...))) {
+    File[] files = ...
+    for (File file : files) {
+        zip.putNextEntry(new ZipEntry(file.getName()));
+        zip.write(Files.readAllBytes(file.toPath()));
+        zip.closeEntry();
+    }
+}
+```
+
+
+
+
+
+# 读取classpath资源
+
+在classpath中的资源文件，路径总是以`／`开头，先获取当前的`Class`对象，然后调用`getResourceAsStream()`就可以直接从classpath读取任意的资源文件
+
+```java
+try (InputStream input = getClass().getResourceAsStream("/default.properties")) {
+    if (input != null) {
+        // TODO:
+    }
+}
+```
+
+
+
+如果把默认的配置放到jar包中，再从外部文件系统读取一个可选的配置文件，就可以做到既有默认的配置文件，又可以让用户自己修改配置
+
+```java
+Properties props = new Properties();
+props.load(inputStreamFromClassPath("/default.properties"));
+props.load(inputStreamFromFile("./conf.properties"));
+```
+
+
+
+# 序列化
+
+序列化是指把一个Java对象变成二进制内容，本质上就是一个`byte[]`数组
+
+反序列化，即把一个二进制内容（也就是`byte[]`数组）变回Java对象
+
+
+
+Java对象要能序列化，必须实现一个特殊的`java.io.Serializable`接口
+
+```java
+public interface Serializable {
+}
+```
+
+`Serializable`接口没有定义任何方法，它是一个空接口。把这样的空接口称为“标记接口”（Marker Interface），实现了标记接口的类仅仅是给自身贴了个“标记”，并没有增加任何方法。
+
+```java
+ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+try (ObjectOutputStream output = new ObjectOutputStream(buffer)) {
+    // 写入int:
+    output.writeInt(12345);
+    // 写入String:
+    output.writeUTF("Hello");
+    // 写入Object:
+    output.writeObject(Double.valueOf(123.456));
+}
+```
+
+
+
+## 反序列化
+
+```java
+try (ObjectInputStream input = new ObjectInputStream(...)) {
+    int n = input.readInt();
+    String s = input.readUTF();
+    Double d = (Double) input.readObject();
+}
+```
+
+
+
+
+
+因为Java的序列化机制可以导致一个实例能直接从`byte[]`数组创建，而不经过构造方法，因此，它存在一定的安全隐患。一个精心构造的`byte[]`数组被反序列化后可以执行特定的Java代码，从而导致严重的安全漏洞
+
+实际上，Java本身提供的基于对象的序列化和反序列化机制既存在安全性问题，也存在兼容性问题。更好的序列化方法是通过JSON这样的通用数据结构来实现，只输出基本类型（包括String）的内容，而不存储任何与代码相关的信息
+
+
+
+# Reader
+
+`Reader`是Java的IO库提供的另一个输入流接口。和`InputStream`的区别是，`InputStream`是一个字节流，即以`byte`为单位读取，而`Reader`是一个字符流，即以`char`为单位读取
+
+
+
+| InputStream                         | Reader                                |
+| :---------------------------------- | :------------------------------------ |
+| 字节流，以`byte`为单位              | 字符流，以`char`为单位                |
+| 读取字节（-1，0~255）：`int read()` | 读取字符（-1，0~65535）：`int read()` |
+| 读到字节数组：`int read(byte[] b)`  | 读到字符数组：`int read(char[] c)`    |
+
+`java.io.Reader`是所有字符输入流的超类，它最主要的方法是：
+
+```java
+public int read() throws IOException;
+```
+
+这个方法读取字符流的下一个字符，并返回字符表示的`int`，范围是`0`~`65535`。如果已读到末尾，返回`-1`。
+
+
+
+## FileReader
+
+ `FileReader`是`Reader`的一个子类
+
+```java
+// 创建一个FileReader对象:
+try (Reader reader = new FileReader("src/readme.txt", StandardCharsets.UTF_8)) {
+    for (;;) {
+        int n = reader.read(); // 反复调用read()方法，直到返回-1
+        if (n == -1) {
+            break;
+        }
+        System.out.println((char)n); // 打印char
+    }
+    reader.close(); // 关闭流
+}
+```
+
+
+
+
+
+## CharArrayReader
+
+`CharArrayReader`可以在内存中模拟一个`Reader`，它的作用实际上是把一个`char[]`数组变成一个`Reader`，这和`ByteArrayInputStream`非常类似：
+
+```java
+try (Reader reader = new CharArrayReader("Hello".toCharArray())) {
+}
+```
+
+
+
+## StringReader
+
+`StringReader`可以直接把`String`作为数据源，它和`CharArrayReader`几乎一样：
+
+```java
+try (Reader reader = new StringReader("Hello")) {
+}
+```
+
+
+
+## InputStreamReader
+
+`Reader`和`InputStream`有什么关系？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
