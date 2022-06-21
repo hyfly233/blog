@@ -1,8 +1,4 @@
-
-
-
-
-## 访问修饰符public,private,protected,以及不写（默认）时的区别
+## 访问修饰符
 
 |  修饰符   | 当前类 | 同包 | 子类 | 其他包 |
 | :-------: | :----: | :--: | :--: | :----: |
@@ -15,22 +11,17 @@
 
 
 
-
-
-
-# JAVA基本
-
-## String 是最基本的数据类型吗？
-
-不是。Java中的基本数据类型只有8个：byte、short、int、long、float、double、char、boolean；除了基本类型（primitive type）和枚举类型（enumeration type），剩下的都是引用类型（reference type）。
-
 ## float f=3.4;是否正确？
 
 不正确。3.4是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4; 或者写成float f =3.4F;。
 
+
+
 ## short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗？
 
 对于short s1 = 1; s1 = s1 + 1;由于1是int类型，因此s1+1运算结果也是int 型，需要强制转换类型才能赋值给short型。而short s1 = 1; s1 += 1;可以正确编译，因为s1+= 1;相当于s1 = (short)(s1 + 1);其中有隐含的强制类型转换。
+
+
 
 ## int和Integer有什么区别？
 
@@ -40,6 +31,8 @@ Java 为每个原始类型提供了包装类型：
 
 - 原始类型: boolean，char，byte，short，int，long，float，double
 - 包装类型：Boolean，Character，Byte，Short，Integer，Long，Float，Double
+
+
 
 ## &和&&的区别？
 

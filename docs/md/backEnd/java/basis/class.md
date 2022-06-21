@@ -119,17 +119,69 @@
 
 
 
-## 核心类
+# 核心类
 
-### 字符串
+## 字符串
 
-`String`是一个引用类型，它本身也是一个`class`。但是，Java编译器对`String`有特殊处理，即可以直接用`"..."`来表示一个字符串 
+### String
 
-使用`trim()`方法可以移除字符串首尾空白字符 
+`String`是一个引用类型，它本身也是一个`class`。但是，Java编译器对`String`有特殊处理，即可以直接用双引号`"..."`来表示一个字符串
+
+```java
+String s1 = "Hello!";
+```
+
+
+
+实际上字符串在`String`内部是通过一个`char[]`数组表示的，因此，按下面的写法也是可以的：
+
+```
+String s2 = new String(new char[] {'H', 'e', 'l', 'l', 'o', '!'});
+```
+
+
+
+#### 不可变性
+
+jdk9之前是通过内部的`private final char[] value`字段，以及没有提供任何修改value的方法来实现的
+
+jdk9开始是通过内部的`private final byte[] value`字段加coder编码标识，以及没有提供任何修改value的方法来实现的
+
+```java
+// ----------JDK8-----------
+
+// jdk9 之前使用 char[]
+private final char[] value;
+
+// ----------JDK9-----------
+
+// jdk9 开始使用 byte[] 和 coder 的组合
+private final byte[] value;
+// byte 默认值为 0，所以对应 LATIN1
+private final byte coder;
+
+// coder 的值
+@Native static final byte LATIN1 = 0; // 单字节编码
+@Native static final byte UTF16  = 1; // UTF-16 编码
+
+// 默认构造方法
+public String() {
+    this.value = "".value;
+    this.coder = "".coder;
+}
+```
+
+变更的主要原因是，节省空间，char 占用16位，即两字节，byte 占用8位，即1字节
+
+
 
 ### StringBuilder
 
-### StringBuilder 
+### StringBuffer
+
+### StringJoiner
+
+
 
 ### 包装类型
 
