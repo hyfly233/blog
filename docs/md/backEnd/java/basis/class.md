@@ -175,6 +175,18 @@ public String() {
 
 
 
+#### new String()创建了几个字符串对象
+
+如果静态区没有 xyz，`String s = new String(“xyz”)`创建了两个对象，一个静态区的 xyz，一个是用new创建在堆上的对象。如果静态区有 xyz 就是创建的一个（在堆区）
+
+
+
+
+
+
+
+
+
 ### StringBuilder
 
 ### StringBuffer

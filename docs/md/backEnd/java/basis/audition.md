@@ -126,9 +126,7 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 注意：基于序列化和反序列化实现的克隆不仅仅是深度克隆，更重要的是通过泛型限定，可以检查出要克隆的对象是否支持序列化，这项检查是编译器完成的，不是在运行时抛出异常，这种是方案明显优于使用Object类的clone方法克隆对象。让问题在编译的时候暴露出来总是优于把问题留到运行时。
 
-## String s = new String(“xyz”);创建了几个字符串对象？
 
-两个对象，一个是静态区的”xyz”，一个是用new创建在堆上的对象。
 
 ## java中==和eqauls()的区别,equals()和`hashcode的区别
 
