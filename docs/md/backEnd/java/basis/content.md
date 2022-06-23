@@ -1,10 +1,7 @@
 # Basis
 
-+ [Basic](./basis.md)
-
-
-
 + [面向对象](./basis.md)
++ 
 
 方法
 

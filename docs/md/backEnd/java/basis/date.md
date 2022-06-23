@@ -24,4 +24,27 @@
 
 
 
+
+
+
+
+## DateFormat
+
+DateFormat 的所有实现，包括 SimpleDateFormat 都不是线程安全的
+
+因此不应该在多线程序中使用，除非是在对外线程安全的环境中使用，如将 SimpleDateFormat 限制在 ThreadLocal 中
+
+因此，从日期、时间处理的所有实践来说，强力推荐 joda-time 库
+
+
+
+
+
+# Joda-time
+
+
+
+
+
 todo
+
