@@ -8,7 +8,7 @@ sidebar: false
 
 ## Java
 
-+ [Basis](../md/backEnd/java/basis/content.md)
++ [基础](../md/backEnd/java/basis/content.md)
 + [集合](../md/backEnd/java/collection/content.md)
 + [IO](../md/backEnd/java/io/content.md)
 + [多线程](../md/backEnd/java/multiThread/content.md)

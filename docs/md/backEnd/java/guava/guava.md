@@ -2,60 +2,6 @@
 
 ## 1. 基本工具
 
-### Optional
-
-`Optional<T>`表示可能为null的T类型引用
-
-一个Optional实例可能包含非null的引用，也可能什么也不包括（称之为引用缺失）。Optional从不包含的是null值，而是用存在或缺失来表示，但Optional从不会包含null值引用
-
-```java
-Optional<Integer> possible = Optional.of(5);
-
-possible.isPresent(); // returns true
-
-possible.get(); // returns 5
-```
-
-
-
-**创建Optional实例（以下都是静态方法）**
-
-| 方法名                   | 作用                                               |
-| :----------------------- | :------------------------------------------------- |
-| Optional.of(T)           | 创建指定引用的Optional实例，若引用为null则快速失败 |
-| Optional.absent()        | 创建引用缺失的Optional实例                         |
-| Optional.fromNullable(T) | 创建指定引用的Optional实例，若引用为null则表示缺失 |
-
-
-
-**用Optional实例查询引用（以下都是非静态方法）**
-
-| 方法名              | 作用                                                         |
-| :------------------ | :----------------------------------------------------------- |
-| boolean isPresent() | 如果Optional包含非null的引用（引用存在），返回true           |
-| T get()             | 返回Optional所包含的引用，若引用缺失，则抛出java.lang.IllegalStateException |
-| T or(T)             | 返回Optional所包含的引用，若引用缺失，返回指定的值           |
-| T orNull()          | 返回Optional所包含的引用，若引用缺失，返回null               |
-| Set asSet()         | 返回Optional所包含引用的单例不可变集，如果引用存在，返回一个只有单一元素的集合，如果引用缺失，返回一个空集合。 |
-
-
-
-**使用Optional的意义**
-
-使用Optional除了赋予null语义，增加了可读性，最大的优点在于它是一种傻瓜式的防护
-
-Optional迫使你积极思考引用缺失的情况，因为必须显式地从Optional获取引用，这样可避免空指针异常
-
-
-
-**其他处理null的便利方法**
-
-当需要用一个默认值来替换可能的null，可使用`Objects.firstNonNull(T, T)`方法。但如果两个值都是null，该方法会抛出NullPointerException。Optional也是一个比较好的替代方案，例如：Optional.of(first).or(second).
-
-还有其它一些方法专门处理null或空字符串：`emptyToNull(String)，nullToEmpty(String)，isNullOrEmpty(String)`。这些方法主要用来与混淆null/空的API进行交互。
-
-
-
 ### Preconditions 前置条件
 
 `Preconditions类`中提供了若干前置条件判断的实用方法，每个方法都有三个变种：
@@ -180,7 +126,7 @@ Ordering<String> byLengthOrdering = new Ordering<String>() {
 | `nullsFirst()`         | 使用当前排序器，但额外把null值排到最前面。                   |
 | `nullsLast()`          | 使用当前排序器，但额外把null值排到最后面。                   |
 | `compound(Comparator)` | 合成另一个比较器，以处理当前排序器中的相等情况。             |
-| `lexicographical()`    | 基于处理类型T的排序器，返回该类型的可迭代对象Iterable<T>的排序器。 |
+| `lexicographical()`    | 基于处理类型T的排序器，返回该类型的可迭代对象Iterable\<T>的排序器。 |
 | `onResultOf(Function)` | 对集合中元素调用Function，再按返回值用当前排序器排序。       |
 
 例如
@@ -243,139 +189,6 @@ Ordering<Foo> ordering = Ordering.natural().nullsFirst().onResultOf(sortKeyFunct
 
 
 
-### Throwables 简化异常和错误的传播与检查
-
-#### 异常传播
-
-有时候会把捕获到的异常再次抛出。这种情况通常发生在Error或RuntimeException被捕获的时候，并没想捕获它们，但是声明捕获Throwable和Exception的时候，也包括了了Error或RuntimeException。Guava提供了若干方法，来判断异常类型并且重新传播异常。例如：
-
-```java
-try {
-    someMethodThatCouldThrowAnything();
-} catch (IKnowWhatToDoWithThisException e) {
-    handle(e);
-} catch (Throwable t) {
-    Throwables.propagateIfInstanceOf(t, IOException.class);
-    Throwables.propagateIfInstanceOf(t, SQLException.class);
-    throw Throwables.propagate(t);
-}
-```
-
-所有这些方法都会自己决定是否要抛出异常，但也能直接抛出方法返回的结果——例如，`throw Throwables.propagate(t);   这样可以向编译器声明这里一定会抛出异常。
-
-Guava中的异常传播方法简要列举如下：
-
-| 方法名                                                   | 作用                                                         |
-| :------------------------------------------------------- | :----------------------------------------------------------- |
-| `RuntimeException propagate(Throwable)`                  | 如果Throwable是Error或RuntimeException，直接抛出；否则把Throwable包装成RuntimeException抛出。返回类型是RuntimeException，所以你可以像上面说的那样写成`throw Throwables.propagate(t)`，Java编译器会意识到这行代码保证抛出异常。 |
-| `void propagateIfInstanceOf( Throwable, Class) throws X` | Throwable类型为X才抛出                                       |
-| `void propagateIfPossible( Throwable)`                   | Throwable类型为Error或RuntimeException才抛出                 |
-| `void propagateIfPossible( Throwable, Class) throws X`   | Throwable类型为X, Error或RuntimeException才抛出              |
-
-
-
-#### Throwables.propagate的用法
-
-##### 模仿Java7的多重异常捕获和再抛出
-
-通常来说，如果调用者想让异常传播到栈顶，他不需要写任何catch代码块。因为他不打算从异常中恢复，他可能就不应该记录异常，或者有其他的动作。他可能是想做一些清理工作，但通常来说，无论操作是否成功，清理工作都要进行，所以清理工作可能会放在finallly代码块中
-
-但有时候，捕获异常然后再抛出也是有用的：也许调用者想要在异常传播之前统计失败的次数，或者有条件地传播异常
-
-当只对一种异常进行捕获和再抛出时，代码可能还是简单明了的。但当多种异常需要处理时，却可能变得一团糟：
-
-```java
-@Override 
-public void run() {
-    try {
-        delegate.run();
-    } catch (RuntimeException e) {
-        failures.increment();
-        throw e;
-    }catch (Error e) {
-        failures.increment();
-        throw e;
-    }
-}
-```
-
-Java7用多重捕获解决了这个问题：
-
-```java
-} catch (RuntimeException | Error e) {
-    failures.increment();
-    throw e;
-}
-```
-
-
-
-使用`throw Throwables.propagate(t)`替换`throw t`可以实现相同效果
-
-然而，用`Throwables.propagate`也很容易写出有其他隐藏行为的代码。尤其要注意的是，这个方案只适用于处理 RuntimeException 或 Error。如果 catch块 捕获了受检异常，需要调用`propagateIfInstanceOf`来保留原始代码的行为，因为`Throwables.propagate`不能直接传播受检异常
-
-
-
-总之，Throwables.propagate 的这种用法也就马马虎虎，在Java7中就没必要这样做了
-
-
-
-##### 非必要用法：把抛出的Throwable转为Exception
-
-有少数API，尤其是Java反射API和（以此为基础的）Junit，把方法声明成抛出Throwable。和这样的API交互太痛苦了，因为即使是最通用的API通常也只是声明抛出Exception。当确定代码会抛出Throwable，而不是Exception或Error时，调用者可能会用`Throwables.propagate`转化`Throwable`。这里有个用Callable执行Junit测试的范例：
-
-```java
-public Void call() throws Exception {
-    try {
-        FooTest.super.runTest();
-    } catch (Throwable t) {
-        Throwables.propagateIfPossible(t, Exception.class);
-        Throwables.propagate(t);
-    }
-
-    return null;
-}
-```
-
-在这儿没必要调用propagate()方法，因为propagateIfPossible传播了Throwable之外的所有异常类型，第二行的propagate就变得完全等价于`throw new RuntimeException(t)`。（这个例子也表明了`propagateIfPossible`可能也会引起混乱，因为它不但会传播参数中给定的异常类型，还抛出Error和RuntimeException）
-
-
-
-#### Throwables.propagate的有争议用法
-
-原则上，非受检异常代表bug，而受检异常表示不可控的问题。但在实际运用中，即使JDK也有所误用——如Object.clone()、Integer. parseInt(String)、URI(String)——或者至少对某些方法来说，没有让每个人都信服的答案，如URI.create(String)的异常声明。
-
-因此，调用者有时不得不把受检异常和非受检异常做相互转化：
-
-```java
-try {
-    return Integer.parseInt(userInput);
-} catch (NumberFormatException e) {
-    throw new InvalidInputException(e);
-}
-try {
-    return publicInterfaceMethod.invoke();
-} catch (IllegalAccessException e) {
-    throw new AssertionError(e);
-}
-```
-
-有时候，调用者会使用Throwables.propagate转化异常。这样做有没有什么缺点？
-
-`throw Throwables.propagate(ioException)` 和 `throw new RuntimeException(ioException)`做了同样的事情，但后者的意思更简单直接
-
-
-
-#### 异常原因链
-
-Guava提供了如下三个有用的方法，让研究异常的原因链变得稍微简便
-
-+ `Throwable getRootCause(Throwable)`
-+ `List getCausalChain(Throwable)`
-+ `String getStackTraceAsString(Throwable)`
-
-
-
 ## 2. 集合
 
 ### 不可变集合
@@ -399,7 +212,7 @@ Guava提供了如下三个有用的方法，让研究异常的原因链变得稍
 
 
 
-#### 优点
+**优点**
 
 - 当对象被不可信的库调用时，不可变形式是安全的
 - 不可变对象被多个线程调用时，不存在竞态条件问题
@@ -418,7 +231,7 @@ JDK也提供了Collections.unmodifiableXXX方法把集合包装为不可变形�
 
 
 
-#### 使用不可变集合
+**使用不可变集合**
 
 不可变集合可以用如下多种方式创建：
 
@@ -444,7 +257,7 @@ ImmutableSortedSet.of("a", "b", "c", "a", "d", "b");
 
 
 
-#### copyOf
+**copyOf**
 
 `ImmutableXXX.copyOf`方法会尝试在安全的时候避免做拷贝
 
@@ -463,12 +276,14 @@ void thingamajig(Collection<String> collection) {
 在这段代码中，ImmutableList.copyOf(foobar)会智能地直接返回foobar.asList()，它是一个ImmutableSet的常量时间复杂度的List视图。 作为一种探索，ImmutableXXX.copyOf(ImmutableCollection)会试图对如下情况避免线性时间拷贝：
 
 - 在常量时间内使用底层数据结构是可能的——例如，ImmutableSet.copyOf(ImmutableList)就不能在常量时间内完成。
-- 不会造成内存泄露——例如，你有个很大的不可变集合ImmutableList<String> hugeList， ImmutableList.copyOf(hugeList.subList(0, 10))就会显式地拷贝，以免不必要地持有hugeList的引用。
+- 不会造成内存泄露——例如，你有个很大的不可变集合ImmutableList\<String> hugeList， ImmutableList.copyOf(hugeList.subList(0, 10))就会显式地拷贝，以免不必要地持有hugeList的引用。
 - 不改变语义——所以ImmutableSet.copyOf(myImmutableSortedSet)会显式地拷贝，因为和基于比较器的ImmutableSortedSet相比，ImmutableSet对hashCode()和equals有不同语义。
 
 在可能的情况下避免线性拷贝，可以最大限度地减少防御性编程风格所带来的性能开销
 
-#### asList视图
+
+
+**asList视图**
 
 所有不可变集合都有一个asList()方法提供ImmutableList视图，来帮助用列表形式方便地读取集合元素
 
@@ -508,7 +323,7 @@ Multiset继承自JDK中的Collection接口，而不是Set接口，所以可以�
 
 可以用两种方式看待Multiset：
 
-- 没有元素顺序限制的ArrayList<E>
+- 没有元素顺序限制的ArrayList\<E\>
 - Map<E, Integer>，键为元素，值为计数
 
 
@@ -524,8 +339,8 @@ Guava的Multiset API也结合考虑了这两种方式： 当把Multiset看成普
 当把Multiset看作Map<E, Integer>时，它也提供了符合性能期望的查询操作：
 
 - count(Object)返回给定元素的计数。HashMultiset.count的复杂度为O(1)，TreeMultiset.count的复杂度为O(log n)
-- entrySet()返回Set<Multiset.Entry<E>>，和Map的entrySet类似
-- elementSet()返回所有不重复元素的Set<E>，和Map的keySet()类似
+- entrySet()返回Set<Multiset.Entry\<E>>，和Map的entrySet类似
+- elementSet()返回所有不重复元素的Set\<E>，和Map的keySet()类似
 - 所有Multiset实现的内存消耗随着不重复元素的个数线性增长
 
 
@@ -533,8 +348,8 @@ Guava的Multiset API也结合考虑了这两种方式： 当把Multiset看成普
 | **方法**         | **描述**                                                     |
 | :--------------- | :----------------------------------------------------------- |
 | count(E)         | 给定元素在Multiset中的计数                                   |
-| elementSet()     | Multiset中不重复元素的集合，类型为Set<E>                     |
-| entrySet()       | 和Map的entrySet类似，返回Set<Multiset.Entry<E>>，其中包含的Entry支持getElement()和getCount()方法 |
+| elementSet()     | Multiset中不重复元素的集合，类型为Set\<E>                    |
+| entrySet()       | 和Map的entrySet类似，返回Set<Multiset.Entry\<E>>，其中包含的Entry支持getElement()和getCount()方法 |
 | add(E, int)      | 增加给定元素在Multiset中的计数                               |
 | remove(E, int)   | 减少给定元素在Multiset中的计数                               |
 | setCount(E, int) | 设置给定元素在Multiset中的计数，不可以为负数                 |
@@ -542,7 +357,7 @@ Guava的Multiset API也结合考虑了这两种方式： 当把Multiset看成普
 
 
 
-Multiset<E>不是Map<E, Integer>，Multiset是一种Collection类型
+Multiset\<E\>不是Map<E, Integer>，Multiset是一种Collection类型
 
 Multiset和Map的区别
 
@@ -554,7 +369,7 @@ Multiset和Map的区别
 
 
 
-##### Multiset的各种实现
+**Multiset的各种实现**
 
 Guava提供了多种Multiset的实现，大致对应JDK中Map的各种实现：
 
@@ -580,7 +395,7 @@ TreeMultiset实现SortedMultiset接口
 
 `Multimap`可以代替`Map<K, List<V>>、Map<K, Set<V>>`等结构
 
-Map<K, Set<V>>通常用来表示非标定有向图。Multimap可以很容易地把一个键映射到多个值
+Map<K, Set\<V>>通常用来表示非标定有向图。Multimap可以很容易地把一个键映射到多个值
 
 
 
@@ -606,7 +421,7 @@ Map<K, Set<V>>通常用来表示非标定有向图。Multimap可以很容易地�
 
 
 
-##### 修改Multimap
+**修改Multimap**
 
 `Multimap.get(key)`以集合形式返回键所对应的值视图，即使没有任何对应的值，也会返回空集合。ListMultimap.get(key)返回List，SetMultimap.get(key)返回Set。
 
@@ -633,31 +448,31 @@ aliceChildren.add(carol);
 
 
 
-##### Multimap的视图
+**Multimap的视图**
 
 Multimap还支持若干强大的视图：
 
-- [`asMap`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimap.html#asMap())为Multimap<K, V>提供Map<K,Collection<V>>形式的视图。返回的Map支持remove操作，并且会反映到底层的Multimap，但它不支持put或putAll操作。更重要的是，如果你想为Multimap中没有的键返回null，而不是一个新的、可写的空集合，你就可以使用asMap().get(key)。（你可以并且应当把asMap.get(key)返回的结果转化为适当的集合类型——如SetMultimap.asMap.get(key)的结果转为Set，ListMultimap.asMap.get(key)的结果转为List——Java类型系统不允许ListMultimap直接为asMap.get(key)返回List——*译者注：也可以用__Multimaps中的asMap静态方法帮你完成类型转换*）
-- [`entries`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimap.html#entries())用Collection<Map.Entry<K, V>>返回Multimap中所有”键-单个值映射”——包括重复键。（对SetMultimap，返回的是Set）
-- [`keySet`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimap.html#keySet())用Set表示Multimap中所有不同的键。
-- [`keys`](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimap.html#keys())用Multiset表示Multimap中的所有键，每个键重复出现的次数等于它映射的值的个数。可以从这个Multiset中移除元素，但不能做添加操作；移除操作会反映到底层的Multimap。
-- [`values()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Multimap.html#values())用一个”扁平”的Collection<V>包含Multimap中的所有值。这有一点类似于Iterables.concat(multimap.asMap().values())，但它直接返回了单个Collection，而不像multimap.asMap().values()那样是按键区分开的Collection。
+- `asMap`为Multimap<K, V>提供Map<K,Collection\<V>>形式的视图。返回的Map支持remove操作，并且会反映到底层的Multimap，但它不支持put或putAll操作。更重要的是，如果你想为Multimap中没有的键返回null，而不是一个新的、可写的空集合，你就可以使用asMap().get(key)。（你可以并且应当把asMap.get(key)返回的结果转化为适当的集合类型——如SetMultimap.asMap.get(key)的结果转为Set，ListMultimap.asMap.get(key)的结果转为List——Java类型系统不允许ListMultimap直接为asMap.get(key)返回List——*译者注：也可以用__Multimaps中的asMap静态方法帮你完成类型转换*）
+- `entries`用Collection<Map.Entry<K, V>>返回Multimap中所有”键-单个值映射”——包括重复键。（对SetMultimap，返回的是Set）
+- `keySet`用Set表示Multimap中所有不同的键。
+- `keys`用Multiset表示Multimap中的所有键，每个键重复出现的次数等于它映射的值的个数。可以从这个Multiset中移除元素，但不能做添加操作；移除操作会反映到底层的Multimap。
+- `values()`用一个”扁平”的Collection\<V>包含Multimap中的所有值。这有一点类似于Iterables.concat(multimap.asMap().values())，但它直接返回了单个Collection，而不像multimap.asMap().values()那样是按键区分开的Collection。
 
-##### Multimap不是Map
+**Multimap不是Map**
 
-Multimap<K, V>不是Map<K,Collection<V>>，虽然某些Multimap实现中可能使用了map。它们之间的显著区别包括：
+Multimap<K, V>不是Map<K,Collection\<V>>，虽然某些Multimap实现中可能使用了map。它们之间的显著区别包括：
 
 - Multimap.get(key)总是返回非null、但是可能空的集合。这并不意味着Multimap为相应的键花费内存创建了集合，而只是提供一个集合视图方便你为键增加映射值——*译者注：如果有这样的键，返回的集合只是包装了__Multimap中已有的集合；如果没有这样的键，返回的空集合也只是持有Multimap引用的栈对象，让你可以用来操作底层的Multimap。因此，返回的集合不会占据太多内存，数据实际上还是存放在Multimap中。*
-- 如果你更喜欢像Map那样，为Multimap中没有的键返回null，请使用asMap()视图获取一个Map<K, Collection<V>>。（或者用静态方法[Multimaps.asMap()](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimaps.html#asMap(com.google.common.collect.ListMultimap))为ListMultimap返回一个Map<K, List<V>>。对于SetMultimap和SortedSetMultimap，也有类似的静态方法存在）
+- 如果你更喜欢像Map那样，为Multimap中没有的键返回null，请使用asMap()视图获取一个Map<K, Collection\<V>>。（或者用静态方法[Multimaps.asMap()](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/Multimaps.html#asMap(com.google.common.collect.ListMultimap))为ListMultimap返回一个Map<K, List\<V>>。对于SetMultimap和SortedSetMultimap，也有类似的静态方法存在）
 - 当且仅当有值映射到键时，Multimap.containsKey(key)才会返回true。尤其需要注意的是，如果键k之前映射过一个或多个值，但它们都被移除后，Multimap.containsKey(key)会返回false。
 - Multimap.entries()返回Multimap中所有”键-单个值映射”——包括重复键。如果你想要得到所有”键-值集合映射”，请使用asMap().entrySet()。
 - Multimap.size()返回所有”键-单个值映射”的个数，而非不同键的个数。要得到不同键的个数，请改用Multimap.keySet().size()。
 
 
 
-##### Multimap的各种实现
+**Multimap的各种实现**
 
-Multimap提供了多种形式的实现。在大多数要使用Map<K, Collection<V>>的地方，你都可以使用它们：
+Multimap提供了多种形式的实现。在大多数要使用Map<K, Collection\<V>>的地方，你都可以使用它们：
 
 | **实现**              | **键行为类似** | **值行为类似** |
 | :-------------------- | :------------- | :------------- |
@@ -710,12 +525,12 @@ String userForId = userId.inverse().get(id);
 
 
 
-##### BiMap的各种实现
+**BiMap的各种实现**
 
 | 键值实现     | 值键实现     | 对应的BiMap实现 |
 | :----------- | :----------- | :-------------- |
 | HashMap      | HashMap      | HashBiMap       |
-| ImmutableMap | ImmutableMap | ImmutableBiMap] |
+| ImmutableMap | ImmutableMap | ImmutableBiMap  |
 | EnumMap      | EnumMap      | EnumBiMap       |
 | EnumMap      | HashMap      | EnumHashBiMap   |
 
@@ -739,7 +554,7 @@ weightedGraph.column(v3); // returns a Map mapping v1 to 20, v2 to 5
 
 Guava为此提供了新集合类型`Table`，它有两个支持所有类型的键：”行”和”列”。Table提供多种视图，以便从各种角度使用它：
 
-- rowMap()：用Map<R, Map<C, V>>表现Table<R, C, V>。同样的， rowKeySet()返回”行”的集合Set<R>。
+- rowMap()：用Map<R, Map<C, V>>表现Table<R, C, V>。同样的， rowKeySet()返回”行”的集合Set\<R>。
 - row(r) ：用Map<C, V>返回给定”行”的所有列，对这个map进行的写操作也将写入Table中。
 - 类似的列访问方法：columnMap()、columnKeySet()、column(c)。（基于列的访问会比基于的行访问稍微低效点）
 - cellSet()：用元素类型为`Table.Cell`的Set表现Table<R, C, V>。Cell类似于Map.Entry，但它是用行和列两个键区分的。
@@ -795,22 +610,22 @@ rangeSet.remove(Range.open(5, 10)); //分割[1, 10]; {[1,5], [10,10], [11,20)}
 
 
 
-##### RangeSet的视图
+**RangeSet的视图**
 
 RangeSet的实现支持非常广泛的视图：
 
 - complement()：返回RangeSet的补集视图。complement也是RangeSet类型,包含了不相连的、非空的区间。
-- subRangeSet(Range<C>)：返回RangeSet与给定Range的交集视图。这扩展了传统排序集合中的headSet、subSet和tailSet操作。
-- asRanges()：用Set<Range<C>>表现RangeSet，这样可以遍历其中的Range。
-- asSet(DiscreteDomain<C>)（仅ImmutableRangeSet支持）：用ImmutableSortedSet<C>表现RangeSet，以区间中所有元素的形式而不是区间本身的形式查看。（这个操作不支持DiscreteDomain 和RangeSet都没有上边界，或都没有下边界的情况）
+- subRangeSet(Range\<C>)：返回RangeSet与给定Range的交集视图。这扩展了传统排序集合中的headSet、subSet和tailSet操作。
+- asRanges()：用Set<Range\<C>>表现RangeSet，这样可以遍历其中的Range。
+- asSet(DiscreteDomain\<C>)（仅ImmutableRangeSet支持）：用ImmutableSortedSet\<C>表现RangeSet，以区间中所有元素的形式而不是区间本身的形式查看。（这个操作不支持DiscreteDomain 和RangeSet都没有上边界，或都没有下边界的情况）
 
-##### RangeSet的查询方法
+**RangeSet的查询方法**
 
 为了方便操作，RangeSet直接提供了若干查询方法，其中最突出的有:
 
 - contains(C)：RangeSet最基本的操作，判断RangeSet中是否有任何区间包含给定元素。
 - rangeContaining(C)：返回包含给定元素的区间；若没有这样的区间，则返回null。
-- encloses(Range<C>)：简单明了，判断RangeSet中是否有任何区间包括给定区间。
+- encloses(Range\<C>)：简单明了，判断RangeSet中是否有任何区间包括给定区间。
 - span()：返回包括RangeSet中所有区间的最小区间。
 
 
@@ -827,12 +642,12 @@ rangeMap.put(Range.open(10, 20), "foo"); //{[1,3] => "foo", (3,6) => "bar", [6,1
 rangeMap.remove(Range.closed(5, 11)); //{[1,3] => "foo", (3,5) => "bar", (11,20) => "foo"}
 ```
 
-##### RangeMap的视图
+**RangeMap的视图**
 
 RangeMap提供两个视图：
 
-- asMapOfRanges()：用Map<Range<K>, V>表现RangeMap。这可以用来遍历RangeMap。
-- subRangeMap(Range<K>)：用RangeMap类型返回RangeMap与给定Range的交集视图。这扩展了传统的headMap、subMap和tailMap操作。
+- asMapOfRanges()：用Map<Range\<K>, V>表现RangeMap。这可以用来遍历RangeMap。
+- subRangeMap(Range\<K>)：用RangeMap类型返回RangeMap与给定Range的交集视图。这扩展了传统的headMap、subMap和tailMap操作。
 
 
 
@@ -1048,15 +863,15 @@ Sets提供如下静态工厂方法：
 
 #### Maps
 
-[`Maps`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Maps.html)类有若干值得单独说明的、很酷的方法。
+`Maps`类有若干值得单独说明的、很酷的方法。
 
-##### uniqueIndex
+**uniqueIndex**
 
-[`Maps.uniqueIndex(Iterable,Function)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Maps.html#uniqueIndex(java.lang.Iterable, com.google.common.base.Function))通常针对的场景是：有一组对象，它们在某个属性上分别有独一无二的值，而我们希望能够按照这个属性值查找对象——*译者注：这个方法返回一个__Map，键为Function返回的属性值，值为Iterable中相应的元素，因此我们可以反复用这个Map进行查找操作。*
+`Maps.uniqueIndex(Iterable,Function)`通常针对的场景是：有一组对象，它们在某个属性上分别有独一无二的值，而希望能够按照这个属性值查找对象
 
 比方说，我们有一堆字符串，这些字符串的长度都是独一无二的，而我们希望能够按照特定长度查找字符串：
 
-```
+```java
 ImmutableMap<Integer, String> stringsByIndex = Maps.uniqueIndex(strings,
     new Function<String, Integer> () {
         public Integer apply(String string) {
@@ -1065,19 +880,20 @@ ImmutableMap<Integer, String> stringsByIndex = Maps.uniqueIndex(strings,
     });
 ```
 
-如果索引值不是独一无二的，请参见下面的Multimaps.index方法。
+如果索引值不是独一无二的，请参见Multimaps.index方法。
 
-##### difference
+**difference**
 
-[`Maps.difference(Map, Map)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Maps.html#difference(java.util.Map, java.util.Map))用来比较两个Map以获取所有不同点。该方法返回MapDifference对象，把不同点的维恩图分解为：
+`Maps.difference(Map, Map)`用来比较两个Map以获取所有不同点。该方法返回MapDifference对象，把不同点的维恩图分解为：
 
-| [`entriesInCommon()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MapDifference.html#entriesInCommon()) | 两个Map中都有的映射项，包括匹配的键与值                      |
-| :----------------------------------------------------------- | :----------------------------------------------------------- |
-| [`entriesDiffering()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MapDifference.html#entriesDiffering()) | 键相同但是值不同值映射项。返回的Map的值类型为[`MapDifference.ValueDifference`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MapDifference.ValueDifference.html)，以表示左右两个不同的值 |
-| [`entriesOnlyOnLeft()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MapDifference.html#entriesOnlyOnLeft()) | 键只存在于左边Map的映射项                                    |
-| [`entriesOnlyOnRight()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/MapDifference.html#entriesOnlyOnRight()) | 键只存在于右边Map的映射项                                    |
+| 方法名                 |                                                              |
+| :--------------------- | :----------------------------------------------------------- |
+| `entriesInCommon()`    | 两个Map中都有的映射项，包括匹配的键与值                      |
+| `entriesDiffering()`   | 键相同但是值不同值映射项。返回的Map的值类型为`MapDifference.ValueDifference`，以表示左右两个不同的值 |
+| `entriesOnlyOnLeft()`  | 键只存在于左边Map的映射项                                    |
+| `entriesOnlyOnRight()` | 键只存在于右边Map的映射项                                    |
 
-```
+```java
 Map<String, Integer> left = ImmutableMap.of("a", 1, "b", 2, "c", 3);
 Map<String, Integer> left = ImmutableMap.of("a", 1, "b", 2, "c", 3);
 MapDifference<String, Integer> diff = Maps.difference(left, right);
@@ -1088,16 +904,16 @@ diff.entriesOnlyOnLeft(); // {"a" => 1}
 diff.entriesOnlyOnRight(); // {"d" => 5}
 ```
 
-##### 处理BiMap的工具方法
+**处理BiMap的工具方法**
 
 Guava中处理BiMap的工具方法在Maps类中，因为BiMap也是一种Map实现。
 
-| **BiMap\****工具方法**                                       | **相应的\****Map***\*工具方法**  |
-| :----------------------------------------------------------- | :------------------------------- |
-| [`synchronizedBiMap(BiMap)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…common/collect/Maps.html#synchronizedBiMap(com.google.common.collect.BiMap)) | Collections.synchronizedMap(Map) |
-| [`unmodifiableBiMap(BiMap)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…common/collect/Maps.html#unmodifiableBiMap(com.google.common.collect.BiMap)) | Collections.unmodifiableMap(Map) |
+| **BiMap\****工具方法**     | **相应的\****Map***\*工具方法**  |
+| :------------------------- | :------------------------------- |
+| `synchronizedBiMap(BiMap)` | Collections.synchronizedMap(Map) |
+| `unmodifiableBiMap(BiMap)` | Collections.unmodifiableMap(Map) |
 
-##### 静态工厂方法
+**静态工厂方法**
 
 Maps提供如下静态工厂方法：
 
@@ -1123,7 +939,7 @@ Maps提供如下静态工厂方法：
 | [`retainOccurrences(Multiset removeFrom, Multiset toRetain)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…ollect/Multisets.html#retainOccurrences(com.google.common.collect.Multiset, com.google.common.collect.Multiset)) | 修改removeFrom，以保证任意o都符合removeFrom.count(o)<=toRetain.count(o) | Collection.retainAll保留所有出现在toRetain的元素             |
 | [`intersection(Multiset, Multiset)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…mon/collect/Multisets.html#intersection(com.google.common.collect.Multiset, com.google.common.collect.Multiset)) | 返回两个multiset的交集;                                      | 没有类似方法                                                 |
 
-```
+```java
 Multiset<String> multiset1 = HashMultiset.create();
 multiset1.add("a", 2);
 
@@ -1497,11 +1313,11 @@ try {
 
 ### 显式插入
 
-使用[cache.put(key, value)](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#put(K, V))方法可以直接向缓存中插入值，这会直接覆盖掉给定键之前映射的值。使用Cache.asMap()视图提供的任何方法也能修改缓存。但请注意，asMap视图的任何方法都不能保证缓存项被原子地加载到缓存中。进一步说，asMap视图的原子运算在Guava Cache的原子加载范畴之外，所以相比于Cache.asMap().putIfAbsent(K, V)，Cache.get(K, Callable<V>) 应该总是优先使用。
+使用cache.put(key, value)方法可以直接向缓存中插入值，这会直接覆盖掉给定键之前映射的值。使用Cache.asMap()视图提供的任何方法也能修改缓存。但请注意，asMap视图的任何方法都不能保证缓存项被原子地加载到缓存中。进一步说，asMap视图的原子运算在Guava Cache的原子加载范畴之外，所以相比于Cache.asMap().putIfAbsent(K, V)，Cache.get(K, Callable\<V>) 应该总是优先使用。
 
 ### 缓存回收
 
-一个残酷的现实是，我们几乎一定没有足够的内存缓存所有数据。你你必须决定：什么时候某个缓存项就不值得保留了？Guava Cache提供了三种基本的缓存回收方式：基于容量回收、定时回收和基于引用回收。
+Guava Cache提供了三种基本的缓存回收方式：基于容量回收、定时回收和基于引用回收。
 
 ### 基于容量的回收（size-based eviction）
 
@@ -1684,20 +1500,20 @@ Cache.get请求到未缓存的值时会遇到两种情况：当前线程加载�
 
 ListenableFuture可以允许你注册回调方法(callbacks)，在运算（多线程执行）完成的时候进行调用, 或者在运算（多线程执行）完成后立即执行。这样简单的改进，使得可以明显的支持更多的操作，这样的功能在JDK concurrent中的Future是不支持的。
 
-`ListenableFuture` 中的基础方法是[`addListener(Runnable, Executor)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…ommon/util/concurrent/ListenableFuture.html#addListener(java.lang.Runnable, java.util.concurrent.Executor)), 该方法会在多线程运算完的时候，指定的Runnable参数传入的对象会被指定的Executor执行。
+`ListenableFuture` 中的基础方法是`addListener(Runnable, Executor)`, 该方法会在多线程运算完的时候，指定的Runnable参数传入的对象会被指定的Executor执行。
 
 #### 添加回调（Callbacks）
 
-多数用户喜欢使用 [Futures.addCallback(ListenableFuture, FutureCallback, Executor)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…utures.html#addCallback(com.google.common.util.concurrent.ListenableFuture, com.google.common.util.concurrent.FutureCallback, java.util.concurrent.Executor))的方式, 或者 另外一个版本[version](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…utures.html#addCallback(com.google.common.util.concurrent.ListenableFuture, com.google.common.util.concurrent.FutureCallback))（译者注：[addCallback](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/src-html/com/google/common/util/concurrent/Futures.html#line.1106)([ListenableFuture](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/ListenableFuture.html)<V> future,[FutureCallback](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/FutureCallback.html)<? super V> callback)），默认是采用 `MoreExecutors.sameThreadExecutor()线程池`, 为了简化使用，Callback采用轻量级的设计. [`FutureCallback`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/FutureCallback.html) 中实现了两个方法:
+多数用户喜欢使用 [Futures.addCallback(ListenableFuture, FutureCallback, Executor)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…utures.html#addCallback(com.google.common.util.concurrent.ListenableFuture, com.google.common.util.concurrent.FutureCallback, java.util.concurrent.Executor))的方式, 或者 另外一个版本[version](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…utures.html#addCallback(com.google.common.util.concurrent.ListenableFuture, com.google.common.util.concurrent.FutureCallback))（译者注：[addCallback](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/src-html/com/google/common/util/concurrent/Futures.html#line.1106)(ListenableFuture\<V> future,[FutureCallback](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/FutureCallback.html)<? super V> callback)），默认是采用 `MoreExecutors.sameThreadExecutor()线程池`, 为了简化使用，Callback采用轻量级的设计. [`FutureCallback`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/FutureCallback.html) 中实现了两个方法:
 
-- [`onSuccess(V)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/FutureCallback.html#onSuccess(V)),在Future成功的时候执行，根据Future结果来判断。
-- [`onFailure(Throwable)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…e/common/util/concurrent/FutureCallback.html#onFailure(java.lang.Throwable)), 在Future失败的时候执行，根据Future结果来判断。
+- `onSuccess(V)`,在Future成功的时候执行，根据Future结果来判断。
+- `onFailure(Throwable)`, 在Future失败的时候执行，根据Future结果来判断。
 
 #### ListenableFuture的创建
 
-对应JDK中的 [`ExecutorService.submit(Callable)`](http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ExecutorService.html#submit(java.util.concurrent.Callable)) 提交多线程异步运算的方式，Guava 提供了[`ListeningExecutorService`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/ListeningExecutorService.html) 接口, 该接口返回 `ListenableFuture` 而相应的 `ExecutorService` 返回普通的 `Future`。将 `ExecutorService` 转为 `ListeningExecutorService，`可以使用[MoreExecutors.listeningDecorator(ExecutorService)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/…MoreExecutors.html#listeningDecorator(java.util.concurrent.ExecutorService))进行装饰。
+对应JDK中的 [`ExecutorService.submit(Callable)`](http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/ExecutorService.html#submit(java.util.concurrent.Callable)) 提交多线程异步运算的方式，Guava 提供了[`ListeningExecutorService`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/ListeningExecutorService.html) 接口, 该接口返回 `ListenableFuture` 而相应的 `ExecutorService` 返回普通的 `Future`。将 `ExecutorService` 转为 `ListeningExecutorService，`可以使用MoreExecutors.listeningDecorator(ExecutorService)进行装饰。
 
-```
+```java
 ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
 ListenableFuture explosion = service.submit(new Callable() {
   public Explosion call() {
@@ -1725,7 +1541,7 @@ Futures.addCallback(explosion, new FutureCallback() {
 
 使用`ListenableFuture` 最重要的理由是它可以进行一系列的复杂链式的异步操作。
 
-```
+```java
 ListenableFuture rowKeyFuture = indexService.lookUp(query);
 AsyncFunction<RowKey, QueryResult> queryFunction =
 new AsyncFunction<RowKey, QueryResult>() {
@@ -1740,7 +1556,7 @@ ListenableFuture queryFuture = Futures.transform(rowKeyFuture, queryFunction, qu
 
 不同的操作可以在不同的Executors中执行，单独的`ListenableFuture` 可以有多个操作等待。
 
-当一个操作开始的时候其他的一些操作也会尽快开始执行–“fan-out”–`ListenableFuture` 能够满足这样的场景：促发所有的回调（callbacks）。反之更简单的工作是，同样可以满足“fan-in”场景，促发`ListenableFuture` 获取（get）计算结果，同时其它的Futures也会尽快执行：可以参考 [the implementation of `Futures.allAsList`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/src-html/com/google/common/util/concurrent/Futures.html#line.1276) 。（译者注：fan-in和fan-out是软件设计的一个术语，可以参考这里： http://baike.baidu.com/view/388892.htm#1 或者看这里的解析 [Design Principles: Fan-In vs Fan-Out](http://it.toolbox.com/blogs/enterprise-solutions/design-principles-fanin-vs-fanout-16088) ，这里fan-out的实现就是封装的ListenableFuture通过回调，调用其它代码片段。fan-in的意义是可以调用其它Future）
+当一个操作开始的时候其他的一些操作也会尽快开始执行–“fan-out”–`ListenableFuture` 能够满足这样的场景：促发所有的回调（callbacks）。反之更简单的工作是，同样可以满足“fan-in”场景，促发`ListenableFuture` 获取（get）计算结果，同时其它的Futures也会尽快执行：可以参考 [the implementation of `Futures.allAsList`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/src-html/com/google/common/util/concurrent/Futures.html#line.1276) 。
 
 | 方法                                                         | 描述                                                         | 参考                                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
@@ -1796,7 +1612,7 @@ Guava包里的Service接口用于封装一个服务对象的运行状态、包�
 
 [`AbstractIdleService`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/AbstractIdleService.html) 类简单实现了Service接口、其在running状态时不会执行任何动作–因此在running时也不需要启动线程–但需要处理开启/关闭动作。要实现一个此类的服务，只需继承AbstractIdleService类，然后自己实现[`startUp()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/AbstractIdleService.html#startUp()) 和[`shutDown()`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/AbstractIdleService.html#shutDown())方法就可以了。
 
-```
+```java
 protected void startUp() {
 servlets.add(new GcStatsServlet());
 }
@@ -1809,7 +1625,7 @@ protected void shutDown() {}
 
 [`AbstractExecutionThreadService`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/util/concurrent/AbstractExecutionThreadService.html) 通过单线程处理启动、运行、和关闭等操作。你必须重载run()方法，同时需要能响应停止服务的请求。具体的实现可以在一个循环内做处理：
 
-```
+```java
  public void run() {
    while (isRunning()) {
      // perform a unit of work
@@ -1821,7 +1637,7 @@ protected void shutDown() {}
 
 重载startUp()和shutDown()方法是可选的，不影响服务本身状态的管理
 
-```
+```java
  protected void startUp() {
 dispatcher.listenForConnections(port, queue);
  }
@@ -1872,2325 +1688,6 @@ doStart和doStop方法的实现需要考虑下性能，尽可能的低延迟。�
 
 我们建议整个服务的生命周期都能通过ServiceManager来管理，不过即使状态转换是通过其他机制触发的、也不影响ServiceManager方法的正确执行。例如：当一个服务不是通过startAsync()、而是其他机制启动时，listeners 仍然可以被正常调用、awaitHealthy()也能够正常工作。ServiceManager 唯一强制的要求是当其被创建时所有的服务必须处于New状态。
 
-附：TestCase、也可以作为练习Demo
-
-**ServiceTest**
-
-```
-</pre>
-/*
- * Copyright (C) 2013 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.google.common.util.concurrent;
-
-import static com.google.common.util.concurrent.Service.State.FAILED;
-import static com.google.common.util.concurrent.Service.State.NEW;
-import static com.google.common.util.concurrent.Service.State.RUNNING;
-import static com.google.common.util.concurrent.Service.State.STARTING;
-import static com.google.common.util.concurrent.Service.State.STOPPING;
-import static com.google.common.util.concurrent.Service.State.TERMINATED;
-
-import junit.framework.TestCase;
-
-/**
- * Unit tests for {@link Service}
- */
-public class ServiceTest extends TestCase {
-
-/** Assert on the comparison ordering of the State enum since we guarantee it. */
- public void testStateOrdering() {
- // List every valid (direct) state transition.
- assertLessThan(NEW, STARTING);
- assertLessThan(NEW, TERMINATED);
-
- assertLessThan(STARTING, RUNNING);
- assertLessThan(STARTING, STOPPING);
- assertLessThan(STARTING, FAILED);
-
- assertLessThan(RUNNING, STOPPING);
- assertLessThan(RUNNING, FAILED);
-
- assertLessThan(STOPPING, FAILED);
- assertLessThan(STOPPING, TERMINATED);
- }
-
- private static <T extends Comparable<? super T>> void assertLessThan(T a, T b) {
- if (a.compareTo(b) >= 0) {
- fail(String.format("Expected %s to be less than %s", a, b));
- }
- }
-}
-<pre>
-```
-
-AbstractIdleServiceTest
-
-```
-/*
- * Copyright (C) 2009 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.google.common.util.concurrent;
-
-import static org.truth0.Truth.ASSERT;
-
-import com.google.common.collect.Lists;
-
-import junit.framework.TestCase;
-
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-/**
- * Tests for {@link AbstractIdleService}.
- *
- * @author Chris Nokleberg
- * @author Ben Yu
- */
-public class AbstractIdleServiceTest extends TestCase {
-
-// Functional tests using real thread. We only verify publicly visible state.
- // Interaction assertions are done by the single-threaded unit tests.
-
-public static class FunctionalTest extends TestCase {
-
-private static class DefaultService extends AbstractIdleService {
- @Override protected void startUp() throws Exception {}
- @Override protected void shutDown() throws Exception {}
- }
-
-public void testServiceStartStop() throws Exception {
- AbstractIdleService service = new DefaultService();
- service.startAsync().awaitRunning();
- assertEquals(Service.State.RUNNING, service.state());
- service.stopAsync().awaitTerminated();
- assertEquals(Service.State.TERMINATED, service.state());
- }
-
-public void testStart_failed() throws Exception {
- final Exception exception = new Exception("deliberate");
- AbstractIdleService service = new DefaultService() {
- @Override protected void startUp() throws Exception {
- throw exception;
- }
- };
- try {
- service.startAsync().awaitRunning();
- fail();
- } catch (RuntimeException e) {
- assertSame(exception, e.getCause());
- }
- assertEquals(Service.State.FAILED, service.state());
- }
-
-public void testStop_failed() throws Exception {
- final Exception exception = new Exception("deliberate");
- AbstractIdleService service = new DefaultService() {
- @Override protected void shutDown() throws Exception {
- throw exception;
- }
- };
- service.startAsync().awaitRunning();
- try {
- service.stopAsync().awaitTerminated();
- fail();
- } catch (RuntimeException e) {
- assertSame(exception, e.getCause());
- }
- assertEquals(Service.State.FAILED, service.state());
- }
- }
-
-public void testStart() {
- TestService service = new TestService();
- assertEquals(0, service.startUpCalled);
- service.startAsync().awaitRunning();
- assertEquals(1, service.startUpCalled);
- assertEquals(Service.State.RUNNING, service.state());
- ASSERT.that(service.transitionStates).has().exactly(Service.State.STARTING).inOrder();
- }
-
-public void testStart_failed() {
- final Exception exception = new Exception("deliberate");
- TestService service = new TestService() {
- @Override protected void startUp() throws Exception {
- super.startUp();
- throw exception;
- }
- };
- assertEquals(0, service.startUpCalled);
- try {
- service.startAsync().awaitRunning();
- fail();
- } catch (RuntimeException e) {
- assertSame(exception, e.getCause());
- }
- assertEquals(1, service.startUpCalled);
- assertEquals(Service.State.FAILED, service.state());
- ASSERT.that(service.transitionStates).has().exactly(Service.State.STARTING).inOrder();
- }
-
-public void testStop_withoutStart() {
- TestService service = new TestService();
- service.stopAsync().awaitTerminated();
- assertEquals(0, service.startUpCalled);
- assertEquals(0, service.shutDownCalled);
- assertEquals(Service.State.TERMINATED, service.state());
- ASSERT.that(service.transitionStates).isEmpty();
- }
-
-public void testStop_afterStart() {
- TestService service = new TestService();
- service.startAsync().awaitRunning();
- assertEquals(1, service.startUpCalled);
- assertEquals(0, service.shutDownCalled);
- service.stopAsync().awaitTerminated();
- assertEquals(1, service.startUpCalled);
- assertEquals(1, service.shutDownCalled);
- assertEquals(Service.State.TERMINATED, service.state());
- ASSERT.that(service.transitionStates)
- .has().exactly(Service.State.STARTING, Service.State.STOPPING).inOrder();
- }
-
-public void testStop_failed() {
- final Exception exception = new Exception("deliberate");
- TestService service = new TestService() {
- @Override protected void shutDown() throws Exception {
- super.shutDown();
- throw exception;
- }
- };
- service.startAsync().awaitRunning();
- assertEquals(1, service.startUpCalled);
- assertEquals(0, service.shutDownCalled);
- try {
- service.stopAsync().awaitTerminated();
- fail();
- } catch (RuntimeException e) {
- assertSame(exception, e.getCause());
- }
- assertEquals(1, service.startUpCalled);
- assertEquals(1, service.shutDownCalled);
- assertEquals(Service.State.FAILED, service.state());
- ASSERT.that(service.transitionStates)
- .has().exactly(Service.State.STARTING, Service.State.STOPPING).inOrder();
- }
-
-public void testServiceToString() {
- AbstractIdleService service = new TestService();
- assertEquals("TestService [NEW]", service.toString());
- service.startAsync().awaitRunning();
- assertEquals("TestService [RUNNING]", service.toString());
- service.stopAsync().awaitTerminated();
- assertEquals("TestService [TERMINATED]", service.toString());
- }
-
-public void testTimeout() throws Exception {
- // Create a service whose executor will never run its commands
- Service service = new TestService() {
- @Override protected Executor executor() {
- return new Executor() {
- @Override public void execute(Runnable command) {}
- };
- }
- };
- try {
- service.startAsync().awaitRunning(1, TimeUnit.MILLISECONDS);
- fail("Expected timeout");
- } catch (TimeoutException e) {
- ASSERT.that(e.getMessage()).contains(Service.State.STARTING.toString());
- }
- }
-
-private static class TestService extends AbstractIdleService {
- int startUpCalled = 0;
- int shutDownCalled = 0;
- final List<State> transitionStates = Lists.newArrayList();
-
-@Override protected void startUp() throws Exception {
- assertEquals(0, startUpCalled);
- assertEquals(0, shutDownCalled);
- startUpCalled++;
- assertEquals(State.STARTING, state());
- }
-
-@Override protected void shutDown() throws Exception {
- assertEquals(1, startUpCalled);
- assertEquals(0, shutDownCalled);
- shutDownCalled++;
- assertEquals(State.STOPPING, state());
- }
-
-@Override protected Executor executor() {
- transitionStates.add(state());
- return MoreExecutors.sameThreadExecutor();
- }
- }
-}
-
-<pre>
-```
-
-**AbstractScheduledServiceTest**
-
-```
-</pre>
-/*
- * Copyright (C) 2011 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.google.common.util.concurrent;
-
-import com.google.common.util.concurrent.AbstractScheduledService.Scheduler;
-import com.google.common.util.concurrent.Service.State;
-
-import junit.framework.TestCase;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * Unit test for {@link AbstractScheduledService}.
- *
- * @author Luke Sandberg
- */
-
-public class AbstractScheduledServiceTest extends TestCase {
-
-volatile Scheduler configuration = Scheduler.newFixedDelaySchedule(0, 10, TimeUnit.MILLISECONDS);
- volatile ScheduledFuture<?> future = null;
-
-volatile boolean atFixedRateCalled = false;
- volatile boolean withFixedDelayCalled = false;
- volatile boolean scheduleCalled = false;
-
-final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(10) {
- @Override
- public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay,
- long delay, TimeUnit unit) {
- return future = super.scheduleWithFixedDelay(command, initialDelay, delay, unit);
- }
- };
-
-public void testServiceStartStop() throws Exception {
- NullService service = new NullService();
- service.startAsync().awaitRunning();
- assertFalse(future.isDone());
- service.stopAsync().awaitTerminated();
- assertTrue(future.isCancelled());
- }
-
-private class NullService extends AbstractScheduledService {
- @Override protected void runOneIteration() throws Exception {}
- @Override protected Scheduler scheduler() { return configuration; }
- @Override protected ScheduledExecutorService executor() { return executor; }
- }
-
-public void testFailOnExceptionFromRun() throws Exception {
- TestService service = new TestService();
- service.runException = new Exception();
- service.startAsync().awaitRunning();
- service.runFirstBarrier.await();
- service.runSecondBarrier.await();
- try {
- future.get();
- fail();
- } catch (ExecutionException e) {
- // An execution exception holds a runtime exception (from throwables.propogate) that holds our
- // original exception.
- assertEquals(service.runException, e.getCause().getCause());
- }
- assertEquals(service.state(), Service.State.FAILED);
- }
-
-public void testFailOnExceptionFromStartUp() {
- TestService service = new TestService();
- service.startUpException = new Exception();
- try {
- service.startAsync().awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(service.startUpException, e.getCause());
- }
- assertEquals(0, service.numberOfTimesRunCalled.get());
- assertEquals(Service.State.FAILED, service.state());
- }
-
-public void testFailOnExceptionFromShutDown() throws Exception {
- TestService service = new TestService();
- service.shutDownException = new Exception();
- service.startAsync().awaitRunning();
- service.runFirstBarrier.await();
- service.stopAsync();
- service.runSecondBarrier.await();
- try {
- service.awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(service.shutDownException, e.getCause());
- }
- assertEquals(Service.State.FAILED, service.state());
- }
-
-public void testRunOneIterationCalledMultipleTimes() throws Exception {
- TestService service = new TestService();
- service.startAsync().awaitRunning();
- for (int i = 1; i < 10; i++) {
- service.runFirstBarrier.await();
- assertEquals(i, service.numberOfTimesRunCalled.get());
- service.runSecondBarrier.await();
- }
- service.runFirstBarrier.await();
- service.stopAsync();
- service.runSecondBarrier.await();
- service.stopAsync().awaitTerminated();
- }
-
-public void testExecutorOnlyCalledOnce() throws Exception {
- TestService service = new TestService();
- service.startAsync().awaitRunning();
- // It should be called once during startup.
- assertEquals(1, service.numberOfTimesExecutorCalled.get());
- for (int i = 1; i < 10; i++) {
- service.runFirstBarrier.await();
- assertEquals(i, service.numberOfTimesRunCalled.get());
- service.runSecondBarrier.await();
- }
- service.runFirstBarrier.await();
- service.stopAsync();
- service.runSecondBarrier.await();
- service.stopAsync().awaitTerminated();
- // Only called once overall.
- assertEquals(1, service.numberOfTimesExecutorCalled.get());
- }
-
-public void testDefaultExecutorIsShutdownWhenServiceIsStopped() throws Exception {
- final CountDownLatch terminationLatch = new CountDownLatch(1);
- AbstractScheduledService service = new AbstractScheduledService() {
- volatile ScheduledExecutorService executorService;
- @Override protected void runOneIteration() throws Exception {}
-
-@Override protected ScheduledExecutorService executor() {
- if (executorService == null) {
- executorService = super.executor();
- // Add a listener that will be executed after the listener that shuts down the executor.
- addListener(new Listener() {
- @Override public void terminated(State from) {
- terminationLatch.countDown();
- }
- }, MoreExecutors.sameThreadExecutor());
- }
- return executorService;
- }
-
-@Override protected Scheduler scheduler() {
- return Scheduler.newFixedDelaySchedule(0, 1, TimeUnit.MILLISECONDS);
- }};
-
-service.startAsync();
- assertFalse(service.executor().isShutdown());
- service.awaitRunning();
- service.stopAsync();
- terminationLatch.await();
- assertTrue(service.executor().isShutdown());
- assertTrue(service.executor().awaitTermination(100, TimeUnit.MILLISECONDS));
- }
-
-public void testDefaultExecutorIsShutdownWhenServiceFails() throws Exception {
- final CountDownLatch failureLatch = new CountDownLatch(1);
- AbstractScheduledService service = new AbstractScheduledService() {
- volatile ScheduledExecutorService executorService;
- @Override protected void runOneIteration() throws Exception {}
-
-@Override protected void startUp() throws Exception {
- throw new Exception("Failed");
- }
-
-@Override protected ScheduledExecutorService executor() {
- if (executorService == null) {
- executorService = super.executor();
- // Add a listener that will be executed after the listener that shuts down the executor.
- addListener(new Listener() {
- @Override public void failed(State from, Throwable failure) {
- failureLatch.countDown();
- }
- }, MoreExecutors.sameThreadExecutor());
- }
- return executorService;
- }
-
-@Override protected Scheduler scheduler() {
- return Scheduler.newFixedDelaySchedule(0, 1, TimeUnit.MILLISECONDS);
- }};
-
-try {
- service.startAsync().awaitRunning();
- fail("Expected service to fail during startup");
- } catch (IllegalStateException expected) {}
- failureLatch.await();
- assertTrue(service.executor().isShutdown());
- assertTrue(service.executor().awaitTermination(100, TimeUnit.MILLISECONDS));
- }
-
-public void testSchedulerOnlyCalledOnce() throws Exception {
- TestService service = new TestService();
- service.startAsync().awaitRunning();
- // It should be called once during startup.
- assertEquals(1, service.numberOfTimesSchedulerCalled.get());
- for (int i = 1; i < 10; i++) {
- service.runFirstBarrier.await();
- assertEquals(i, service.numberOfTimesRunCalled.get());
- service.runSecondBarrier.await();
- }
- service.runFirstBarrier.await();
- service.stopAsync();
- service.runSecondBarrier.await();
- service.awaitTerminated();
- // Only called once overall.
- assertEquals(1, service.numberOfTimesSchedulerCalled.get());
- }
-
-private class TestService extends AbstractScheduledService {
- CyclicBarrier runFirstBarrier = new CyclicBarrier(2);
- CyclicBarrier runSecondBarrier = new CyclicBarrier(2);
-
-volatile boolean startUpCalled = false;
- volatile boolean shutDownCalled = false;
- AtomicInteger numberOfTimesRunCalled = new AtomicInteger(0);
- AtomicInteger numberOfTimesExecutorCalled = new AtomicInteger(0);
- AtomicInteger numberOfTimesSchedulerCalled = new AtomicInteger(0);
- volatile Exception runException = null;
- volatile Exception startUpException = null;
- volatile Exception shutDownException = null;
-
-@Override
- protected void runOneIteration() throws Exception {
- assertTrue(startUpCalled);
- assertFalse(shutDownCalled);
- numberOfTimesRunCalled.incrementAndGet();
- assertEquals(State.RUNNING, state());
- runFirstBarrier.await();
- runSecondBarrier.await();
- if (runException != null) {
- throw runException;
- }
- }
-
-@Override
- protected void startUp() throws Exception {
- assertFalse(startUpCalled);
- assertFalse(shutDownCalled);
- startUpCalled = true;
- assertEquals(State.STARTING, state());
- if (startUpException != null) {
- throw startUpException;
- }
- }
-
-@Override
- protected void shutDown() throws Exception {
- assertTrue(startUpCalled);
- assertFalse(shutDownCalled);
- shutDownCalled = true;
- if (shutDownException != null) {
- throw shutDownException;
- }
- }
-
-@Override
- protected ScheduledExecutorService executor() {
- numberOfTimesExecutorCalled.incrementAndGet();
- return executor;
- }
-
-@Override
- protected Scheduler scheduler() {
- numberOfTimesSchedulerCalled.incrementAndGet();
- return configuration;
- }
- }
-
-public static class SchedulerTest extends TestCase {
- // These constants are arbitrary and just used to make sure that the correct method is called
- // with the correct parameters.
- private static final int initialDelay = 10;
- private static final int delay = 20;
- private static final TimeUnit unit = TimeUnit.MILLISECONDS;
-
-// Unique runnable object used for comparison.
- final Runnable testRunnable = new Runnable() {@Override public void run() {}};
- boolean called = false;
-
-private void assertSingleCallWithCorrectParameters(Runnable command, long initialDelay,
- long delay, TimeUnit unit) {
- assertFalse(called); // only called once.
- called = true;
- assertEquals(SchedulerTest.initialDelay, initialDelay);
- assertEquals(SchedulerTest.delay, delay);
- assertEquals(SchedulerTest.unit, unit);
- assertEquals(testRunnable, command);
- }
-
-public void testFixedRateSchedule() {
- Scheduler schedule = Scheduler.newFixedRateSchedule(initialDelay, delay, unit);
- schedule.schedule(null, new ScheduledThreadPoolExecutor(1) {
- @Override
- public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay,
- long period, TimeUnit unit) {
- assertSingleCallWithCorrectParameters(command, initialDelay, delay, unit);
- return null;
- }
- }, testRunnable);
- assertTrue(called);
- }
-
-public void testFixedDelaySchedule() {
- Scheduler schedule = Scheduler.newFixedDelaySchedule(initialDelay, delay, unit);
- schedule.schedule(null, new ScheduledThreadPoolExecutor(10) {
- @Override
- public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay,
- long delay, TimeUnit unit) {
- assertSingleCallWithCorrectParameters(command, initialDelay, delay, unit);
- return null;
- }
- }, testRunnable);
- assertTrue(called);
- }
-
-private class TestCustomScheduler extends AbstractScheduledService.CustomScheduler {
- public AtomicInteger scheduleCounter = new AtomicInteger(0);
- @Override
- protected Schedule getNextSchedule() throws Exception {
- scheduleCounter.incrementAndGet();
- return new Schedule(0, TimeUnit.SECONDS);
- }
- }
-
-public void testCustomSchedule_startStop() throws Exception {
- final CyclicBarrier firstBarrier = new CyclicBarrier(2);
- final CyclicBarrier secondBarrier = new CyclicBarrier(2);
- final AtomicBoolean shouldWait = new AtomicBoolean(true);
- Runnable task = new Runnable() {
- @Override public void run() {
- try {
- if (shouldWait.get()) {
- firstBarrier.await();
- secondBarrier.await();
- }
- } catch (Exception e) {
- throw new RuntimeException(e);
- }
- }
- };
- TestCustomScheduler scheduler = new TestCustomScheduler();
- Future<?> future = scheduler.schedule(null, Executors.newScheduledThreadPool(10), task);
- firstBarrier.await();
- assertEquals(1, scheduler.scheduleCounter.get());
- secondBarrier.await();
- firstBarrier.await();
- assertEquals(2, scheduler.scheduleCounter.get());
- shouldWait.set(false);
- secondBarrier.await();
- future.cancel(false);
- }
-
-public void testCustomSchedulerServiceStop() throws Exception {
- TestAbstractScheduledCustomService service = new TestAbstractScheduledCustomService();
- service.startAsync().awaitRunning();
- service.firstBarrier.await();
- assertEquals(1, service.numIterations.get());
- service.stopAsync();
- service.secondBarrier.await();
- service.awaitTerminated();
- // Sleep for a while just to ensure that our task wasn't called again.
- Thread.sleep(unit.toMillis(3 * delay));
- assertEquals(1, service.numIterations.get());
- }
-
-public void testBig() throws Exception {
- TestAbstractScheduledCustomService service = new TestAbstractScheduledCustomService() {
- @Override protected Scheduler scheduler() {
- return new AbstractScheduledService.CustomScheduler() {
- @Override
- protected Schedule getNextSchedule() throws Exception {
- // Explicitly yield to increase the probability of a pathological scheduling.
- Thread.yield();
- return new Schedule(0, TimeUnit.SECONDS);
- }
- };
- }
- };
- service.useBarriers = false;
- service.startAsync().awaitRunning();
- Thread.sleep(50);
- service.useBarriers = true;
- service.firstBarrier.await();
- int numIterations = service.numIterations.get();
- service.stopAsync();
- service.secondBarrier.await();
- service.awaitTerminated();
- assertEquals(numIterations, service.numIterations.get());
- }
-
-private static class TestAbstractScheduledCustomService extends AbstractScheduledService {
- final AtomicInteger numIterations = new AtomicInteger(0);
- volatile boolean useBarriers = true;
- final CyclicBarrier firstBarrier = new CyclicBarrier(2);
- final CyclicBarrier secondBarrier = new CyclicBarrier(2);
-
-@Override protected void runOneIteration() throws Exception {
- numIterations.incrementAndGet();
- if (useBarriers) {
- firstBarrier.await();
- secondBarrier.await();
- }
- }
-
-@Override protected ScheduledExecutorService executor() {
- // use a bunch of threads so that weird overlapping schedules are more likely to happen.
- return Executors.newScheduledThreadPool(10);
- }
-
-@Override protected void startUp() throws Exception {}
-
-@Override protected void shutDown() throws Exception {}
-
-@Override protected Scheduler scheduler() {
- return new CustomScheduler() {
- @Override
- protected Schedule getNextSchedule() throws Exception {
- return new Schedule(delay, unit);
- }};
- }
- }
-
-public void testCustomSchedulerFailure() throws Exception {
- TestFailingCustomScheduledService service = new TestFailingCustomScheduledService();
- service.startAsync().awaitRunning();
- for (int i = 1; i < 4; i++) {
- service.firstBarrier.await();
- assertEquals(i, service.numIterations.get());
- service.secondBarrier.await();
- }
- Thread.sleep(1000);
- try {
- service.stopAsync().awaitTerminated(100, TimeUnit.SECONDS);
- fail();
- } catch (IllegalStateException e) {
- assertEquals(State.FAILED, service.state());
- }
- }
-
-private static class TestFailingCustomScheduledService extends AbstractScheduledService {
- final AtomicInteger numIterations = new AtomicInteger(0);
- final CyclicBarrier firstBarrier = new CyclicBarrier(2);
- final CyclicBarrier secondBarrier = new CyclicBarrier(2);
-
-@Override protected void runOneIteration() throws Exception {
- numIterations.incrementAndGet();
- firstBarrier.await();
- secondBarrier.await();
- }
-
-@Override protected ScheduledExecutorService executor() {
- // use a bunch of threads so that weird overlapping schedules are more likely to happen.
- return Executors.newScheduledThreadPool(10);
- }
-
-@Override protected Scheduler scheduler() {
- return new CustomScheduler() {
- @Override
- protected Schedule getNextSchedule() throws Exception {
- if (numIterations.get() > 2) {
- throw new IllegalStateException("Failed");
- }
- return new Schedule(delay, unit);
- }};
- }
- }
- }
-}
-<pre>
-```
-
-**AbstractServiceTest**
-
-```
-</pre>
-/*
- * Copyright (C) 2009 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.google.common.util.concurrent;
-
-import static java.lang.Thread.currentThread;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Service.Listener;
-import com.google.common.util.concurrent.Service.State;
-
-import junit.framework.TestCase;
-
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.concurrent.GuardedBy;
-
-/**
- * Unit test for {@link AbstractService}.
- *
- * @author Jesse Wilson
- */
-public class AbstractServiceTest extends TestCase {
-
-private Thread executionThread;
- private Throwable thrownByExecutionThread;
-
-public void testNoOpServiceStartStop() throws Exception {
- NoOpService service = new NoOpService();
- RecordingListener listener = RecordingListener.record(service);
-
-assertEquals(State.NEW, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.running);
-
-service.startAsync();
- assertEquals(State.RUNNING, service.state());
- assertTrue(service.isRunning());
- assertTrue(service.running);
-
-service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.running);
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.TERMINATED),
- listener.getStateHistory());
- }
-
-public void testNoOpServiceStartAndWaitStopAndWait() throws Exception {
- NoOpService service = new NoOpService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
- }
-
-public void testNoOpServiceStartAsyncAndAwaitStopAsyncAndAwait() throws Exception {
- NoOpService service = new NoOpService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
- }
-
-public void testNoOpServiceStopIdempotence() throws Exception {
- NoOpService service = new NoOpService();
- RecordingListener listener = RecordingListener.record(service);
- service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.stopAsync();
- service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.TERMINATED),
- listener.getStateHistory());
- }
-
-public void testNoOpServiceStopIdempotenceAfterWait() throws Exception {
- NoOpService service = new NoOpService();
-
-service.startAsync().awaitRunning();
-
-service.stopAsync().awaitTerminated();
- service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
- }
-
-public void testNoOpServiceStopIdempotenceDoubleWait() throws Exception {
- NoOpService service = new NoOpService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.stopAsync().awaitTerminated();
- service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
- }
-
-public void testNoOpServiceStartStopAndWaitUninterruptible()
- throws Exception {
- NoOpService service = new NoOpService();
-
-currentThread().interrupt();
- try {
- service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
-
-assertTrue(currentThread().isInterrupted());
- } finally {
- Thread.interrupted(); // clear interrupt for future tests
- }
- }
-
-private static class NoOpService extends AbstractService {
- boolean running = false;
-
-@Override protected void doStart() {
- assertFalse(running);
- running = true;
- notifyStarted();
- }
-
-@Override protected void doStop() {
- assertTrue(running);
- running = false;
- notifyStopped();
- }
- }
-
-public void testManualServiceStartStop() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync();
- assertEquals(State.STARTING, service.state());
- assertFalse(service.isRunning());
- assertTrue(service.doStartCalled);
-
-service.notifyStarted(); // usually this would be invoked by another thread
- assertEquals(State.RUNNING, service.state());
- assertTrue(service.isRunning());
-
-service.stopAsync();
- assertEquals(State.STOPPING, service.state());
- assertFalse(service.isRunning());
- assertTrue(service.doStopCalled);
-
-service.notifyStopped(); // usually this would be invoked by another thread
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.TERMINATED),
- listener.getStateHistory());
-
-}
-
-public void testManualServiceNotifyStoppedWhileRunning() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync();
- service.notifyStarted();
- service.notifyStopped();
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.doStopCalled);
-
-assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.TERMINATED),
- listener.getStateHistory());
- }
-
-public void testManualServiceStopWhileStarting() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync();
- assertEquals(State.STARTING, service.state());
- assertFalse(service.isRunning());
- assertTrue(service.doStartCalled);
-
-service.stopAsync();
- assertEquals(State.STOPPING, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.doStopCalled);
-
-service.notifyStarted();
- assertEquals(State.STOPPING, service.state());
- assertFalse(service.isRunning());
- assertTrue(service.doStopCalled);
-
-service.notifyStopped();
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.STOPPING,
- State.TERMINATED),
- listener.getStateHistory());
- }
-
-/**
- * This tests for a bug where if {@link Service#stopAsync()} was called while the service was
- * {@link State#STARTING} more than once, the {@link Listener#stopping(State)} callback would get
- * called multiple times.
- */
- public void testManualServiceStopMultipleTimesWhileStarting() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- final AtomicInteger stopppingCount = new AtomicInteger();
- service.addListener(new Listener() {
- @Override public void stopping(State from) {
- stopppingCount.incrementAndGet();
- }
- }, MoreExecutors.sameThreadExecutor());
-
-service.startAsync();
- service.stopAsync();
- assertEquals(1, stopppingCount.get());
- service.stopAsync();
- assertEquals(1, stopppingCount.get());
- }
-
-public void testManualServiceStopWhileNew() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.doStartCalled);
- assertFalse(service.doStopCalled);
- assertEquals(ImmutableList.of(State.TERMINATED), listener.getStateHistory());
- }
-
-public void testManualServiceFailWhileStarting() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
- service.startAsync();
- service.notifyFailed(EXCEPTION);
- assertEquals(ImmutableList.of(State.STARTING, State.FAILED), listener.getStateHistory());
- }
-
-public void testManualServiceFailWhileRunning() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
- service.startAsync();
- service.notifyStarted();
- service.notifyFailed(EXCEPTION);
- assertEquals(ImmutableList.of(State.STARTING, State.RUNNING, State.FAILED),
- listener.getStateHistory());
- }
-
-public void testManualServiceFailWhileStopping() throws Exception {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener listener = RecordingListener.record(service);
- service.startAsync();
- service.notifyStarted();
- service.stopAsync();
- service.notifyFailed(EXCEPTION);
- assertEquals(ImmutableList.of(State.STARTING, State.RUNNING, State.STOPPING, State.FAILED),
- listener.getStateHistory());
- }
-
-public void testManualServiceUnrequestedStop() {
- ManualSwitchedService service = new ManualSwitchedService();
-
-service.startAsync();
-
-service.notifyStarted();
- assertEquals(State.RUNNING, service.state());
- assertTrue(service.isRunning());
- assertFalse(service.doStopCalled);
-
-service.notifyStopped();
- assertEquals(State.TERMINATED, service.state());
- assertFalse(service.isRunning());
- assertFalse(service.doStopCalled);
- }
-
-/**
- * The user of this service should call {@link #notifyStarted} and {@link
- * #notifyStopped} after calling {@link #startAsync} and {@link #stopAsync}.
- */
- private static class ManualSwitchedService extends AbstractService {
- boolean doStartCalled = false;
- boolean doStopCalled = false;
-
-@Override protected void doStart() {
- assertFalse(doStartCalled);
- doStartCalled = true;
- }
-
-@Override protected void doStop() {
- assertFalse(doStopCalled);
- doStopCalled = true;
- }
- }
-
-public void testAwaitTerminated() throws Exception {
- final NoOpService service = new NoOpService();
- Thread waiter = new Thread() {
- @Override public void run() {
- service.awaitTerminated();
- }
- };
- waiter.start();
- service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
- service.stopAsync();
- waiter.join(100); // ensure that the await in the other thread is triggered
- assertFalse(waiter.isAlive());
- }
-
-public void testAwaitTerminated_FailedService() throws Exception {
- final ManualSwitchedService service = new ManualSwitchedService();
- final AtomicReference<Throwable> exception = Atomics.newReference();
- Thread waiter = new Thread() {
- @Override public void run() {
- try {
- service.awaitTerminated();
- fail("Expected an IllegalStateException");
- } catch (Throwable t) {
- exception.set(t);
- }
- }
- };
- waiter.start();
- service.startAsync();
- service.notifyStarted();
- assertEquals(State.RUNNING, service.state());
- service.notifyFailed(EXCEPTION);
- assertEquals(State.FAILED, service.state());
- waiter.join(100);
- assertFalse(waiter.isAlive());
- assertTrue(exception.get() instanceof IllegalStateException);
- assertEquals(EXCEPTION, exception.get().getCause());
- }
-
-public void testThreadedServiceStartAndWaitStopAndWait() throws Throwable {
- ThreadedService service = new ThreadedService();
- RecordingListener listener = RecordingListener.record(service);
- service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.awaitRunChecks();
-
-service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
-
-throwIfSet(thrownByExecutionThread);
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.TERMINATED),
- listener.getStateHistory());
- }
-
-public void testThreadedServiceStopIdempotence() throws Throwable {
- ThreadedService service = new ThreadedService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.awaitRunChecks();
-
-service.stopAsync();
- service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
-
-throwIfSet(thrownByExecutionThread);
- }
-
-public void testThreadedServiceStopIdempotenceAfterWait()
- throws Throwable {
- ThreadedService service = new ThreadedService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.awaitRunChecks();
-
-service.stopAsync().awaitTerminated();
- service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
-
-executionThread.join();
-
-throwIfSet(thrownByExecutionThread);
- }
-
-public void testThreadedServiceStopIdempotenceDoubleWait()
- throws Throwable {
- ThreadedService service = new ThreadedService();
-
-service.startAsync().awaitRunning();
- assertEquals(State.RUNNING, service.state());
-
-service.awaitRunChecks();
-
-service.stopAsync().awaitTerminated();
- service.stopAsync().awaitTerminated();
- assertEquals(State.TERMINATED, service.state());
-
-throwIfSet(thrownByExecutionThread);
- }
-
-public void testManualServiceFailureIdempotence() {
- ManualSwitchedService service = new ManualSwitchedService();
- RecordingListener.record(service);
- service.startAsync();
- service.notifyFailed(new Exception("1"));
- service.notifyFailed(new Exception("2"));
- assertEquals("1", service.failureCause().getMessage());
- try {
- service.awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals("1", e.getCause().getMessage());
- }
- }
-
-private class ThreadedService extends AbstractService {
- final CountDownLatch hasConfirmedIsRunning = new CountDownLatch(1);
-
-/*
- * The main test thread tries to stop() the service shortly after
- * confirming that it is running. Meanwhile, the service itself is trying
- * to confirm that it is running. If the main thread's stop() call happens
- * before it has the chance, the test will fail. To avoid this, the main
- * thread calls this method, which waits until the service has performed
- * its own "running" check.
- */
- void awaitRunChecks() throws InterruptedException {
- assertTrue("Service thread hasn't finished its checks. "
- + "Exception status (possibly stale): " + thrownByExecutionThread,
- hasConfirmedIsRunning.await(10, SECONDS));
- }
-
-@Override protected void doStart() {
- assertEquals(State.STARTING, state());
- invokeOnExecutionThreadForTest(new Runnable() {
- @Override public void run() {
- assertEquals(State.STARTING, state());
- notifyStarted();
- assertEquals(State.RUNNING, state());
- hasConfirmedIsRunning.countDown();
- }
- });
- }
-
-@Override protected void doStop() {
- assertEquals(State.STOPPING, state());
- invokeOnExecutionThreadForTest(new Runnable() {
- @Override public void run() {
- assertEquals(State.STOPPING, state());
- notifyStopped();
- assertEquals(State.TERMINATED, state());
- }
- });
- }
- }
-
-private void invokeOnExecutionThreadForTest(Runnable runnable) {
- executionThread = new Thread(runnable);
- executionThread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
- @Override
- public void uncaughtException(Thread thread, Throwable e) {
- thrownByExecutionThread = e;
- }
- });
- executionThread.start();
- }
-
-private static void throwIfSet(Throwable t) throws Throwable {
- if (t != null) {
- throw t;
- }
- }
-
-public void testStopUnstartedService() throws Exception {
- NoOpService service = new NoOpService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.stopAsync();
- assertEquals(State.TERMINATED, service.state());
-
-try {
- service.startAsync();
- fail();
- } catch (IllegalStateException expected) {}
- assertEquals(State.TERMINATED, Iterables.getOnlyElement(listener.getStateHistory()));
- }
-
-public void testFailingServiceStartAndWait() throws Exception {
- StartFailingService service = new StartFailingService();
- RecordingListener listener = RecordingListener.record(service);
-
-try {
- service.startAsync().awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(EXCEPTION, service.failureCause());
- assertEquals(EXCEPTION, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testFailingServiceStopAndWait_stopFailing() throws Exception {
- StopFailingService service = new StopFailingService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync().awaitRunning();
- try {
- service.stopAsync().awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(EXCEPTION, service.failureCause());
- assertEquals(EXCEPTION, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testFailingServiceStopAndWait_runFailing() throws Exception {
- RunFailingService service = new RunFailingService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync();
- try {
- service.awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(EXCEPTION, service.failureCause());
- assertEquals(EXCEPTION, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testThrowingServiceStartAndWait() throws Exception {
- StartThrowingService service = new StartThrowingService();
- RecordingListener listener = RecordingListener.record(service);
-
-try {
- service.startAsync().awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(service.exception, service.failureCause());
- assertEquals(service.exception, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testThrowingServiceStopAndWait_stopThrowing() throws Exception {
- StopThrowingService service = new StopThrowingService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync().awaitRunning();
- try {
- service.stopAsync().awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(service.exception, service.failureCause());
- assertEquals(service.exception, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.STOPPING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testThrowingServiceStopAndWait_runThrowing() throws Exception {
- RunThrowingService service = new RunThrowingService();
- RecordingListener listener = RecordingListener.record(service);
-
-service.startAsync();
- try {
- service.awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(service.exception, service.failureCause());
- assertEquals(service.exception, e.getCause());
- }
- assertEquals(
- ImmutableList.of(
- State.STARTING,
- State.RUNNING,
- State.FAILED),
- listener.getStateHistory());
- }
-
-public void testFailureCause_throwsIfNotFailed() {
- StopFailingService service = new StopFailingService();
- try {
- service.failureCause();
- fail();
- } catch (IllegalStateException e) {
- // expected
- }
- service.startAsync().awaitRunning();
- try {
- service.failureCause();
- fail();
- } catch (IllegalStateException e) {
- // expected
- }
- try {
- service.stopAsync().awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(EXCEPTION, service.failureCause());
- assertEquals(EXCEPTION, e.getCause());
- }
- }
-
-public void testAddListenerAfterFailureDoesntCauseDeadlock() throws InterruptedException {
- final StartFailingService service = new StartFailingService();
- service.startAsync();
- assertEquals(State.FAILED, service.state());
- service.addListener(new RecordingListener(service), MoreExecutors.sameThreadExecutor());
- Thread thread = new Thread() {
- @Override public void run() {
- // Internally stopAsync() grabs a lock, this could be any such method on AbstractService.
- service.stopAsync();
- }
- };
- thread.start();
- thread.join(100);
- assertFalse(thread + " is deadlocked", thread.isAlive());
- }
-
-public void testListenerDoesntDeadlockOnStartAndWaitFromRunning() throws Exception {
- final NoOpThreadedService service = new NoOpThreadedService();
- service.addListener(new Listener() {
- @Override public void running() {
- service.awaitRunning();
- }
- }, MoreExecutors.sameThreadExecutor());
- service.startAsync().awaitRunning(10, TimeUnit.MILLISECONDS);
- service.stopAsync();
- }
-
-public void testListenerDoesntDeadlockOnStopAndWaitFromTerminated() throws Exception {
- final NoOpThreadedService service = new NoOpThreadedService();
- service.addListener(new Listener() {
- @Override public void terminated(State from) {
- service.stopAsync().awaitTerminated();
- }
- }, MoreExecutors.sameThreadExecutor());
- service.startAsync().awaitRunning();
-
-Thread thread = new Thread() {
- @Override public void run() {
- service.stopAsync().awaitTerminated();
- }
- };
- thread.start();
- thread.join(100);
- assertFalse(thread + " is deadlocked", thread.isAlive());
- }
-
-private static class NoOpThreadedService extends AbstractExecutionThreadService {
- final CountDownLatch latch = new CountDownLatch(1);
- @Override protected void run() throws Exception {
- latch.await();
- }
- @Override protected void triggerShutdown() {
- latch.countDown();
- }
- }
-
-private static class StartFailingService extends AbstractService {
- @Override protected void doStart() {
- notifyFailed(EXCEPTION);
- }
-
-@Override protected void doStop() {
- fail();
- }
- }
-
-private static class RunFailingService extends AbstractService {
- @Override protected void doStart() {
- notifyStarted();
- notifyFailed(EXCEPTION);
- }
-
-@Override protected void doStop() {
- fail();
- }
- }
-
-private static class StopFailingService extends AbstractService {
- @Override protected void doStart() {
- notifyStarted();
- }
-
-@Override protected void doStop() {
- notifyFailed(EXCEPTION);
- }
- }
-
-private static class StartThrowingService extends AbstractService {
-
-final RuntimeException exception = new RuntimeException("deliberate");
-
-@Override protected void doStart() {
- throw exception;
- }
-
-@Override protected void doStop() {
- fail();
- }
- }
-
-private static class RunThrowingService extends AbstractService {
-
-final RuntimeException exception = new RuntimeException("deliberate");
-
-@Override protected void doStart() {
- notifyStarted();
- throw exception;
- }
-
-@Override protected void doStop() {
- fail();
- }
- }
-
-private static class StopThrowingService extends AbstractService {
-
-final RuntimeException exception = new RuntimeException("deliberate");
-
-@Override protected void doStart() {
- notifyStarted();
- }
-
-@Override protected void doStop() {
- throw exception;
- }
- }
-
-private static class RecordingListener extends Listener {
- static RecordingListener record(Service service) {
- RecordingListener listener = new RecordingListener(service);
- service.addListener(listener, MoreExecutors.sameThreadExecutor());
- return listener;
- }
-
-final Service service;
-
-RecordingListener(Service service) {
- this.service = service;
- }
-
-@GuardedBy("this")
- final List<State> stateHistory = Lists.newArrayList();
- final CountDownLatch completionLatch = new CountDownLatch(1);
-
-ImmutableList<State> getStateHistory() throws Exception {
- completionLatch.await();
- synchronized (this) {
- return ImmutableList.copyOf(stateHistory);
- }
- }
-
-@Override public synchronized void starting() {
- assertTrue(stateHistory.isEmpty());
- assertNotSame(State.NEW, service.state());
- stateHistory.add(State.STARTING);
- }
-
-@Override public synchronized void running() {
- assertEquals(State.STARTING, Iterables.getOnlyElement(stateHistory));
- stateHistory.add(State.RUNNING);
- service.awaitRunning();
- assertNotSame(State.STARTING, service.state());
- }
-
-@Override public synchronized void stopping(State from) {
- assertEquals(from, Iterables.getLast(stateHistory));
- stateHistory.add(State.STOPPING);
- if (from == State.STARTING) {
- try {
- service.awaitRunning();
- fail();
- } catch (IllegalStateException expected) {
- assertNull(expected.getCause());
- assertTrue(expected.getMessage().equals(
- "Expected the service to be RUNNING, but was STOPPING"));
- }
- }
- assertNotSame(from, service.state());
- }
-
-@Override public synchronized void terminated(State from) {
- assertEquals(from, Iterables.getLast(stateHistory, State.NEW));
- stateHistory.add(State.TERMINATED);
- assertEquals(State.TERMINATED, service.state());
- if (from == State.NEW) {
- try {
- service.awaitRunning();
- fail();
- } catch (IllegalStateException expected) {
- assertNull(expected.getCause());
- assertTrue(expected.getMessage().equals(
- "Expected the service to be RUNNING, but was TERMINATED"));
- }
- }
- completionLatch.countDown();
- }
-
-@Override public synchronized void failed(State from, Throwable failure) {
- assertEquals(from, Iterables.getLast(stateHistory));
- stateHistory.add(State.FAILED);
- assertEquals(State.FAILED, service.state());
- assertEquals(failure, service.failureCause());
- if (from == State.STARTING) {
- try {
- service.awaitRunning();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(failure, e.getCause());
- }
- }
- try {
- service.awaitTerminated();
- fail();
- } catch (IllegalStateException e) {
- assertEquals(failure, e.getCause());
- }
- completionLatch.countDown();
- }
- }
-
-public void testNotifyStartedWhenNotStarting() {
- AbstractService service = new DefaultService();
- try {
- service.notifyStarted();
- fail();
- } catch (IllegalStateException expected) {}
- }
-
-public void testNotifyStoppedWhenNotRunning() {
- AbstractService service = new DefaultService();
- try {
- service.notifyStopped();
- fail();
- } catch (IllegalStateException expected) {}
- }
-
-public void testNotifyFailedWhenNotStarted() {
- AbstractService service = new DefaultService();
- try {
- service.notifyFailed(new Exception());
- fail();
- } catch (IllegalStateException expected) {}
- }
-
-public void testNotifyFailedWhenTerminated() {
- NoOpService service = new NoOpService();
- service.startAsync().awaitRunning();
- service.stopAsync().awaitTerminated();
- try {
- service.notifyFailed(new Exception());
- fail();
- } catch (IllegalStateException expected) {}
- }
-
-private static class DefaultService extends AbstractService {
- @Override protected void doStart() {}
- @Override protected void doStop() {}
- }
-
-private static final Exception EXCEPTION = new Exception();
-}
-<pre>
-```
-
-**ServiceManagerTest**
-
-```
-</pre>
-/*
- * Copyright (C) 2012 The Guava Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.google.common.util.concurrent;
-
-import static java.util.Arrays.asList;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.testing.NullPointerTester;
-import com.google.common.testing.TestLogHandler;
-import com.google.common.util.concurrent.ServiceManager.Listener;
-
-import junit.framework.TestCase;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Formatter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-/**
- * Tests for {@link ServiceManager}.
- *
- * @author Luke Sandberg
- * @author Chris Nokleberg
- */
-public class ServiceManagerTest extends TestCase {
-
-private static class NoOpService extends AbstractService {
- @Override protected void doStart() {
- notifyStarted();
- }
-
-@Override protected void doStop() {
- notifyStopped();
- }
- }
-
-/*
- * A NoOp service that will delay the startup and shutdown notification for a configurable amount
- * of time.
- */
- private static class NoOpDelayedSerivce extends NoOpService {
- private long delay;
-
-public NoOpDelayedSerivce(long delay) {
- this.delay = delay;
- }
-
-@Override protected void doStart() {
- new Thread() {
- @Override public void run() {
- Uninterruptibles.sleepUninterruptibly(delay, TimeUnit.MILLISECONDS);
- notifyStarted();
- }
- }.start();
- }
-
-@Override protected void doStop() {
- new Thread() {
- @Override public void run() {
- Uninterruptibles.sleepUninterruptibly(delay, TimeUnit.MILLISECONDS);
- notifyStopped();
- }
- }.start();
- }
- }
-
-private static class FailStartService extends NoOpService {
- @Override protected void doStart() {
- notifyFailed(new IllegalStateException("failed"));
- }
- }
-
-private static class FailRunService extends NoOpService {
- @Override protected void doStart() {
- super.doStart();
- notifyFailed(new IllegalStateException("failed"));
- }
- }
-
-private static class FailStopService extends NoOpService {
- @Override protected void doStop() {
- notifyFailed(new IllegalStateException("failed"));
- }
- }
-
-public void testServiceStartupTimes() {
- Service a = new NoOpDelayedSerivce(150);
- Service b = new NoOpDelayedSerivce(353);
- ServiceManager serviceManager = new ServiceManager(asList(a, b));
- serviceManager.startAsync().awaitHealthy();
- ImmutableMap<Service, Long> startupTimes = serviceManager.startupTimes();
- assertEquals(2, startupTimes.size());
- assertTrue(startupTimes.get(a) >= 150);
- assertTrue(startupTimes.get(b) >= 353);
- }
-
-public void testServiceStartStop() {
- Service a = new NoOpService();
- Service b = new NoOpService();
- ServiceManager manager = new ServiceManager(asList(a, b));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
- assertState(manager, Service.State.NEW, a, b);
- assertFalse(manager.isHealthy());
- manager.startAsync().awaitHealthy();
- assertState(manager, Service.State.RUNNING, a, b);
- assertTrue(manager.isHealthy());
- assertTrue(listener.healthyCalled);
- assertFalse(listener.stoppedCalled);
- assertTrue(listener.failedServices.isEmpty());
- manager.stopAsync().awaitStopped();
- assertState(manager, Service.State.TERMINATED, a, b);
- assertFalse(manager.isHealthy());
- assertTrue(listener.stoppedCalled);
- assertTrue(listener.failedServices.isEmpty());
- }
-
-public void testFailStart() throws Exception {
- Service a = new NoOpService();
- Service b = new FailStartService();
- Service c = new NoOpService();
- Service d = new FailStartService();
- Service e = new NoOpService();
- ServiceManager manager = new ServiceManager(asList(a, b, c, d, e));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
- assertState(manager, Service.State.NEW, a, b, c, d, e);
- try {
- manager.startAsync().awaitHealthy();
- fail();
- } catch (IllegalStateException expected) {
- }
- assertFalse(listener.healthyCalled);
- assertState(manager, Service.State.RUNNING, a, c, e);
- assertEquals(ImmutableSet.of(b, d), listener.failedServices);
- assertState(manager, Service.State.FAILED, b, d);
- assertFalse(manager.isHealthy());
-
-manager.stopAsync().awaitStopped();
- assertFalse(manager.isHealthy());
- assertFalse(listener.healthyCalled);
- assertTrue(listener.stoppedCalled);
- }
-
-public void testFailRun() throws Exception {
- Service a = new NoOpService();
- Service b = new FailRunService();
- ServiceManager manager = new ServiceManager(asList(a, b));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
- assertState(manager, Service.State.NEW, a, b);
- try {
- manager.startAsync().awaitHealthy();
- fail();
- } catch (IllegalStateException expected) {
- }
- assertTrue(listener.healthyCalled);
- assertEquals(ImmutableSet.of(b), listener.failedServices);
-
-manager.stopAsync().awaitStopped();
- assertState(manager, Service.State.FAILED, b);
- assertState(manager, Service.State.TERMINATED, a);
-
-assertTrue(listener.stoppedCalled);
- }
-
-public void testFailStop() throws Exception {
- Service a = new NoOpService();
- Service b = new FailStopService();
- Service c = new NoOpService();
- ServiceManager manager = new ServiceManager(asList(a, b, c));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
-
-manager.startAsync().awaitHealthy();
- assertTrue(listener.healthyCalled);
- assertFalse(listener.stoppedCalled);
- manager.stopAsync().awaitStopped();
-
-assertTrue(listener.stoppedCalled);
- assertEquals(ImmutableSet.of(b), listener.failedServices);
- assertState(manager, Service.State.FAILED, b);
- assertState(manager, Service.State.TERMINATED, a, c);
- }
-
-public void testToString() throws Exception {
- Service a = new NoOpService();
- Service b = new FailStartService();
- ServiceManager manager = new ServiceManager(asList(a, b));
- String toString = manager.toString();
- assertTrue(toString.contains("NoOpService"));
- assertTrue(toString.contains("FailStartService"));
- }
-
-public void testTimeouts() throws Exception {
- Service a = new NoOpDelayedSerivce(50);
- ServiceManager manager = new ServiceManager(asList(a));
- manager.startAsync();
- try {
- manager.awaitHealthy(1, TimeUnit.MILLISECONDS);
- fail();
- } catch (TimeoutException expected) {
- }
- manager.awaitHealthy(100, TimeUnit.MILLISECONDS); // no exception thrown
-
-manager.stopAsync();
- try {
- manager.awaitStopped(1, TimeUnit.MILLISECONDS);
- fail();
- } catch (TimeoutException expected) {
- }
- manager.awaitStopped(100, TimeUnit.MILLISECONDS); // no exception thrown
- }
-
-/**
- * This covers a case where if the last service to stop failed then the stopped callback would
- * never be called.
- */
- public void testSingleFailedServiceCallsStopped() {
- Service a = new FailStartService();
- ServiceManager manager = new ServiceManager(asList(a));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
- try {
- manager.startAsync().awaitHealthy();
- fail();
- } catch (IllegalStateException expected) {
- }
- assertTrue(listener.stoppedCalled);
- }
-
-/**
- * This covers a bug where listener.healthy would get called when a single service failed during
- * startup (it occurred in more complicated cases also).
- */
- public void testFailStart_singleServiceCallsHealthy() {
- Service a = new FailStartService();
- ServiceManager manager = new ServiceManager(asList(a));
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener);
- try {
- manager.startAsync().awaitHealthy();
- fail();
- } catch (IllegalStateException expected) {
- }
- assertFalse(listener.healthyCalled);
- }
-
-/**
- * This covers a bug where if a listener was installed that would stop the manager if any service
- * fails and something failed during startup before service.start was called on all the services,
- * then awaitStopped would deadlock due to an IllegalStateException that was thrown when trying to
- * stop the timer(!).
- */
- public void testFailStart_stopOthers() throws TimeoutException {
- Service a = new FailStartService();
- Service b = new NoOpService();
- final ServiceManager manager = new ServiceManager(asList(a, b));
- manager.addListener(new Listener() {
- @Override public void failure(Service service) {
- manager.stopAsync();
- }});
- manager.startAsync();
- manager.awaitStopped(10, TimeUnit.MILLISECONDS);
- }
-
-private static void assertState(
- ServiceManager manager, Service.State state, Service... services) {
- Collection<Service> managerServices = manager.servicesByState().get(state);
- for (Service service : services) {
- assertEquals(service.toString(), state, service.state());
- assertEquals(service.toString(), service.isRunning(), state == Service.State.RUNNING);
- assertTrue(managerServices + " should contain " + service, managerServices.contains(service));
- }
- }
-
-/**
- * This is for covering a case where the ServiceManager would behave strangely if constructed
- * with no service under management. Listeners would never fire because the ServiceManager was
- * healthy and stopped at the same time. This test ensures that listeners fire and isHealthy
- * makes sense.
- */
- public void testEmptyServiceManager() {
- Logger logger = Logger.getLogger(ServiceManager.class.getName());
- logger.setLevel(Level.FINEST);
- TestLogHandler logHandler = new TestLogHandler();
- logger.addHandler(logHandler);
- ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
- RecordingListener listener = new RecordingListener();
- manager.addListener(listener, MoreExecutors.sameThreadExecutor());
- manager.startAsync().awaitHealthy();
- assertTrue(manager.isHealthy());
- assertTrue(listener.healthyCalled);
- assertFalse(listener.stoppedCalled);
- assertTrue(listener.failedServices.isEmpty());
- manager.stopAsync().awaitStopped();
- assertFalse(manager.isHealthy());
- assertTrue(listener.stoppedCalled);
- assertTrue(listener.failedServices.isEmpty());
- // check that our NoOpService is not directly observable via any of the inspection methods or
- // via logging.
- assertEquals("ServiceManager{services=[]}", manager.toString());
- assertTrue(manager.servicesByState().isEmpty());
- assertTrue(manager.startupTimes().isEmpty());
- Formatter logFormatter = new Formatter() {
- @Override public String format(LogRecord record) {
- return formatMessage(record);
- }
- };
- for (LogRecord record : logHandler.getStoredLogRecords()) {
- assertFalse(logFormatter.format(record).contains("NoOpService"));
- }
- }
-
-/**
- * This is for a case where a long running Listener using the sameThreadListener could deadlock
- * another thread calling stopAsync().
- */
-
-public void testListenerDeadlock() throws InterruptedException {
- final CountDownLatch failEnter = new CountDownLatch(1);
- Service failRunService = new AbstractService() {
- @Override protected void doStart() {
- new Thread() {
- @Override public void run() {
- notifyStarted();
- notifyFailed(new Exception("boom"));
- }
- }.start();
- }
- @Override protected void doStop() {
- notifyStopped();
- }
- };
- final ServiceManager manager = new ServiceManager(
- Arrays.asList(failRunService, new NoOpService()));
- manager.addListener(new ServiceManager.Listener() {
- @Override public void failure(Service service) {
- failEnter.countDown();
- // block forever!
- Uninterruptibles.awaitUninterruptibly(new CountDownLatch(1));
- }
- }, MoreExecutors.sameThreadExecutor());
- // We do not call awaitHealthy because, due to races, that method may throw an exception. But
- // we really just want to wait for the thread to be in the failure callback so we wait for that
- // explicitly instead.
- manager.startAsync();
- failEnter.await();
- assertFalse("State should be updated before calling listeners", manager.isHealthy());
- // now we want to stop the services.
- Thread stoppingThread = new Thread() {
- @Override public void run() {
- manager.stopAsync().awaitStopped();
- }
- };
- stoppingThread.start();
- // this should be super fast since the only non stopped service is a NoOpService
- stoppingThread.join(1000);
- assertFalse("stopAsync has deadlocked!.", stoppingThread.isAlive());
- }
-
-/**
- * Catches a bug where when constructing a service manager failed, later interactions with the
- * service could cause IllegalStateExceptions inside the partially constructed ServiceManager.
- * This ISE wouldn't actually bubble up but would get logged by ExecutionQueue. This obfuscated
- * the original error (which was not constructing ServiceManager correctly).
- */
- public void testPartiallyConstructedManager() {
- Logger logger = Logger.getLogger("global");
- logger.setLevel(Level.FINEST);
- TestLogHandler logHandler = new TestLogHandler();
- logger.addHandler(logHandler);
- NoOpService service = new NoOpService();
- service.startAsync();
- try {
- new ServiceManager(Arrays.asList(service));
- fail();
- } catch (IllegalArgumentException expected) {}
- service.stopAsync();
- // Nothing was logged!
- assertEquals(0, logHandler.getStoredLogRecords().size());
- }
-
-public void testPartiallyConstructedManager_transitionAfterAddListenerBeforeStateIsReady() {
- // The implementation of this test is pretty sensitive to the implementation ![:(](http://ifeve.com/wp-includes/images/smilies/frownie.png) but we want to
- // ensure that if weird things happen during construction then we get exceptions.
- final NoOpService service1 = new NoOpService();
- // This service will start service1 when addListener is called. This simulates service1 being
- // started asynchronously.
- Service service2 = new Service() {
- final NoOpService delegate = new NoOpService();
- @Override public final void addListener(Listener listener, Executor executor) {
- service1.startAsync();
- delegate.addListener(listener, executor);
- }
- // Delegates from here on down
- @Override public final Service startAsync() {
- return delegate.startAsync();
- }
-
-@Override public final Service stopAsync() {
- return delegate.stopAsync();
- }
-
-@Override public final ListenableFuture<State> start() {
- return delegate.start();
- }
-
-@Override public final ListenableFuture<State> stop() {
- return delegate.stop();
- }
-
-@Override public State startAndWait() {
- return delegate.startAndWait();
- }
-
-@Override public State stopAndWait() {
- return delegate.stopAndWait();
- }
-
-@Override public final void awaitRunning() {
- delegate.awaitRunning();
- }
-
-@Override public final void awaitRunning(long timeout, TimeUnit unit)
- throws TimeoutException {
- delegate.awaitRunning(timeout, unit);
- }
-
-@Override public final void awaitTerminated() {
- delegate.awaitTerminated();
- }
-
-@Override public final void awaitTerminated(long timeout, TimeUnit unit)
- throws TimeoutException {
- delegate.awaitTerminated(timeout, unit);
- }
-
-@Override public final boolean isRunning() {
- return delegate.isRunning();
- }
-
-@Override public final State state() {
- return delegate.state();
- }
-
-@Override public final Throwable failureCause() {
- return delegate.failureCause();
- }
- };
- try {
- new ServiceManager(Arrays.asList(service1, service2));
- fail();
- } catch (IllegalArgumentException expected) {
- assertTrue(expected.getMessage().contains("started transitioning asynchronously"));
- }
- }
-
-/**
- * This test is for a case where two Service.Listener callbacks for the same service would call
- * transitionService in the wrong order due to a race. Due to the fact that it is a race this
- * test isn't guaranteed to expose the issue, but it is at least likely to become flaky if the
- * race sneaks back in, and in this case flaky means something is definitely wrong.
- *
- * <p>Before the bug was fixed this test would fail at least 30% of the time.
- */
-
-public void testTransitionRace() throws TimeoutException {
- for (int k = 0; k < 1000; k++) {
- List<Service> services = Lists.newArrayList();
- for (int i = 0; i < 5; i++) {
- services.add(new SnappyShutdownService(i));
- }
- ServiceManager manager = new ServiceManager(services);
- manager.startAsync().awaitHealthy();
- manager.stopAsync().awaitStopped(1, TimeUnit.SECONDS);
- }
- }
-
-/**
- * This service will shutdown very quickly after stopAsync is called and uses a background thread
- * so that we know that the stopping() listeners will execute on a different thread than the
- * terminated() listeners.
- */
- private static class SnappyShutdownService extends AbstractExecutionThreadService {
- final int index;
- final CountDownLatch latch = new CountDownLatch(1);
-
-SnappyShutdownService(int index) {
- this.index = index;
- }
-
-@Override protected void run() throws Exception {
- latch.await();
- }
-
-@Override protected void triggerShutdown() {
- latch.countDown();
- }
-
-@Override protected String serviceName() {
- return this.getClass().getSimpleName() + "[" + index + "]";
- }
- }
-
-public void testNulls() {
- ServiceManager manager = new ServiceManager(Arrays.<Service>asList());
- new NullPointerTester()
- .setDefault(ServiceManager.Listener.class, new RecordingListener())
- .testAllPublicInstanceMethods(manager);
- }
-
-private static final class RecordingListener extends ServiceManager.Listener {
- volatile boolean healthyCalled;
- volatile boolean stoppedCalled;
- final Set<Service> failedServices = Sets.newConcurrentHashSet();
-
-@Override public void healthy() {
- healthyCalled = true;
- }
-
-@Override public void stopped() {
- stoppedCalled = true;
- }
-
-@Override public void failure(Service service) {
- failedServices.add(service);
- }
- }
-}
-<pre>
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ## 6. 字符串处理
@@ -4224,14 +1721,14 @@ JDK内建的字符串拆分工具有一些古怪的特性。比如，String.spli
 
 正确答案是5：””, “a”, “”, “b”。只有尾部的空字符串被忽略了。 [`Splitter`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/base/Splitter.html)使用令人放心的、直白的流畅API模式对这些混乱的特性作了完全的掌控。
 
-```
+```java
 Splitter.on(',')
         .trimResults()
         .omitEmptyStrings()
         .split("foo,bar,,   qux");
 ```
 
-上述代码返回Iterable<String>，其中包含”foo”、”bar”和”qux”。Splitter可以被设置为按照任何模式、字符、字符串或字符匹配器拆分。
+上述代码返回Iterable\<String>，其中包含”foo”、”bar”和”qux”。Splitter可以被设置为按照任何模式、字符、字符串或字符匹配器拆分。
 
 #### 拆分器工厂
 
@@ -4392,18 +1889,18 @@ int和long的无符号形式方法在UnsignedInts和UnsignedLongs类中，但由
 
 原生类型数组是处理原生类型集合的最有效方式（从内存和性能双方面考虑）。Guava为此提供了许多工具方法。
 
-| **方法签名**                                   | **描述**                                             | **类似方法**                                                 | **可用性** |
-| :--------------------------------------------- | :--------------------------------------------------- | :----------------------------------------------------------- | :--------- |
-| List<Wrapper> asList(prim… backingArray)       | 把数组转为相应包装类的List                           | [Arrays.asList](http://docs.oracle.com/javase/6/docs/api/java/util/Arrays.html#asList(T...)) | 符号无关*  |
-| prim[] toArray(Collection<Wrapper> collection) | 把集合拷贝为数组，和collection.toArray()一样线程安全 | [Collection.toArray()](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#toArray()) | 符号无关   |
-| prim[] concat(prim[]… arrays)                  | 串联多个原生类型数组                                 | [Iterables.concat](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)) | 符号无关   |
-| boolean contains(prim[] array, prim target)    | 判断原生类型数组是否包含给定值                       | [Collection.contains](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#contains(java.lang.Object)) | 符号无关   |
-| int indexOf(prim[] array, prim target)         | 给定值在数组中首次出现处的索引，若不包含此值返回-1   | [List.indexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#indexOf(java.lang.Object)) | 符号无关   |
-| int lastIndexOf(prim[] array, prim target)     | 给定值在数组最后出现的索引，若不包含此值返回-1       | [List.lastIndexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#lastIndexOf(java.lang.Object)) | 符号无关   |
-| prim min(prim… array)                          | 数组中最小的值                                       | [Collections.min](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#min(java.util.Collection)) | 符号相关*  |
-| prim max(prim… array)                          | 数组中最大的值                                       | [Collections.max](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#max(java.util.Collection)) | 符号相关   |
-| String join(String separator, prim… array)     | 把数组用给定分隔符连接为字符串                       | [Joiner.on(separator).join](http://code.google.com/p/guava-libraries/wiki/StringsExplained#Joiner) | 符号相关   |
-| Comparator<prim[]> lexicographicalComparator() | 按字典序比较原生类型数组的Comparator                 | [Ordering.natural().lexicographical()](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Ordering.html#lexicographical()) | 符号相关   |
+| **方法签名**                                    | **描述**                                             | **类似方法**                                                 | **可用性** |
+| :---------------------------------------------- | :--------------------------------------------------- | :----------------------------------------------------------- | :--------- |
+| List\<Wrapper> asList(prim… backingArray)       | 把数组转为相应包装类的List                           | [Arrays.asList](http://docs.oracle.com/javase/6/docs/api/java/util/Arrays.html#asList(T...)) | 符号无关*  |
+| prim[] toArray(Collection\<Wrapper> collection) | 把集合拷贝为数组，和collection.toArray()一样线程安全 | [Collection.toArray()](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#toArray()) | 符号无关   |
+| prim[] concat(prim[]… arrays)                   | 串联多个原生类型数组                                 | [Iterables.concat](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Iterables.html#concat(java.lang.Iterable...)) | 符号无关   |
+| boolean contains(prim[] array, prim target)     | 判断原生类型数组是否包含给定值                       | [Collection.contains](http://docs.oracle.com/javase/6/docs/api/java/util/Collection.html#contains(java.lang.Object)) | 符号无关   |
+| int indexOf(prim[] array, prim target)          | 给定值在数组中首次出现处的索引，若不包含此值返回-1   | [List.indexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#indexOf(java.lang.Object)) | 符号无关   |
+| int lastIndexOf(prim[] array, prim target)      | 给定值在数组最后出现的索引，若不包含此值返回-1       | [List.lastIndexOf](http://docs.oracle.com/javase/6/docs/api/java/util/List.html#lastIndexOf(java.lang.Object)) | 符号无关   |
+| prim min(prim… array)                           | 数组中最小的值                                       | [Collections.min](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#min(java.util.Collection)) | 符号相关*  |
+| prim max(prim… array)                           | 数组中最大的值                                       | [Collections.max](http://docs.oracle.com/javase/6/docs/api/java/util/Collections.html#max(java.util.Collection)) | 符号相关   |
+| String join(String separator, prim… array)      | 把数组用给定分隔符连接为字符串                       | [Joiner.on(separator).join](http://code.google.com/p/guava-libraries/wiki/StringsExplained#Joiner) | 符号相关   |
+| Comparator<prim[]> lexicographicalComparator()  | 按字典序比较原生类型数组的Comparator                 | [Ordering.natural().lexicographical()](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/collect/Ordering.html#lexicographical()) | 符号相关   |
 
 *符号无关方法存在于Bytes, Shorts, Ints, Longs, Floats, Doubles, Chars, Booleans。而UnsignedInts, UnsignedLongs, SignedBytes, 或UnsignedBytes不存在。
 
@@ -4645,7 +2142,7 @@ class Person {
 
 它对应的Funnel实现可能是：
 
-```
+```java
 Funnel<Person> personFunnel = new Funnel<Person>() {
     @Override
     public void funnel(Person person, PrimitiveSink into) {
@@ -4668,9 +2165,9 @@ Funnel<Person> personFunnel = new Funnel<Person>() {
 
 布鲁姆过滤器是哈希运算的一项优雅运用，它可以简单地基于Object.hashCode()实现。简而言之，布鲁姆过滤器是一种概率数据结构，它允许你检测某个对象是一定不在过滤器中，还是可能已经添加到过滤器了。[布鲁姆过滤器的维基页面](http://en.wikipedia.org/wiki/Bloom_filter)对此作了全面的介绍，同时我们推荐github中的一个[教程](http://billmill.org/bloomfilter-tutorial/)。
 
-Guava散列包有一个内建的布鲁姆过滤器实现，你只要提供Funnel就可以使用它。你可以使用[create(Funnel funnel, int expectedInsertions, double falsePositiveProbability)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#create(com.google.common.hash.Funnel, int, double))方法获取[BloomFilter](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html)，缺省误检率[falsePositiveProbability]为3%。BloomFilter<T>提供了[boolean mightContain(T)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#mightContain(T)) 和[void put(T)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#put(T))，它们的含义都不言自明了。
+Guava散列包有一个内建的布鲁姆过滤器实现，你只要提供Funnel就可以使用它。你可以使用[create(Funnel funnel, int expectedInsertions, double falsePositiveProbability)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#create(com.google.common.hash.Funnel, int, double))方法获取[BloomFilter](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html)，缺省误检率[falsePositiveProbability]为3%。BloomFilter\<T>提供了[boolean mightContain(T)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#mightContain(T)) 和[void put(T)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/hash/BloomFilter.html#put(T))，它们的含义都不言自明了。
 
-```
+```java
 BloomFilter<Person> friends = BloomFilter.create(personFunnel, 500, 0.01);
 for(Person friend : friendsList) {
     friends.put(friend);
@@ -4703,287 +2200,7 @@ Hashing类提供了若干散列函数，以及运算HashCode对象的工具方�
 
 
 
-## 11. 事件总线
 
-传统上，Java的**进程内事件分发**都是通过发布者和订阅者之间的显式注册实现的。设计[EventBus](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/EventBus.html)就是为了取代这种显示注册方式，使组件间有了更好的解耦。EventBus不是通用型的发布-订阅实现，不适用于进程间通信。
-
-范例
-
-```
-// Class is typically registered by the container.
-class EventBusChangeRecorder {
-    @Subscribe public void recordCustomerChange(ChangeEvent e) {
-        recordChange(e.getChange());
-    }
-}
-// somewhere during initialization
-eventBus.register(new EventBusChangeRecorder());
-// much later
-public void changeCustomer() {
-    ChangeEvent event = getChangeEvent();
-    eventBus.post(event);
-}
-```
-
-
-
-把已有的进程内事件分发系统迁移到EventBus非常简单。
-
-### 事件监听者[Listeners]
-
-监听特定事件（如，CustomerChangeEvent）：
-
-- 传统实现：定义相应的事件监听者类，如CustomerChangeEventListener；
-- EventBus实现：以CustomerChangeEvent为唯一参数创建方法，并用[Subscribe](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/Subscribe.html)注解标记。
-
-把事件监听者注册到事件生产者：
-
-- 传统实现：调用事件生产者的registerCustomerChangeEventListener方法；这些方法很少定义在公共接口中，因此开发者必须知道所有事件生产者的类型，才能正确地注册监听者；
-- EventBus实现：在EventBus**实例**上调用[EventBus.register(Object)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/EventBus.html#register(java.lang.Object))方法；请保证事件生产者和监听者共享相同的EventBus**实例**。
-
-按事件超类监听（如，EventObject甚至Object）：
-
-- 传统实现：很困难，需要开发者自己去实现匹配逻辑；
-- EventBus实现：EventBus自动把事件分发给事件超类的监听者，并且允许监听者声明监听接口类型和泛型的通配符类型（wildcard，如 ? super XXX）。
-
-检测没有监听者的事件：
-
-- 传统实现：在每个事件分发方法中添加逻辑代码（也可能适用AOP）；
-- EventBus实现：监听[DeadEvent](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/DeadEvent.html)；EventBus会把所有发布后没有监听者处理的事件包装为DeadEvent（对调试很便利）。
-
-### 事件生产者[Producers]
-
-管理和追踪监听者：
-
-- 传统实现：用列表管理监听者，还要考虑线程同步；或者使用工具类，如EventListenerList；
-- EventBus实现：EventBus内部已经实现了监听者管理。
-
-向监听者分发事件：
-
-- 传统实现：开发者自己写代码，包括事件类型匹配、异常处理、异步分发；
-- EventBus实现：把事件传递给 [EventBus.post(Object)](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/EventBus.html#post(java.lang.Object))方法。异步分发可以直接用EventBus的子类[AsyncEventBus](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/eventbus/AsyncEventBus.html)。
-
-### 术语表
-
-事件总线系统使用以下术语描述事件分发：
-
-| 事件     | 可以向事件总线发布的对象                                     |
-| :------- | :----------------------------------------------------------- |
-| 订阅     | 向事件总线注册*监听者*以接受事件的行为                       |
-| 监听者   | 提供一个*处理方法*，希望接受和处理事件的对象                 |
-| 处理方法 | 监听者提供的公共方法，事件总线使用该方法向监听者发送事件；该方法应该用Subscribe注解 |
-| 发布消息 | 通过事件总线向所有匹配的监听者提供事件                       |
-
-### 常见问题解答[FAQ]
-
-**为什么一定要创建\****EventBus***\*实例，而不是使用单例模式？**
-
-EventBus不想给定开发者怎么使用；你可以在应用程序中按照不同的组件、上下文或业务主题分别使用不同的事件总线。这样的话，在测试过程中开启和关闭某个部分的事件总线，也会变得更简单，影响范围更小。
-
-当然，如果你想在进程范围内使用唯一的事件总线，你也可以自己这么做。比如在容器中声明EventBus为全局单例，或者用一个静态字段存放EventBus，如果你喜欢的话。
-
-简而言之，EventBus不是单例模式，是因为我们不想为你做这个决定。你喜欢怎么用就怎么用吧。
-
-**可以从事件总线中注销监听者吗？**
-
-当然可以，使用EventBus.unregister(Object)方法，但我们发现这种需求很少：
-
-- 大多数监听者都是在启动或者模块懒加载时注册的，并且在应用程序的整个生命周期都存在；
-- 可以使用特定作用域的事件总线来处理临时事件，而不是注册/注销监听者；比如在请求作用域[request-scoped]的对象间分发消息，就可以同样适用请求作用域的事件总线；
-- 销毁和重建事件总线的成本很低，有时候可以通过销毁和重建事件总线来更改分发规则。
-
-**为什么使用注解标记处理方法，而不是要求监听者实现接口？**
-
-我们觉得注解和实现接口一样传达了明确的语义，甚至可能更好。同时，使用注解也允许你把处理方法放到任何地方，和使用业务意图清晰的方法命名。
-
-传统的Java实现中，监听者使用方法很少的接口——通常只有一个方法。这样做有一些缺点:
-
-- 监听者类对给定事件类型，只能有单一处理逻辑；
-- 监听者接口方法可能冲突；
-- 方法命名只和事件相关（handleChangeEvent），不能表达意图（recordChangeInJournal）；
-- 事件通常有自己的接口，而没有按类型定义的公共父接口（如所有的UI事件接口）。
-
-接口实现监听者的方式很难做到简洁，这甚至引出了一个模式，尤其是在Swing应用中，那就是用匿名类实现事件监听者的接口。比较以下两种实现：
-
-```
-class ChangeRecorder {
-    void setCustomer(Customer cust) {
-        cust.addChangeListener(new ChangeListener() {
-            public void customerChanged(ChangeEvent e) {
-                recordChange(e.getChange());
-            }
-        };
-    }
-}
-//这个监听者类通常由容器注册给事件总线
-class EventBusChangeRecorder {
-    @Subscribe public void recordCustomerChange(ChangeEvent e) {
-        recordChange(e.getChange());
-    }
-}
-```
-
-第二种实现的业务意图明显更加清晰：没有多余的代码，并且处理方法的名字是清晰和有意义的。
-
-**通用的监听者接口\****Handler<T>***\*怎么样？**
-
-有些人已经建议过用泛型定义一个通用的监听者接口Handler<T>。这有点牵扯到Java类型擦除的问题，假设我们有如下这个接口：
-
-```
-interface Handler<T> {
-    void handleEvent(T event);
-}
-```
-
-因为类型擦除，Java禁止一个类使用不同的类型参数多次实现同一个泛型接口（即不可能出现MultiHandler implements Handler<Type1>, Handler<Type2>）。这比起传统的Java事件机制也是巨大的退步，至少传统的Java Swing监听者接口使用了不同的方法把不同的事件区分开。
-
-**EventBus\****不是破坏了静态类型，排斥了自动重构支持吗？**
-
-有些人被EventBus的register(Object) 和post(Object)方法直接使用Object做参数吓坏了。
-
-这里使用Object参数有一个很好的理由：EventBus对事件监听者类型和事件本身的类型都不作任何限制。
-
-另一方面，处理方法必须要明确地声明参数类型——期望的事件类型（或事件的父类型）。因此，搜索一个事件的类型引用，可以马上找到针对该事件的处理方法，对事件类型的重命名也会在IDE中自动更新所有的处理方法。
-
-在EventBus的架构下，你可以任意重命名@Subscribe注解的处理方法，并且这类重命名不会被传播（即不会引起其他类的修改），因为对EventBus来说，处理方法的名字是无关紧要的。如果测试代码中直接调用了处理方法，那么当然，重命名处理方法会引起测试代码的变动，但使用EventBus触发处理方法的代码就不会发生变更。我们认为这是EventBus的特性，而不是漏洞：能够任意重命名处理方法，可以让你的处理方法命名更清晰。
-
-**如果我注册了一个没有任何处理方法的监听者，会发生什么？**
-
-什么也不会发生。
-
-EventBus旨在与容器和模块系统整合，Guice就是个典型的例子。在这种情况下，可以方便地让容器/工厂/运行环境传递任意创建好的对象给EventBus的register(Object)方法。
-
-这样，任何容器/工厂/运行环境创建的对象都可以简便地通过暴露处理方法挂载到系统的事件模块。
-
-**编译时能检测到\****EventBus***\*的哪些问题？**
-
-Java类型系统可以明白地检测到的任何问题。比如，为一个不存在的事件类型定义处理方法。
-
-**运行时往\****EventBus***\*注册监听者，可以立即检测到哪些问题？**
-
-一旦调用了register(Object) 方法，EventBus就会检查监听者中的处理方法是否结构正确的[well-formedness]。具体来说，就是每个用@Subscribe注解的方法都只能有一个参数。
-
-违反这条规则将引起IllegalArgumentException（这条规则检测也可以用APT在编译时完成，不过我们还在研究中）。
-
-**哪些问题只能在之后事件传播的运行时才会被检测到？**
-
-如果组件传播了一个事件，但找不到相应的处理方法，EventBus*可能*会指出一个错误（通常是指出@Subscribe注解的缺失，或没有加载监听者组件）。
-
-*请注意这个指示并不一定表示应用有问题。一个应用中可能有好多场景会故意忽略某个事件，尤其当事件来源于不可控代码时*
-
-你可以注册一个处理方法专门处理DeadEvent类型的事件。每当EventBus收到没有对应处理方法的事件，它都会将其转化为DeadEvent，并且传递给你注册的DeadEvent处理方法——你可以选择记录或修复该事件。
-
-**怎么测试监听者和它们的处理方法？**
-
-因为监听者的处理方法都是普通方法，你可以简便地在测试代码中模拟EventBus调用这些方法。
-
-**为什么我不能在\****EventBus***\*上使用\****<**泛型**魔法***\*>\****？**
-
-EventBus旨在很好地处理一大类用例。我们更喜欢针对大多数用例直击要害，而不是在所有用例上都保持体面。
-
-此外，泛型也让EventBus的可扩展性——让它有益、高效地扩展，同时我们对EventBus的增补不会和你们的扩展相冲突——成为一个非常棘手的问题。
-
-如果你真的很想用泛型，EventBus目前还不能提供，你可以提交一个问题并且设计自己的替代方案。
-
-
-
-
-
-## 12. 数学运算
-
-### 范例
-
-```
-int logFloor = LongMath.log2(n, FLOOR);
-int mustNotOverflow = IntMath.checkedMultiply(x, y);
-long quotient = LongMath.divide(knownMultipleOfThree, 3, RoundingMode.UNNECESSARY); // fail fast on non-multiple of 3
-BigInteger nearestInteger = DoubleMath.roundToBigInteger(d, RoundingMode.HALF_EVEN);
-BigInteger sideLength = BigIntegerMath.sqrt(area, CEILING);
-```
-
-### 为什么使用Guava Math
-
-- Guava Math针对各种不常见的溢出情况都有充分的测试；对溢出语义，Guava文档也有相应的说明；如果运算的溢出检查不能通过，将导致快速失败；
-- Guava Math的性能经过了精心的设计和调优；虽然性能不可避免地依据具体硬件细节而有所差异，但Guava Math的速度通常可以与Apache Commons的MathUtils相比，在某些场景下甚至还有显著提升；
-- Guava Math在设计上考虑了可读性和正确的编程习惯；IntMath.log2(x, CEILING) 所表达的含义，即使在快速阅读时也是清晰明确的。而32-Integer.numberOfLeadingZeros(x – 1)对于阅读者来说则不够清晰。
-
-*注意：Guava Math和GWT格外不兼容，这是因为Java和Java Script语言的运算溢出逻辑不一样。*
-
-### 整数运算
-
-Guava Math主要处理三种整数类型：int、long和BigInteger。这三种类型的运算工具类分别叫做[IntMath](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html)、[LongMath](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html)和[BigIntegerMath](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html)。
-
-#### 有溢出检查的运算
-
-Guava Math提供了若干有溢出检查的运算方法：结果溢出时，这些方法将快速失败而不是忽略溢出
-
-| [`IntMath.checkedAdd`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#checkedAdd(int, int)) | [`LongMath.checkedAdd`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#checkedAdd(long, long)) |
-| :----------------------------------------------------------- | :----------------------------------------------------------- |
-| [`IntMath.checkedSubtract`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#checkedSubtract(int, int)) | [`LongMath.checkedSubtract`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#checkedSubtract(long, long)) |
-| [`IntMath.checkedMultiply`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#checkedMultiply(int, int)) | [`LongMath.checkedMultiply`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#checkedMultiply(long, long)) |
-| [`IntMath.checkedPow`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#checkedPow(int, int)) | [`LongMath.checkedPow`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#checkedPow(long, long)) |
-
-```
-IntMath.checkedAdd(Integer.MAX_VALUE, Integer.MAX_VALUE); // throws ArithmeticException
-```
-
-### 实数运算
-
-IntMath、LongMath和BigIntegerMath提供了很多实数运算的方法，并把最终运算结果舍入成整数。这些方法接受一个[java.math.RoundingMode](http://docs.oracle.com/javase/7/docs/api/java/math/RoundingMode.html)枚举值作为舍入的模式：
-
-- DOWN：向零方向舍入（去尾法）
-- UP：远离零方向舍入
-- FLOOR：向负无限大方向舍入
-- CEILING：向正无限大方向舍入
-- UNNECESSARY：不需要舍入，如果用此模式进行舍入，应直接抛出ArithmeticException
-- HALF_UP：向最近的整数舍入，其中x.5远离零方向舍入
-- HALF_DOWN：向最近的整数舍入，其中x.5向零方向舍入
-- HALF_EVEN：向最近的整数舍入，其中x.5向相邻的偶数舍入
-
-这些方法旨在提高代码的可读性，例如，divide(x, 3, CEILING) 即使在快速阅读时也是清晰。此外，这些方法内部采用构建整数近似值再计算的实现，除了在构建sqrt（平方根）运算的初始近似值时有浮点运算，其他方法的运算全过程都是整数或位运算，因此性能上更好。
-
-| **运算**     | **IntMath**                                                  | **LongMath**                                                 | **BigIntegerMath**                                           |
-| :----------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| 除法         | [`divide(int, int, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#divide(int, int, java.math.RoundingMode)) | [`divide(long, long, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#divide(long, long, java.math.RoundingMode)) | [`divide(BigInteger, BigInteger, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#divide(java.math.BigInteger, java.math.BigInteger, java.math.RoundingMode)) |
-| 2为底的对数  | [`log2(int, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#log2(int, java.math.RoundingMode)) | [`log2(long, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#log2(long, java.math.RoundingMode)) | [`log2(BigInteger, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#log2(java.math.BigInteger, java.math.RoundingMode)) |
-| 10为底的对数 | [`log10(int, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#log10(int, java.math.RoundingMode)) | [`log10(long, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#log10(long, java.math.RoundingMode)) | [`log10(BigInteger, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#log10(java.math.BigInteger, java.math.RoundingMode)) |
-| 平方根       | [`sqrt(int, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#sqrt(int, java.math.RoundingMode)) | [`sqrt(long, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#sqrt(long, java.math.RoundingMode)) | [`sqrt(BigInteger, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#sqrt(java.math.BigInteger, java.math.RoundingMode)) |
-
-```
-// returns 31622776601683793319988935444327185337195551393252
-BigIntegerMath.sqrt(BigInteger.TEN.pow(99), RoundingMode.HALF_EVEN);
-```
-
-#### 附加功能
-
-Guava还另外提供了一些有用的运算函数
-
-| **运算**    | **IntMath**                                                  | **LongMath**                                                 | **BigIntegerMath\**\**\***                                   |
-| :---------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| 最大公约数  | [`gcd(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#gcd(int, int)) | [`gcd(long, long)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#gcd(long, long)) | [`BigInteger.gcd(BigInteger)`](http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#gcd(java.math.BigInteger)) |
-| 取模        | [`mod(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#mod(int, int)) | [`mod(long, long)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#mod(long, long)) | [`BigInteger.mod(BigInteger)`](http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#mod(java.math.BigInteger)) |
-| 取幂        | [`pow(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#pow(int, int)) | [`pow(long, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#pow(long, int)) | [`BigInteger.pow(int)`](http://docs.oracle.com/javase/6/docs/api/java/math/BigInteger.html#pow(int)) |
-| 是否2的幂   | [`isPowerOfTwo(int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#isPowerOfTwo(int)) | [`isPowerOfTwo(long)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#isPowerOfTwo(long)) | [`isPowerOfTwo(BigInteger)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#isPowerOfTwo(java.math.BigInteger)) |
-| 阶乘*       | [`factorial(int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#factorial(int)) | [`factorial(int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#factorial(int)) | [`factorial(int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#factorial(int)) |
-| 二项式系数* | [`binomial(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/IntMath.html#binomial(int, int)) | [`binomial(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/LongMath.html#binomial(int, int)) | [`binomial(int, int)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/BigIntegerMath.html#binomial(int, int)) |
-
-*BigInteger的最大公约数和取模运算由JDK提供
-
-*阶乘和二项式系数的运算结果如果溢出，则返回MAX_VALUE
-
-### 浮点数运算
-
-JDK比较彻底地涵盖了浮点数运算，但Guava在[DoubleMath](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html)类中也提供了一些有用的方法。
-
-| [`isMathematicalInteger(double)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html#isMathematicalInteger(double)) | 判断该浮点数是不是一个整数                               |
-| :----------------------------------------------------------- | :------------------------------------------------------- |
-| [`roundToInt(double, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html#roundToInt(double, java.math.RoundingMode)) | 舍入为int；对无限小数、溢出抛出异常                      |
-| [`roundToLong(double, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html#roundToLong(double, java.math.RoundingMode)) | 舍入为long；对无限小数、溢出抛出异常                     |
-| [`roundToBigInteger(double, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html#roundToBigInteger(double, java.math.RoundingMode)) | 舍入为BigInteger；对无限小数抛出异常                     |
-| [`log2(double, RoundingMode)`](http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/com/google/common/math/DoubleMath.html#log2(double, java.math.RoundingMode)) | 2的浮点对数，并且舍入为int，比JDK的Math.log(double) 更快 |
-
-[
-  ](https://wizardforcel.gitbooks.io/guava-tutorial/content/29.html)
 
 
 
@@ -5002,13 +2219,13 @@ returns true, even though ArrayList<String> is not assignable from ArrayList<Int
 
 Guava提供了[TypeToken](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html), 它使用了基于反射的技巧甚至让你在运行时都能够巧妙的操作和查询泛型类型。想象一下TypeToken是创建，操作，查询泛型类型（以及，隐含的类）对象的方法。
 
-Guice用户特别注意：TypeToken与类[Guice](http://code.google.com/p/google-guice/)的[TypeLiteral](http://google-guice.googlecode.com/git/javadoc/com/google/inject/TypeLiteral.html)很相似，但是有一个点特别不同：它能够支持非具体化的类型，例如T，List<T>，甚至是List<? extends Number>；TypeLiteral则不能支持。TypeToken也能支持序列化并且提供了很多额外的工具方法。
+Guice用户特别注意：TypeToken与类[Guice](http://code.google.com/p/google-guice/)的[TypeLiteral](http://google-guice.googlecode.com/git/javadoc/com/google/inject/TypeLiteral.html)很相似，但是有一个点特别不同：它能够支持非具体化的类型，例如T，List\<T>，甚至是List<? extends Number>；TypeLiteral则不能支持。TypeToken也能支持序列化并且提供了很多额外的工具方法。
 
 ### 背景：类型擦除与反射
 
-Java不能在运行时保留对象的泛型类型信息。如果你在运行时有一个ArrayList<String>对象，你不能够判定这个对象是有泛型类型ArrayList<String>的 —— 并且通过不安全的原始类型，你可以将这个对象强制转换成ArrayList<Object>。
+Java不能在运行时保留对象的泛型类型信息。如果你在运行时有一个ArrayList\<String>对象，你不能够判定这个对象是有泛型类型ArrayList\<String>的 —— 并且通过不安全的原始类型，你可以将这个对象强制转换成ArrayList\<Object>。
 
-但是，反射允许你去检测方法和类的泛型类型。如果你实现了一个返回List的方法，并且你用反射获得了这个方法的返回类型，你会获得代表List<String>的[ParameterizedType](http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ParameterizedType.html)。
+但是，反射允许你去检测方法和类的泛型类型。如果你实现了一个返回List的方法，并且你用反射获得了这个方法的返回类型，你会获得代表List\<String>的[ParameterizedType](http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ParameterizedType.html)。
 
 TypeToken类使用这种变通的方法以最小的语法开销去支持泛型类型的操作。
 
@@ -5016,7 +2233,7 @@ TypeToken类使用这种变通的方法以最小的语法开销去支持泛型�
 
 获取一个基本的、原始类的TypeToken非常简单：
 
-```
+```java
 TypeToken<String> stringTok = TypeToken.of(String.class);
 TypeToken<Integer> intTok = TypeToken.of(Integer.class);
 ```
@@ -5229,7 +2446,7 @@ Foo foo = Reflection.newProxy(Foo.class, invocationHandler);
 
 [AbstractInvocationHandler](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/AbstractInvocationHandler.html)实现了以上逻辑。
 
-除此之外，AbstractInvocationHandler确保传递给[handleInvocation(Object, Method, Object[\])](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/re…ion(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]))的参数数组永远不会空，从而减少了空指针异常的机会。
+除此之外，AbstractInvocationHandler确保传递给handleInvocation(Object, Method, Object[\])的参数数组永远不会空，从而减少了空指针异常的机会。
 
 ### ClassPath
 

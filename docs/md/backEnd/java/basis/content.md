@@ -1,4 +1,4 @@
-# Basis
+# Java 基础
 
 + [基础](./basis.md)
 + [面向对象](./class.md)
