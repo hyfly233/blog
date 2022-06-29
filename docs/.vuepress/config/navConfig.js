@@ -19,14 +19,6 @@ module.exports = [
         ]
     },
     {
-        text: 'Front End',
-        items: [
-            { text: 'Web', link: '/md/frontEnd/web/web' },
-            { text: 'Vue', link: '/md/frontEnd/vue/vue' },
-            { text: 'Uni-App', link: '/about/' }
-        ]
-    },
-    {
         text: 'Database',
         items: [
             { text: 'Basis', link: '/md/database/basis/basis' },
