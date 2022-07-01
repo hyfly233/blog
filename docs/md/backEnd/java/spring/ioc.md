@@ -1,28 +1,32 @@
 # IoC
 
-## IoC容器
+## 容器
 
 容器是一种为某种特定组件的运行提供必要支持的一个软件环境。例如，Tomcat就是一个Servlet容器
 
 通常来说，使用容器运行组件，除了提供一个组件运行环境之外，容器还提供了许多底层服务。例如，Servlet容器底层实现了TCP连接，解析HTTP协议等非常复杂的服务
 
-Spring的核心就是提供了一个IoC容器，它可以管理所有轻量级的JavaBean组件，提供的底层服务包括组件的生命周期管理、配置和组装服务、AOP支持，以及建立在AOP基础上的声明式事务服务等
+Spring的核心就是提供了一个`IoC容器`，它可以管理所有轻量级的JavaBean组件，提供的底层服务包括组件的生命周期管理、配置和组装服务、AOP支持，以及建立在AOP基础上的声明式事务服务等
 
 
 
 ## IoC原理
 
-IoC全称 Inversion of Control，直译为控制反转
+`IoC`全称`Inversion of Control`，直译为控制反转
 
 传统的应用程序中，控制权在程序本身，程序的控制流程完全由开发者控制
 
-在IoC模式下，控制权发生了反转，即从应用程序转移到了IoC容器，所有组件不再由应用程序自己创建和配置，而是由IoC容器负责，这样，应用程序只需要直接使用已经创建好并且配置好的组件。为了能让组件在IoC容器中被“装配”出来，需要某种“注入”机制
-
-IoC又称为依赖注入（DI：Dependency Injection），它解决了一个最主要的问题：将组件的创建 + 配置与组件的使用相分离，并且，由IoC容器负责管理组件的生命周期
+在`IoC模式`下，控制权发生了反转，即从应用程序转移到了`IoC容器`，所有组件不再由应用程序自己创建和配置，而是由`IoC容器`负责，应用程序只需要直接使用已经创建好并且配置好的组件
 
 
 
-因为IoC容器要负责实例化所有的组件，因此，有必要告诉容器如何创建组件，以及各组件的依赖关系。一种最简单的配置是通过XML文件来实现，例如：
+为了能让组件在`IoC容器`中被“装配”出来，需要某种“注入”机制
+
+`IoC`又称为依赖注入（DI：Dependency Injection），它解决了一个最主要的问题：将组件的`创建 + 配置`与组件的使用相分离，并且，由`IoC容器`负责管理组件的生命周期
+
+
+
+因为`IoC容器`要负责实例化所有的组件，因此，有必要告诉容器如何创建组件，以及各组件的依赖关系。最简单的配置是通过`XML文件`来实现，例如：
 
 ```xml
 <beans>
@@ -38,9 +42,19 @@ IoC又称为依赖注入（DI：Dependency Injection），它解决了一个最�
 </beans>
 ```
 
-上述XML配置文件指示IoC容器创建3个JavaBean组件，并把id为`dataSource`的组件通过`setDataSource()`方法注入到另外两个组件中
+上述`XML配置文件`指示`IoC容器`创建3个`JavaBean组件`，并把id为`dataSource`的组件通过`setDataSource()`方法注入到另外两个组件中
 
-在Spring的IoC容器中，把所有组件统称为JavaBean，即配置一个组件就是配置一个Bean
+在Spring的`IoC容器`中，把所有组件统称为`JavaBean`，即配置一个组件就是配置一个Bean
+
+
+
+**
+
+Spring在初始化时，解析xml文件，将bean信息放在位于`beanFactory`的`beanDefinitionMap`中
+
+依赖注入的时候，存放在`factoryBeanObjectCache`的`map`中
+
+**
 
 
 
@@ -62,26 +76,24 @@ IoC又称为依赖注入（DI：Dependency Injection），它解决了一个最�
 
   
 
-Spring的IoC容器同时支持属性注入和构造方法注入，并允许混合使用
+Spring的`IoC容器`同时支持属性注入和构造方法注入，并允许混合使用
 
 
 
 ### 无侵入容器
 
-在设计上，Spring的IoC容器是一个高度可扩展的无侵入容器
+在设计上，Spring的`IoC容器`是一个高度可扩展的无侵入容器
 
 无侵入，是指应用程序的组件无需实现Spring的特定接口，或者说，组件根本不知道自己在Spring的容器中运行。这种无侵入的设计有以下好处：
 
-1. 应用程序组件既可以在Spring的IoC容器中运行，也可以自己编写代码自行组装配置；
+1. 应用程序组件既可以在Spring的`IoC容器`中运行，也可以自己编写代码自行组装配置；
 2. 测试的时候并不依赖Spring容器，可单独进行测试，大大提高了开发效率。
-
-
 
 
 
 ## 装配Bean
 
-编写一个特定的`application.xml`配置文件，告诉Spring的IoC容器应该如何创建并组装Bean
+编写一个特定的`application.xml`配置文件，告诉Spring的`IoC容器`应该如何创建并组装Bean
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -101,7 +113,7 @@ Spring的IoC容器同时支持属性注入和构造方法注入，并允许混�
 两个Bean的配置：
 
 - 每个Bean都有一个`id`标识，相当于Bean的唯一ID；
-- 在`userService`Bean中，通过`property`注入了另一个Bean；
+- 在`userService`的Bean中，通过`property`注入了另一个Bean；
 - Bean的顺序不重要，Spring根据依赖关系会自动正确初始化。
 
 
@@ -122,7 +134,7 @@ Spring容器是通过读取XML文件后使用反射完成的
 
 
 
-最后一步，需要创建一个Spring的IoC容器实例，然后加载配置文件，让Spring容器创建并装配好配置文件中指定的所有Bean
+最后一步，需要创建一个Spring的`IoC容器实例`，然后加载配置文件，让Spring容器创建并装配好配置文件中指定的所有Bean
 
 ```java
 ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
@@ -137,13 +149,25 @@ UserService userService = context.getBean(UserService.class);
 
 
 
+## IoC 容器
+
+`IoC容器`负责实例化，配置和组装对象。 `IoC容器`从`XML文件`获取信息并相应地工作
+
+`IoC容器`执行的主要任务是：实例化应用程序类，配置对象、组装对象之间的依赖关系
+
+
+
+一个有两种类型的`IoC容器`。它们是：`BeanFactory`、`ApplicationContext`
+
+
+
 ### ApplicationContext
 
 Spring容器就是`ApplicationContext`，它是一个接口，有很多实现类
 
-`ClassPathXmlApplicationContext`，表示它会自动从classpath中查找指定的XML配置文件的Spring容器
+`ClassPathXmlApplicationContext`，表示它会自动从`classpath`中查找指定的XML配置文件的Spring容器
 
-获得了`ApplicationContext`的实例，就获得了IoC容器的引用
+获得了`ApplicationContext`的实例，就获得了`IoC容器的引用`
 
 可以根据Bean的ID获取Bean，也可以根据Bean的类型获取Bean的引用
 
@@ -155,7 +179,7 @@ UserService userService = context.getBean(UserService.class);
 
 ### BeanFactory
 
-Spring还提供另一种IoC容器叫`BeanFactory`，使用方式和`ApplicationContext`类似
+Spring还提供另一种`IoC容器`叫`BeanFactory`，使用方式和`ApplicationContext`类似
 
 ```java
 BeanFactory factory = new XmlBeanFactory(new ClassPathResource("application.xml"));
@@ -163,6 +187,8 @@ MailService mailService = factory.getBean(MailService.class);
 ```
 
 
+
+### 区别
 
 `BeanFactory`和`ApplicationContext`的区别
 
@@ -176,9 +202,9 @@ MailService mailService = factory.getBean(MailService.class);
 
 ## Annotation配置
 
-使用Spring的IoC容器，实际上就是通过类似XML这样的配置文件，把Bean的依赖关系描述出来，然后让容器来创建并装配Bean。一旦容器初始化完毕，就直接从容器中获取Bean使用它们
+使用Spring的`IoC容器`，实际上就是通过类似`XML`的配置文件，把Bean的依赖关系描述出来，然后让容器来创建并装配Bean。一旦容器初始化完毕，就直接从容器中获取Bean使用它们
 
-使用XML配置的优点是所有的Bean都能一目了然地列出来，并通过配置注入能直观地看到每个Bean的依赖。它的缺点是写起来非常繁琐，每增加一个组件，就必须把新的Bean配置到XML中
+`XML配置`的优点是所有的Bean都能一目了然地列出来，并通过配置注入能直观地看到每个Bean的依赖。它的缺点是非常繁琐，每增加一个组件，就必须把新的Bean配置到XML中
 
 
 

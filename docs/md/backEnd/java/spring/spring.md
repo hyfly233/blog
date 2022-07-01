@@ -1,16 +1,8 @@
 # Spring IoC容器
 
-IoC容器负责实例化，配置和组装对象。 IoC容器从XML文件获取信息并相应地工作。 IoC容器执行的主要任务是:
 
-实例化应用程序类配置对象组装对象之间的依赖关系
 
-有两种类型的IoC容器。它们是:
 
-**BeanFactory****ApplicationContext**
-
-### BeanFactory和ApplicationContext之间的区别
-
-org.springframework.beans.factory。 **BeanFactory** 和org.springframework.context。 **ApplicationContext** 接口充当IoC容器。 ApplicationContext接口建立在BeanFactory接口的顶部。它比BeanFactory增加了一些额外的功能，例如与Spring的AOP的简单集成，消息资源处理(用于I18N)，事件传播，Web应用程序的特定于应用程序层的上下文(例如WebApplicationContext)。因此，使用ApplicationContext比使用BeanFactory更好。
 
 ### 使用BeanFactory
 
