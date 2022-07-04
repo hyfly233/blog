@@ -10,7 +10,9 @@ Spring的核心就是提供了一个`IoC容器`，它可以管理所有轻量级
 
 
 
-## IoC原理
+## IOC
+
+### IoC原理
 
 `IoC`全称`Inversion of Control`，直译为控制反转
 
@@ -172,6 +174,7 @@ Spring容器就是`ApplicationContext`，它是一个接口，有很多实现类
 可以根据Bean的ID获取Bean，也可以根据Bean的类型获取Bean的引用
 
 ```java
+ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 UserService userService = context.getBean(UserService.class);
 ```
 
