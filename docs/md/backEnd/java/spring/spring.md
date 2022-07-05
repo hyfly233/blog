@@ -1,4 +1,4 @@
-# Spring 面试
+
 
 ## 什么是Spring？
 
@@ -19,6 +19,23 @@ MVC框架：Spring的web框架是一个设计优良的web MVC框架，很好的�
 事务管理：Spring对下至本地业务上至全局业务(JAT)提供了统一的事务管理接口。
 
 异常处理：Spring提供一个方便的API将特定技术的异常(由JDBC, Hibernate, 或JDO抛出)转化为一致的、Unchecked异常。
+
+
+
+
+
+## Spring容器启动流程
+
+1. 在创建Spring容器，也就是启动Spring时，首先会进行扫描，扫描得到所有的`BeanDefinition`对象，并存在一个Map中
+2. 然后筛选出`非懒加载的单例BeanDefinition`进行创建Bean；对于多例Bean不需要在启动过程中去进行创建，对于多例Bean会在每次获取Bean时利用`BeanDefinition`去创建
+3. 利用`BeanDefinition`创建Bean就是Bean的创建生命周期，这期间包括了合并`BeanDefinition`、推断构造方法、实例化、属性填充、初始化前、初始化、初始化后等步骤，其中AOP就是发生在初始化后这一步骤中
+4. 单例Bean创建完了之后， Spring会发布一个容器启动事件，Spring启动结束
+5. 在源码中会更复杂，比如源码中会提供一些模板方法，让子类来实现，比如源码中还涉及到一些`BeanFactoryPostProcessor`和`BeanPostProcessor`的注册， Spring的扫描就是通过`BenaFactoryPostProcessor`来实现的，依赖注入就是通过`BeanPostProcessor`来实现的
+6. 在Spring启动过程中还会去处理`@lmport`等注解
+
+
+
+
 
 ## Spring 事务实现方式
 
@@ -42,6 +59,8 @@ MVC框架：Spring的web框架是一个设计优良的web MVC框架，很好的�
 - PROPAGATION_NEVER: 以非事务方式执行，如果当前存在事务，则抛出异常。
 - PROPAGATION_NESTED: 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则进行与PROPAGATION_REQUIRED类似的操作。
 
+
+
 ## Spring 事务底层原理
 
 - 划分处理单元——IoC
@@ -60,47 +79,108 @@ spring委托给具体的事务处理器实现。实现了一个抽象和适配�
 
 PlatformTransactionManager实现了TransactionInterception接口，让其与TransactionProxyFactoryBean结合起来，形成一个Spring声明式事务处理的设计体系。
 
+
+
+
+
+1. Spring事务底层是基于**数据库事务**和**AOP机制**的
+2. 首先对于使用了@Transactional注解的Bean， Spring会创建一个代理对象作为Bean
+3. 当调用代理对象的方法时，会先判断该方法上是否加了@Transactional注解
+4. 如果加了，那么则利用事务管理器创建一个数据库连接
+5. 并且**修改数据库**连接的`autocommit属性`为false，禁止此连接的自动提交，这是实现Spring事务非常重要的一步
+6. 然后执行当前方法，方法中会执行sql
+7. 执行完当前方法后，如果没有出现异常就直接提交事务
+8. 如果出现了异常，并且这个异常是需要回滚的就会回滚事务，否则仍然提交事务
+9. Spring事务的隔离级别**默认**对应的就是数据库的隔离级别
+10. Spring事务的传播机制是Spring事务自己实现的，也是Spring事务中最复杂的
+11. Spring事务的传播机制是基于数据库连接来做的，一个数据库连接一个事务，如果传播机制配置为需要新开一个事务，那么实际上就是先建立一个数据库连接，在此新数据库连接上执行sql
+
+
+
 ## 有没有遇到过Spring事务失效的情况？在什么情况下Spring的事务是失效的？
 
-参考：[面试必备技能：JDK动态代理给Spring事务埋下的坑！](https://mp.weixin.qq.com/s?__biz=MzI1NDQ3MjQxNA==&mid=2247484940&idx=1&sn=0a0a7198e96f57d610d3421b19573002&chksm=e9c5ffbddeb276ab64ff3b3efde003193902c69acda797fdc04124f6c2a786255d58817b5a5c&scene=21#wechat_redirect)
+1. 普通对象调方法，事务是不生效的。只有代理对象调用才行
+2. 因为`cglib动态代理`是基于父子类来实现的，子类是不能重载父类的`private`方法，所以类中的方法是`private`的则代理类不能重载及`@Transaction`会失效
+
+
 
 ## Spring MVC 运行流程
 
-第一步：发起请求到前端控制器(DispatcherServlet)
+1. 发起请求到`前端控制器DispatcherServle`
+2. 前端控制器请求`HandlerMapping`查找`Handler`（ 可以根据xml配置、注解进行查找），并向前端控制器返回`Handler`
+3. 前端控制器调用`处理器适配器HandlerAdaptor`去执行`Handler`
+4. `Handler`执行完成给处理器适配器`HandlerAdaptor`返回`ModelAndView`
+5. 处理器适配器向前端控制器返回ModelAndView（ModelAndView是springmvc框架的一个底层对象，包括Model和view）
+6. 前端控制器请求视图解析器`ViewReslover`去进行视图解析
+7. 视图解析器向前端控制器返回View
+8. `前端控制器DispatcherServle`进行视图渲染（ 视图渲染将模型数据(在ModelAndView对象中)填充到request域）
+9. `前端控制器DispatcherServle`向用户响应结果
 
-第二步：前端控制器请求HandlerMapping查找 Handler（ 可以根据xml配置、注解进行查找）
 
-第三步：处理器映射器HandlerMapping向前端控制器返回Handler
 
-第四步：前端控制器调用处理器适配器去执行Handler
+1．用户发送请求至前端控制器DispatcherServlet。
 
-第五步：处理器适配器去执行Handler
+2．DispatcherServlet收到请求调用 HandlerMapping 处理器映射器。
 
-第六步：Handler执行完成给适配器返回ModelAndView
+3．处理器映射器找到具体的处理器（可以根据xml配置、注解进行查找），生成处理器及处理器拦截器（如果有则生成）—并返回给DispatcherServlet。
 
-第七步：处理器适配器向前端控制器返回ModelAndView（ModelAndView是springmvc框架的一个底层对象，包括Model和view）
+4．DispatcherServlet 调用HandlerAdapter 处理器适配器。
 
-第八步：前端控制器请求视图解析器去进行视图解析（根据逻辑视图名解析成真正的视图(jsp)）
+5．HandlerAdapter经过适配调用具体的处理器（Controller，也叫后端控制器）
 
-第九步：视图解析器向前端控制器返回View
+6．Controller 执行完成返回 ModelAndView。
 
-第十步：前端控制器进行视图渲染（ 视图渲染将模型数据(在ModelAndView对象中)填充到request域）
+7．HandlerAdapter 将 controller执行结果 ModelAndView 返回给 DispatcherServlet。
 
-第十一步：前端控制器向用户响应结果
+8．DispatcherServlet将 ModelAndView 传给ViewReslover 视图解析器。
+
+9．ViewReslover 解析后返回具体View。
+
+10．DispatcherServlet 根据View 进行渲染视图（即将模型数据填充至视图中）。
+
+11．DispatcherServlet 响应用户。
+
+
+
+
 
 ## BeanFactory和ApplicationContext有什么区别？
 
 ApplicationContext提供了一种解决文档信息的方法，一种加载文件资源的方式(如图片)，他们可以向监听他们的beans发送消息。另外，容器或者容器中beans的操作，这些必须以bean工厂的编程方式处理的操作可以在应用上下文中以声明的方式处理。应用上下文实现了MessageSource，该接口用于获取本地消息，实际的实现是可选的。
 
+
+
 相同点：两者都是通过xml配置文件加载bean,ApplicationContext和BeanFacotry相比,提供了更多的扩展功能。
 
+
+
 不同点：BeanFactory是延迟加载,如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常；而ApplicationContext则在初始化自身是检验，这样有利于检查所依赖属性是否注入；所以通常情况下我们选择使用ApplicationContext。
+
+
+
+
 
 ## 什么是Spring Beans？
 
 Spring Beans是构成Spring应用核心的Java对象。这些对象由Spring IOC容器实例化、组装、管理。这些对象通过容器中配置的元数据创建，例如，使用XML文件中定义的创建。
 
 在Spring中创建的beans都是单例的beans。在bean标签中有一个属性为”singleton”,如果设为true，该bean是单例的，如果设为false，该bean是原型bean。Singleton属性默认设置为true。因此，spring框架中所有的bean都默认为单例bean。
+
+
+
+
+
+## Spring Bean线程安全吗
+
++ Spring本身并没有针对Bean做线程安全的处理，所以：
+  1. 如果Bean是无状态的，那么Bean则是线程安全的
+  2. 如果Bean是有状态的，那么Bean则不是线程安全的
+
++ 另外，Bean是不是线程安全，跟Bean的作用域（单例、多例）没有关系，Bean的作用域只是表示Bean的生命周期范围，对于任何生命周期的Bean都是一个对象，这个对象是不是线程安全的，还是得看这个Bean对象本身
+
+
+
+
 
 ## 说一下Spring中支持的bean作用域
 
@@ -117,6 +197,8 @@ bean默认的scope属性是”singleton”。
 ## Spring 的单例实现原理
 
 Spring框架对单例的支持是采用单例注册表的方式进行实现的，而这个注册表的缓存是HashMap对象，如果配置文件中的配置信息不要求使用单例，Spring会采用新建实例的方式返回对象实例。
+
+
 
 ## 解释Spring框架中bean的生命周期
 
@@ -147,6 +229,26 @@ ApplicationContext容器中，Bean的生命周期流程如上图所示，流程�
 11.容器关闭后，如果Bean实现了DisposableBean接口，则会回调该接口的destroy()方法，
 
 12.如果Bean配置了destroy-method方法，则会执行destroy-method配置的方法，至此，整个Bean的生命周期结束
+
+
+
+
+
+## Spring框架中Bean创建的生命周期
+
+创建`bean`大致步骤：
+
+1. 推断构造方法
+2. 实例化
+3. 填充属性，及依赖注入
+4. 处理`aware`回调
+5. 初始化前，处理`@PostConstruct`注解
+6. 初始化，处理`Initialization`接口
+7. 初始化后，进行`aop`
+
+
+
+
 
 ## Resource 是如何被查找、加载的？
 

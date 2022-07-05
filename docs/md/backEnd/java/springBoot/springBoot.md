@@ -2528,3 +2528,74 @@ Session + Redis 来实现 session 共享。将所有微服务的 session 统一�
 使用 Spring 中的 @Scheduled 的方式主要通过 @Scheduled 注解来实现。
 
 使用 Quartz ，则按照 Quartz 的方式，定义 Job 和 Trigger 即可。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 面试
+
+## SpringBoot中常用注解及其底层实现
+
+1．＠SpringBootApplication注解：这个注解标识了一个SpringBoot工程，它实际上是另外三个注解的组合，这三个注解是：
+
+​	a.＠SpringBootConfiguration：这个注解实际就是一个＠Configuration，表示启动类也是一个配置类
+
+​	b.＠EnableAutoConfiguration：向Spring容器中导入了一个Selector，用来加载ClassPath下SpringFactories中所定义的自动配置类，将这些自 动加载为配置Bean
+
+​	c.＠ComponentScan：标识扫描路径，因为默认是没有配置实际扫描路径，所以SpringBoot扫描的路径是启动类所在的当前目录
+
+2．＠Bean注解：用来定义Bean，类似于XML中的＜bean＞标签，Spring在启动时，会对加了＠Bean注解的方法进行解析，将方法的名字做为beanName，并通过执行方法得到bean对象
+
+3．＠Controller、＠Service、＠ResponseBody、＠Autowired
+
+
+
+
+
+## SpringBoot是如何启动Tomcat的
+
+1. 首先，SpringBoot在启动时会先创建一个Spring容器
+2. 在创建Spring容器过程中，会利用`@ConditionalOnclass`技术来判断当前classpath中是否存在Tomcat依赖，如果存在则会生成一个启动`Tomcat`的Bean
+3. Spring容器创建完之后，就会获取启动Tomcat的Bean，并创建Tomcat对象，并绑定端口等，然后启动Tomcat
+
+
+
+## SpringBoot中配置文件的加载顺序是怎样的？
+
+优先级从高到低，高优先级的配置赋值低优先级的配置，所有配置会形成互补配置
+
+1. 命令行参数。所有的配置都可以在命令行上进行指定
+2. Java系统属性（System.getProperties0）；
+3. 操作系统环境变量；
+4. jar包外部的application-fprofile.properties或application.yml（带spring.profile）配置文件
+5. jar包内部的application-fprofile.properties或application.yml（带spring.profile）配置文件再来加载不带profile
+6. jar包外部的application.properties或application.yml（不带spring.profile）配置文件
+7. ja包内部的application.properties或application.yml（不带springprofile）配置文件
+8. @Configuration注解类上的@PropertySource
