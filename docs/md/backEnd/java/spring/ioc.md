@@ -835,6 +835,92 @@ Spring只提供了`@Conditional`注解，具体判断逻辑还需要自己实现
 
 
 
+
+
+## 自动装配
+
+自动装配功能使您可以隐式注入对象依赖项，它在内部使用`setter`或`构造函数`注入。自动装配不能用于注入基本值和字符串值
+
++ 优点
+  + 需要更少的代码，不需要编写代码来显式注入依赖项
++ 缺点
+  + 没有程序的控制权
+  + 不能用于原始值和字符串值
+
+
+
+### 自动装配模式
+
+| 模式        | 说明                                                         |
+| ----------- | ------------------------------------------------------------ |
+| no          | 这是默认的自动装配模式。这意味着默认情况下没有自动装配。     |
+| byName      | byName模式根据bean的名称注入对象依赖项。在这种情况下，属性名称和bean名称必须相同。它在内部调用setter方法。 |
+| byType      | byType模式根据类型注入对象依赖项。因此属性名称和bean名称可以不同。它在内部调用setter方法。 |
+| constructor | 构造函数模式通过调用类的构造函数来注入依赖项。它会调用具有大量参数的构造函数。 |
+| autodetect  | 从Spring 3开始不推荐使用。                                   |
+
+
+
+示例：
+
+使用`bean元素`的`autowire属性`来应用自动装配模式
+
+```xml
+<bean id="a" class="test.A" autowire="byName"></bean>
+
+<bean id="a" class="test.A" autowire="byType"></bean>
+
+<bean id="a" class="test.A" autowire="constructor"></bean>
+
+<bean id="a" class="test.A" autowire="no"></bean>
+```
+
+
+
+
+
+## 使用工厂方法进行依赖注入
+
++ factory-method：表示将被调用以注入bean的工厂方法，返回一种类实例的方法
++ factory-bean：表示将调用工厂方法的bean的引用。如果工厂方法是非静态的，则使用它。
+
+
+
+```java
+public class A {
+    public static A getA(){//factory method
+        return new A();
+    }
+}
+```
+
+### factory-method类型
+
+可以有三种类型的factory-method:
+
++ 返回的是静态工厂方法自己的类的实例。用于单例设计模式
+
+```xml
+<bean id="a" class="com.test.A" factory-method="getA"></bean>
+```
+
++ 一种静态工厂方法，它返回另一个类的实例。所使用的实例未知，并在运行时决定
+
+```xml
+<bean id="b" class="com.test.A" factory-method="getB"></bean>
+```
+
++ 一种非静态工厂方法，该方法返回另一个类的实例。所使用的实例未知，并在运行时决定
+
+```xml
+<bean id="a" class="com.test.A"></bean>
+<bean id="b" class="com.test.A" factory-method="getB" factory-bean="a"></bean>
+```
+
+
+
+
+
 # 源码
 
 todo

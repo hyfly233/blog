@@ -1,6 +1,8 @@
-# AOP
+# Spring AOP
 
-AOP是Aspect Oriented Programming，即面向切面编程
+AOP（Aspect Oriented Programming），即面向切面编程，将程序逻辑分为不同的部分（称为关注点）
+
+
 
 OOP的主要功能是数据封装、继承和多态
 
@@ -32,7 +34,17 @@ AOP对于解决特定问题，例如事务管理非常有用，这是因为分�
 
 
 
-## 装配AOP
+## 使用AOP
+
+### 使用方式
+
++ 采用`Spring1.2`旧样式（基于dtd）
++ 通过`AspectJ`注释样式
++ 通过`Spring XM`L配置样式（基于模式）
+
+
+
+### 关键字
 
 - Aspect：切面，即一个横跨多个核心逻辑的功能，或者称之为系统关注点；
 - Joinpoint：连接点，即定义在应用程序流程的何处插入切面的执行；
