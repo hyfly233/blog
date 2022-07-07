@@ -191,6 +191,93 @@ size=7
 
 
 
+部分源码
+
+```java
+public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, Serializable {
+    
+    /**
+     * 默认初始容量
+     */
+    private static final int DEFAULT_CAPACITY = 10;
+
+    /**
+     * 用于空实例的共享空数组实例
+     */
+    private static final Object[] EMPTY_ELEMENTDATA = {};
+
+    /**
+     * 用于默认大小的空实例的共享空数组实例
+     */
+    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+    /**
+     * 存储 ArrayList 元素的数组缓冲区
+     * ArrayList 的容量就是这个数组缓冲区的长度
+     */
+    transient Object[] elementData;
+    
+    /**
+     * ArrayList 的大小（它包含的元素数量）
+     */
+    private int size;
+    
+    public ArrayList() {
+        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+    }
+    
+    /**
+     * 构造一个具有指定初始容量的空列表
+     */
+    public ArrayList(int initialCapacity) {
+        if (initialCapacity > 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
+        }
+    }
+    
+    /**
+     * 按照集合的迭代器返回的顺序构造一个包含指定集合元素的列表
+     */
+    public ArrayList(Collection<? extends E> c) {
+        Object[] a = c.toArray();
+        if ((size = a.length) != 0) {
+            if (c.getClass() == ArrayList.class) {
+                elementData = a;
+            } else {
+                elementData = Arrays.copyOf(a, size, Object[].class);
+            }
+        } else {
+            elementData = EMPTY_ELEMENTDATA;
+        }
+    }
+    
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
+    }
+    
+    /**
+     * 从此列表中删除所有元素。 此调用返回后，列表将为空
+     */
+    public void clear() {
+        modCount++;
+        final Object[] es = elementData;
+        for (int to = size, i = size = 0; i < to; i++)
+            es[i] = null;
+    }
+    
+}
+```
+
+
+
+
+
+
+
 # LinkedList
 
 `LinkedList`通过“链表”也实现了List接口。在`LinkedList`中，它的内部每个元素都指向下一个元素：
@@ -200,6 +287,170 @@ size=7
 HEAD ──>│ A │ ●─┼──>│ B │ ●─┼──>│ C │ ●─┼──>│ D │   │
         └───┴───┘   └───┴───┘   └───┴───┘   └───┴───┘
 ```
+
+
+
+部分源码
+
+```java
+public class LinkedList<E> extends AbstractSequentialList<E> implements List<E>, Deque<E>, Cloneable, Serializable {
+    transient int size = 0;
+
+    /**
+     * Pointer to first node.
+     */
+    transient Node<E> first;
+
+    /**
+     * Pointer to last node.
+     */
+    transient Node<E> last;
+    
+    public LinkedList() {
+    }
+    
+    /**
+     * 按照集合的迭代器返回的顺序构造一个包含指定集合元素的列表
+     */
+    public LinkedList(Collection<? extends E> c) {
+        this();
+        addAll(c);
+    }
+
+    public boolean addAll(Collection<? extends E> c) {
+        return addAll(size, c);
+    }
+    
+    public boolean addAll(int index, Collection<? extends E> c) {
+        checkPositionIndex(index);
+
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0)
+            return false;
+
+        Node<E> pred, succ;
+        if (index == size) {
+            succ = null;
+            pred = last;
+        } else {
+            succ = node(index);
+            pred = succ.prev;
+        }
+
+        for (Object o : a) {
+            @SuppressWarnings("unchecked") E e = (E) o;
+            Node<E> newNode = new Node<>(pred, e, null);
+            if (pred == null)
+                first = newNode;
+            else
+                pred.next = newNode;
+            pred = newNode;
+        }
+
+        if (succ == null) {
+            last = pred;
+        } else {
+            pred.next = succ;
+            succ.prev = pred;
+        }
+
+        size += numNew;
+        modCount++;
+        return true;
+    }
+    
+    public E getFirst() {
+        final Node<E> f = first;
+        if (f == null)
+            throw new NoSuchElementException();
+        return f.item;
+    }
+
+    public E getLast() {
+        final Node<E> l = last;
+        if (l == null)
+            throw new NoSuchElementException();
+        return l.item;
+    }
+   
+    /**
+     * 链接 e 作为最后一个元素
+     */
+    void linkLast(E e) {
+        final Node<E> l = last;
+        final Node<E> newNode = new Node<>(l, e, null);
+        last = newNode;
+        if (l == null)
+            first = newNode;
+        else
+            l.next = newNode;
+        size++;
+        modCount++;
+    }
+
+    /**
+     * 取消非空节点 x 的链接
+     */
+     E unlink(Node<E> x) {
+        // assert x != null;
+        final E element = x.item;
+        final Node<E> next = x.next;
+        final Node<E> prev = x.prev;
+
+        if (prev == null) {
+            first = next;
+        } else {
+            prev.next = next;
+            x.prev = null;
+        }
+
+        if (next == null) {
+            last = prev;
+        } else {
+            next.prev = prev;
+            x.next = null;
+        }
+
+        x.item = null;
+        size--;
+        modCount++;
+        return element;
+    }
+    
+    /**
+     * 从此列表中删除所有元素。此调用返回后，列表将为空。
+     */
+    public void clear() {
+        for (Node<E> x = first; x != null; ) {
+            Node<E> next = x.next;
+            x.item = null;
+            x.next = null;
+            x.prev = null;
+            x = next;
+        }
+        first = last = null;
+        size = 0;
+        modCount++;
+    }
+    
+    private static class Node<E> {
+        E item;
+        Node<E> next;
+        Node<E> prev;
+
+        Node(Node<E> prev, E element, Node<E> next) {
+            this.item = element;
+            this.next = next;
+            this.prev = prev;
+        }
+    }
+}
+```
+
+
+
+
 
 
 
@@ -235,13 +486,23 @@ HEAD ──>│ A │ ●─┼──>│ B │ ●─┼──>│ C │ ●─
 `HashSet`仅仅是对`HashMap`的一个简单封装
 
 ```java
-public class HashSet<E> implements Set<E> {
+public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, Serializable {
     // 持有一个HashMap:
-    private HashMap<E, Object> map = new HashMap<>();
+    private HashMap<E, Object> map;
 
     // 放入HashMap的value:
     private static final Object PRESENT = new Object();
 
+    public HashSet() {
+        map = new HashMap<>();
+    }
+    
+    public HashSet(Collection<? extends E> c) {
+        map = new HashMap<>(Math.max((int) (c.size()/.75f) + 1, 16));
+        addAll(c);
+    }
+    
+    
     public boolean add(E e) {
         return map.put(e, PRESENT) == null;
     }
@@ -263,6 +524,35 @@ public class HashSet<E> implements Set<E> {
 `TreeSet`是有序的，因为它实现了`SortedSet`接口
 
 使用`TreeSet`和使用`TreeMap`的要求一样，添加的元素必须正确实现`Comparable`接口，如果没有实现`Comparable`接口，那么创建`TreeSet`时必须传入一个`Comparator`对象
+
+
+
+部分源码
+
+```java
+public class TreeSet<E> extends AbstractSet<E> implements NavigableSet<E>, Cloneable, Serializable {
+
+    private transient NavigableMap<E,Object> m;
+
+    private static final Object PRESENT = new Object();
+    
+    public TreeSet() {
+        this(new TreeMap<>());
+    }
+    
+    TreeSet(NavigableMap<E,Object> m) {
+        this.m = m;
+    }
+    
+    public boolean add(E e) {
+        return m.put(e, PRESENT)==null;
+    }
+    
+    public boolean remove(Object o) {
+        return m.remove(o)==PRESENT;
+    }
+}
+```
 
 
 
@@ -359,13 +649,62 @@ String interval = props.getProperty("xxxx", "120");
 
 
 
-# HashMap
+## HashMap
+
+部分源码
+
+```java
+public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable {
+	
+    /**
+     * The default initial capacity - MUST be a power of two.
+     */
+    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+
+    /**
+     * The maximum capacity, used if a higher value is implicitly specified
+     * by either of the constructors with arguments.
+     * MUST be a power of two <= 1<<30.
+     */
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+
+    /**
+     * The load factor used when none specified in constructor.
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    /**
+     * The bin count threshold for using a tree rather than list for a
+     * bin.  Bins are converted to trees when adding an element to a
+     * bin with at least this many nodes. The value must be greater
+     * than 2 and should be at least 8 to mesh with assumptions in
+     * tree removal about conversion back to plain bins upon
+     * shrinkage.
+     */
+    static final int TREEIFY_THRESHOLD = 8;
+
+    /**
+     * The bin count threshold for untreeifying a (split) bin during a
+     * resize operation. Should be less than TREEIFY_THRESHOLD, and at
+     * most 6 to mesh with shrinkage detection under removal.
+     */
+    static final int UNTREEIFY_THRESHOLD = 6;
+
+    /**
+     * The smallest table capacity for which bins may be treeified.
+     * (Otherwise the table is resized if too many nodes in a bin.)
+     * Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts
+     * between resizing and treeification thresholds.
+     */
+    static final int MIN_TREEIFY_CAPACITY = 64;
+}
+```
 
 
 
 
 
-# LinkedHashMap
+## LinkedHashMap
 
 
 
