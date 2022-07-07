@@ -626,6 +626,92 @@ Map<Person, Integer> map = new TreeMap<>(new Comparator<Person>() {
 
 
 
+部分代码
+
+```java
+public class TreeMap<K,V> extends AbstractMap<K,V> implements NavigableMap<K,V>, Cloneable, Serializable {
+    
+    /**
+     * 用于在此树形图中维护顺序的比较器，如果它使用其键的自然顺序，则为 null。
+     */
+    @SuppressWarnings("serial") // Conditionally serializable
+    private final Comparator<? super K> comparator;
+
+    private transient Entry<K,V> root;
+
+    /**
+     * 树中的条目数
+     */
+    private transient int size = 0;
+
+    /**
+     * 对树的结构修改次数
+     */
+    private transient int modCount = 0;
+
+    /**
+     * 使用其键的自然顺序构造一个新的空树映射
+     */
+    public TreeMap() {
+        comparator = null;
+    }
+    
+    private V put(K key, V value, boolean replaceOld) {
+        Entry<K,V> t = root;
+        if (t == null) {
+            addEntryToEmptyMap(key, value);
+            return null;
+        }
+        int cmp;
+        Entry<K,V> parent;
+        // split comparator and comparable paths
+        Comparator<? super K> cpr = comparator;
+        if (cpr != null) {
+            do {
+                parent = t;
+                cmp = cpr.compare(key, t.key);
+                if (cmp < 0)
+                    t = t.left;
+                else if (cmp > 0)
+                    t = t.right;
+                else {
+                    V oldValue = t.value;
+                    if (replaceOld || oldValue == null) {
+                        t.value = value;
+                    }
+                    return oldValue;
+                }
+            } while (t != null);
+        } else {
+            Objects.requireNonNull(key);
+            @SuppressWarnings("unchecked")
+            Comparable<? super K> k = (Comparable<? super K>) key;
+            do {
+                parent = t;
+                cmp = k.compareTo(t.key);
+                if (cmp < 0)
+                    t = t.left;
+                else if (cmp > 0)
+                    t = t.right;
+                else {
+                    V oldValue = t.value;
+                    if (replaceOld || oldValue == null) {
+                        t.value = value;
+                    }
+                    return oldValue;
+                }
+            } while (t != null);
+        }
+        addEntry(key, value, parent, cmp < 0);
+        return null;
+    }
+}
+```
+
+
+
+
+
 ## Properties
 
 `Properties`内部本质上是一个`Hashtable`
@@ -657,46 +743,236 @@ String interval = props.getProperty("xxxx", "120");
 public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable {
 	
     /**
-     * The default initial capacity - MUST be a power of two.
+     * 默认初始容量 - 必须是 2 的幂
      */
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
     /**
-     * The maximum capacity, used if a higher value is implicitly specified
-     * by either of the constructors with arguments.
-     * MUST be a power of two <= 1<<30.
-     */
-    static final int MAXIMUM_CAPACITY = 1 << 30;
-
-    /**
-     * The load factor used when none specified in constructor.
+     * 构造函数中未指定时使用的负载因子
      */
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
-     * The bin count threshold for using a tree rather than list for a
-     * bin.  Bins are converted to trees when adding an element to a
-     * bin with at least this many nodes. The value must be greater
-     * than 2 and should be at least 8 to mesh with assumptions in
-     * tree removal about conversion back to plain bins upon
-     * shrinkage.
+     * 使用树而不是列表的 bin 计数阈值
      */
     static final int TREEIFY_THRESHOLD = 8;
 
     /**
-     * The bin count threshold for untreeifying a (split) bin during a
-     * resize operation. Should be less than TREEIFY_THRESHOLD, and at
-     * most 6 to mesh with shrinkage detection under removal.
-     */
-    static final int UNTREEIFY_THRESHOLD = 6;
-
-    /**
-     * The smallest table capacity for which bins may be treeified.
-     * (Otherwise the table is resized if too many nodes in a bin.)
-     * Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts
-     * between resizing and treeification thresholds.
+     * 可对其进行树化的 bin 的最小表容量
      */
     static final int MIN_TREEIFY_CAPACITY = 64;
+    
+    /**
+     * 基本哈希 bin 节点
+     */
+    static class Node<K,V> implements Map.Entry<K,V> {
+        final int hash;
+        final K key;
+        V value;
+        Node<K,V> next;
+    }
+    
+    /**
+     * 树 bin 的入口。 扩展 LinkedHashMap.Entry（进而扩展 Node）
+     */
+    static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
+        TreeNode<K,V> parent;  // red-black tree links
+        TreeNode<K,V> left;
+        TreeNode<K,V> right;
+        TreeNode<K,V> prev;    // needed to unlink next upon deletion
+        boolean red;
+    }
+    
+    /**
+     * 该表在首次使用时初始化，并根据需要调整大小。 分配时，长度始终是 2 的幂
+     */
+    transient Node<K,V>[] table;
+
+    /**
+     * 保存缓存的 entrySet()
+     */
+    transient Set<Map.Entry<K,V>> entrySet;
+
+    transient int size;
+
+    /**
+     * 此 HashMap 已被结构修改的次数
+     * 
+     * 该字段用于使 HashMap 的 Collection-views 上的迭代器快速失败
+     */
+    transient int modCount;
+
+    /**
+     * 要调整大小的下一个大小值 (capacity * load factor).
+     */
+    int threshold;
+
+    /**
+     * 哈希表的负载因子
+     *
+     * @serial
+     */
+    final float loadFactor;
+    
+    public HashMap(int initialCapacity) {
+        this(initialCapacity, DEFAULT_LOAD_FACTOR);
+    }
+    
+    public HashMap(int initialCapacity, float loadFactor) {
+        if (initialCapacity < 0)
+            throw new IllegalArgumentException("Illegal initial capacity: " +
+                                               initialCapacity);
+        if (initialCapacity > MAXIMUM_CAPACITY)
+            initialCapacity = MAXIMUM_CAPACITY;
+        if (loadFactor <= 0 || Float.isNaN(loadFactor))
+            throw new IllegalArgumentException("Illegal load factor: " +
+                                               loadFactor);
+        this.loadFactor = loadFactor;
+        this.threshold = tableSizeFor(initialCapacity);
+    }
+    
+    
+    /**
+     * 返回指定键映射到的值，如果此映射不包含该键的映射，则返回 {@code null}
+     */
+    public V get(Object key) {
+        Node<K,V> e;
+        return (e = getNode(key)) == null ? null : e.value;
+    }
+
+    /**
+     * 实现 Map.get 和相关方法
+     */
+    final Node<K,V> getNode(Object key) {
+        Node<K,V>[] tab; 
+        Node<K,V> first, e; 
+        int n, hash; K k;
+        
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (first = tab[(n - 1) & (hash = hash(key))]) != null) {
+            if (first.hash == hash && // always check first node
+                ((k = first.key) == key || (key != null && key.equals(k))))
+                return first;
+            if ((e = first.next) != null) {
+                if (first instanceof TreeNode)
+                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        return e;
+                } while ((e = e.next) != null);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 将指定的值与此映射中的指定键相关联。 如果映射先前包含键的映射，则替换旧值。
+     */
+    public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+    
+    /**
+     * 实现 Map.put 和相关方法。
+     */
+    final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
+        Node<K,V>[] tab;
+        Node<K,V> p;
+        int n, i;
+        
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        if ((p = tab[i = (n - 1) & hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node<K,V> e; K k;
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                e = p;
+            else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size > threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }
+    
+    /**
+     * 如果存在，则从此映射中删除指定键的映射。
+     */
+    public V remove(Object key) {
+        Node<K,V> e;
+        return (e = removeNode(hash(key), key, null, false, true)) == null ?
+            null : e.value;
+    }
+    
+    /**
+     * 实现 Map.remove 和相关方法
+     */
+    final Node<K,V> removeNode(int hash, Object key, Object value,
+                               boolean matchValue, boolean movable) {
+        Node<K,V>[] tab; Node<K,V> p; int n, index;
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (p = tab[index = (n - 1) & hash]) != null) {
+            Node<K,V> node = null, e; K k; V v;
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                node = p;
+            else if ((e = p.next) != null) {
+                if (p instanceof TreeNode)
+                    node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
+                else {
+                    do {
+                        if (e.hash == hash &&
+                            ((k = e.key) == key ||
+                             (key != null && key.equals(k)))) {
+                            node = e;
+                            break;
+                        }
+                        p = e;
+                    } while ((e = e.next) != null);
+                }
+            }
+            if (node != null && (!matchValue || (v = node.value) == value ||
+                                 (value != null && value.equals(v)))) {
+                if (node instanceof TreeNode)
+                    ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                else if (node == p)
+                    tab[index] = node.next;
+                else
+                    p.next = node.next;
+                ++modCount;
+                --size;
+                afterNodeRemoval(node);
+                return node;
+            }
+        }
+        return null;
+    }
 }
 ```
 
@@ -706,11 +982,49 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
 
 ## LinkedHashMap
 
+部分源码
 
+```java
+public class LinkedHashMap<K,V> extends HashMap<K,V> implements Map<K,V> {
+	
+    /**
+     * 普通 LinkedHashMap 条目的 HashMap.Node 子类
+     */
+    static class Entry<K,V> extends HashMap.Node<K,V> {
+        Entry<K,V> before, after;
+        Entry(int hash, K key, V value, Node<K,V> next) {
+            super(hash, key, value, next);
+        }
+    }
 
+    /**
+     * 双向链表的头部（最老的）。
+     */
+    transient LinkedHashMap.Entry<K,V> head;
 
+    /**
+     * 双向链表的尾部（最小）。
+     */
+    transient LinkedHashMap.Entry<K,V> tail;
 
-# ConcurrentHashMap加锁粒度
+    /**
+     * 此链接哈希映射的迭代排序方法：{@code true} 用于访问顺序，{@code false} 用于插入顺序。
+     */
+    final boolean accessOrder;
+
+    /**
+     * 返回指定键映射到的值，如果此映射不包含该键的映射，则返回 {@code null}。
+     */
+    public V get(Object key) {
+        Node<K,V> e;
+        if ((e = getNode(key)) == null)
+            return null;
+        if (accessOrder)
+            afterNodeAccess(e);
+        return e.value;
+    }
+}
+```
 
 
 
