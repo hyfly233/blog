@@ -3,41 +3,7 @@
 
 # MySQL
 
-## 实践中如何优化MySQL
 
-实践中，MySQL的优化主要涉及SQL语句及索引的优化、数据表结构的优化、系统配置的优化和硬件的优化四个方面，如下图所示：
-
-![优化](https://static.bookstack.cn/projects/java_interview_manual/images/db-mysql-optimize.png)
-
-### SQL语句及索引的优化
-
-#### SQL语句的优化
-
-SQL语句的优化主要包括三个问题，即如何发现有问题的SQL、如何分析SQL的执行计划以及如何优化SQL，下面将逐一解释。
-
-1. 怎么发现有问题的SQL?（通过MySQL慢查询日志对有效率问题的SQL进行监控）
-
-MySQL的慢查询日志是MySQL提供的一种日志记录，它用来记录在MySQL中响应时间超过阀值的语句，具体指运行时间超过long_query_time值的SQL，则会被记录到慢查询日志中。
-
-long_query_time的默认值为10，意思是运行10s以上的语句。慢查询日志的相关参数如下所示：
-
-![慢查询日志相关参数](https://static.bookstack.cn/projects/java_interview_manual/images/db-mysql-long_query_time-param.png)
-
-通过MySQL的慢查询日志，我们可以查询出执行的次数多占用的时间长的SQL、可以通过pt_query_disgest(一种mysql慢日志分析工具)分析Rows examine(MySQL执行器需要检查的行数)项去找出IO大的SQL以及发现未命中索引的SQL，对于这些SQL，都是我们优化的对象。
-
-##### 通过explain查询和分析SQL的执行计划
-
-使用 EXPLAIN 关键字可以知道MySQL是如何处理你的SQL语句的，以便分析查询语句或是表结构的性能瓶颈。通过explain命令可以得到表的读取顺序、数据读取操作的操作类型、哪些索引可以使用、哪些索引被实际使用、表之间的引用以及每张表有多少行被优化器查询等问题。当扩展列extra出现Using filesort和Using temporay，则往往表示SQL需要优化了。
-
-##### 优化SQL语句
-
-- 优化insert语句：一次插入多值；
-- 应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描；
-- 应尽量避免在 where 子句中对字段进行null值判断，否则将导致引擎放弃使用索引而进行全表扫描；
-- 优化嵌套查询：子查询可以被更有效率的连接(Join)替代；
-- 很多时候用 exists 代替 in 是一个好的选择。
-
-#### 索引优化
 
 建议在经常作查询选择的字段、经常作表连接的字段以及经常出现在order by、group by、distinct 后面的字段中建立索引。但必须注意以下几种可能会引起索引失效的情形：
 
