@@ -1,5 +1,22 @@
 # 数据库基础
 
+## 架构
+
+### RDBMS
+
++ 程序实例
+  + 存储管理
+  + 缓存机制
+  + SQL解析
+  + 日志管理
+  + 权限划分
+  + 容灾机制
+  + 索引管理
+  + 所管理
++ 文件系统
+
+
+
 ## 数据库范式
 
 第一范式：列不可分，eg:【联系人】（姓名，性别，电话），一个联系人有家庭电话和公司电话，那么这种表结构设计就没有达到 1NF；
@@ -7,6 +24,8 @@
 第二范式：有主键，保证完全依赖。eg:订单明细表【OrderDetail】（OrderID，ProductID，UnitPrice，Discount，Quantity，ProductName），Discount（折扣），Quantity（数量）完全依赖（取决）于主键（OderID，ProductID），而 UnitPrice，ProductName 只依赖于 ProductID，不符合2NF；
 
 第三范式：无传递依赖(非主键列 A 依赖于非主键列 B，非主键列 B 依赖于主键的情况)，eg:订单表【Order】（OrderID，OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity）主键是（OrderID），CustomerName，CustomerAddr，CustomerCity 直接依赖的是 CustomerID（非主键列），而不是直接依赖于主键，它是通过传递才依赖于主键，所以不符合 3NF。
+
+
 
 ## 什么是反模式
 
