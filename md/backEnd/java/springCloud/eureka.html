@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>1.什么是 Eureka | 尘世闲游</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/blog/assets/img/CowFace.ico">
+    <link rel="manifest" href="/blog/manifest.json">
+    <link rel="apple-touch-icon" href="/blog/icons/icon-152x152.png">
+    <meta name="description" content="河边共指星为客  花里空瞻月是卿">
+    <meta name="author" content="hyfly233">
+    <meta name="keywords" content="通过 vuepress 构建的博客">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/blog/assets/css/0.styles.f9dc4244.css" as="style"><link rel="preload" href="/blog/assets/js/app.b2e426a3.js" as="script"><link rel="preload" href="/blog/assets/js/7.8960d89d.js" as="script"><link rel="preload" href="/blog/assets/js/2.d92b4b40.js" as="script"><link rel="preload" href="/blog/assets/js/46.f0df6c10.js" as="script"><link rel="prefetch" href="/blog/assets/js/10.141f1246.js"><link rel="prefetch" href="/blog/assets/js/11.2e82364f.js"><link rel="prefetch" href="/blog/assets/js/12.8d414dfa.js"><link rel="prefetch" href="/blog/assets/js/13.2d2fe042.js"><link rel="prefetch" href="/blog/assets/js/14.e72a0aa1.js"><link rel="prefetch" href="/blog/assets/js/15.a5ecd126.js"><link rel="prefetch" href="/blog/assets/js/16.61752051.js"><link rel="prefetch" href="/blog/assets/js/17.774c72db.js"><link rel="prefetch" href="/blog/assets/js/18.96e7d102.js"><link rel="prefetch" href="/blog/assets/js/19.f1ac5fe3.js"><link rel="prefetch" href="/blog/assets/js/20.a02c52b2.js"><link rel="prefetch" href="/blog/assets/js/21.d4b8a578.js"><link rel="prefetch" href="/blog/assets/js/22.47cc081b.js"><link rel="prefetch" href="/blog/assets/js/23.058323fa.js"><link rel="prefetch" href="/blog/assets/js/24.3ea2c5cd.js"><link rel="prefetch" href="/blog/assets/js/25.ff994060.js"><link rel="prefetch" href="/blog/assets/js/26.5b0a4b75.js"><link rel="prefetch" href="/blog/assets/js/27.fd3c406a.js"><link rel="prefetch" href="/blog/assets/js/28.e8cb2701.js"><link rel="prefetch" href="/blog/assets/js/29.e2f84d87.js"><link rel="prefetch" href="/blog/assets/js/3.a45ced3e.js"><link rel="prefetch" href="/blog/assets/js/30.ca1a25fa.js"><link rel="prefetch" href="/blog/assets/js/31.4d15be00.js"><link rel="prefetch" href="/blog/assets/js/32.0bb148f1.js"><link rel="prefetch" href="/blog/assets/js/33.4718f700.js"><link rel="prefetch" href="/blog/assets/js/34.c71c0eef.js"><link rel="prefetch" href="/blog/assets/js/35.12483cd1.js"><link rel="prefetch" href="/blog/assets/js/36.6d41ea29.js"><link rel="prefetch" href="/blog/assets/js/37.c0e66f48.js"><link rel="prefetch" href="/blog/assets/js/38.2ad178fb.js"><link rel="prefetch" href="/blog/assets/js/39.bcea25fa.js"><link rel="prefetch" href="/blog/assets/js/4.be823803.js"><link rel="prefetch" href="/blog/assets/js/40.017ebf28.js"><link rel="prefetch" href="/blog/assets/js/41.61ee2edd.js"><link rel="prefetch" href="/blog/assets/js/42.fe40e9b9.js"><link rel="prefetch" href="/blog/assets/js/43.bba6c442.js"><link rel="prefetch" href="/blog/assets/js/44.b17c25c1.js"><link rel="prefetch" href="/blog/assets/js/45.d67a5f7f.js"><link rel="prefetch" href="/blog/assets/js/47.b32fb1c3.js"><link rel="prefetch" href="/blog/assets/js/48.93cc6f49.js"><link rel="prefetch" href="/blog/assets/js/49.63e1ceca.js"><link rel="prefetch" href="/blog/assets/js/5.0b4ec323.js"><link rel="prefetch" href="/blog/assets/js/50.f2e6f492.js"><link rel="prefetch" href="/blog/assets/js/51.fe255690.js"><link rel="prefetch" href="/blog/assets/js/52.e7f1730a.js"><link rel="prefetch" href="/blog/assets/js/53.a07f7d2d.js"><link rel="prefetch" href="/blog/assets/js/54.802c7bce.js"><link rel="prefetch" href="/blog/assets/js/55.0275f966.js"><link rel="prefetch" href="/blog/assets/js/56.ef2f0d02.js"><link rel="prefetch" href="/blog/assets/js/57.2b8837c2.js"><link rel="prefetch" href="/blog/assets/js/58.f0678922.js"><link rel="prefetch" href="/blog/assets/js/59.0ba62c5a.js"><link rel="prefetch" href="/blog/assets/js/6.067bbaab.js"><link rel="prefetch" href="/blog/assets/js/60.867dc945.js"><link rel="prefetch" href="/blog/assets/js/61.4fc914ca.js"><link rel="prefetch" href="/blog/assets/js/62.08d16870.js"><link rel="prefetch" href="/blog/assets/js/63.d39c44a1.js"><link rel="prefetch" href="/blog/assets/js/64.15728e93.js"><link rel="prefetch" href="/blog/assets/js/65.84a6b093.js"><link rel="prefetch" href="/blog/assets/js/66.003a2e6d.js"><link rel="prefetch" href="/blog/assets/js/67.a78a4c31.js"><link rel="prefetch" href="/blog/assets/js/68.0987ffeb.js"><link rel="prefetch" href="/blog/assets/js/69.29ebc501.js"><link rel="prefetch" href="/blog/assets/js/70.57031f88.js"><link rel="prefetch" href="/blog/assets/js/71.c760bd6f.js"><link rel="prefetch" href="/blog/assets/js/72.705b1256.js"><link rel="prefetch" href="/blog/assets/js/73.d26969b3.js"><link rel="prefetch" href="/blog/assets/js/74.83bb146c.js"><link rel="prefetch" href="/blog/assets/js/75.50a2e34e.js"><link rel="prefetch" href="/blog/assets/js/76.7e3411cb.js"><link rel="prefetch" href="/blog/assets/js/8.6b21cd98.js"><link rel="prefetch" href="/blog/assets/js/9.952fa60d.js">
+    <link rel="stylesheet" href="/blog/assets/css/0.styles.f9dc4244.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/blog/" class="home-link router-link-active"><img src="/blog/assets/img/favicon.ico" alt="尘世闲游" class="logo"> <span class="site-name can-hide">尘世闲游</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" class="nav-link">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" class="nav-link">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" class="nav-link">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" class="nav-link">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>1.什么是 Eureka</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_1-什么是-eureka" class="sidebar-link">1.什么是 Eureka</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_2-eureka原理理解" class="sidebar-link">2.Eureka原理理解</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/backEnd/java/springCloud/eureka.html#_1-eureka基本的架构" class="sidebar-link">1.Eureka基本的架构</a></li></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_3-代码实现eureka注册中心" class="sidebar-link">3.代码实现Eureka注册中心</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_4-服务注册" class="sidebar-link">4.服务注册</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_5-信息配置" class="sidebar-link">5.信息配置</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_6-自我保护机制" class="sidebar-link">6.自我保护机制</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_7-服务发现-discoveryclient" class="sidebar-link">7.服务发现 DiscoveryClient</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/backEnd/java/springCloud/eureka.html#_8-集群" class="sidebar-link">8.集群</a><ul class="sidebar-sub-headers"></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h2 id="_1-什么是-eureka"><a href="#_1-什么是-eureka" class="header-anchor">#</a> 1.什么是 Eureka</h2> <ul><li>Eureka是Netflix的有个子模块，也是核心模块之一；</li> <li>Eureka是<strong>基于REST的服务</strong>，用于定位服务，以实现服务发现和故障转移，服务注册与发现对于微服务来说是非常重要的，有了服务注册与发现，只需要使用服务的标识符，就可以访问到服务，而不需要修改服务调用的配置文件了，<strong>功能类似于Dubbo的注册中心，比如Zookeeper</strong>。</li></ul> <h2 id="_2-eureka原理理解"><a href="#_2-eureka原理理解" class="header-anchor">#</a> 2.Eureka原理理解</h2> <h3 id="_1-eureka基本的架构"><a href="#_1-eureka基本的架构" class="header-anchor">#</a> 1.Eureka基本的架构</h3> <ul><li>Springcloud 封装了Netflix公司开发的Eureka模块来实现服务注册与发现 (对比Zookeeper)</li> <li><strong>Eureka采用了C-S的架构设计，Eureka Server作为服务注册功能的服务器，它是服务注册中心</strong></li> <li>而系统中的其他微服务，使用Eureka的客户端连接到Eureka Server并维持心跳连接，这样系统的维护人员就可以通过Eureka Server来监控系统中各个微服务是否正常运行，Spring cloud 的一些其他模块 (比如Zuul) 就可以通过Eureka Server来发现系统中的其他微服务，并执行相关的逻辑
+<ul><li>在dubbo+zookeeper中我们可以使用dubbo-admin来实现可视化的监控，在spring cloud中我们可以使用Eureka Server实现监控功能</li></ul></li> <li>Eureka 包含两个组件：Eureka Server 和 Eureka Client</li> <li>Eureka Server 提供服务注册，各个节点启动后，会在Eureka Server中进行注册，这样Eureka Server中的服务注册表中将会储存所有可用服务节点的信息，服务节点的信息可以在界面中直观的看到</li> <li>Eureka Client 是一个Java客户端，用于简化Eureka Server的交互，客户端同时也具备一个内置的，使用轮询负载算法的负载均衡器。在应用启动后，将会向Eureka Server发送<strong>心跳 (默认周期为30秒)</strong> 。如果Eureka Server在多个心跳周期内没有接收到某个节点的心跳，Eureka Server将会从服务注册表中<strong>把这个服务节点移除掉 (默认周期为90s)</strong></li> <li>Eureka 三大角色
+<ul><li>Eureka Server：提供服务的注册与发现</li> <li>Service Provider：服务生产方，将自身服务注册到Eureka中，从而使服务消费方能够找到</li> <li>Service Consumer：服务消费方，从Eureka中获取注册服务列表，从而获取可以进行消费的服务</li></ul></li></ul> <h2 id="_3-代码实现eureka注册中心"><a href="#_3-代码实现eureka注册中心" class="header-anchor">#</a> 3.代码实现Eureka注册中心</h2> <ul><li><p>只需要导入依赖，配置参数，并在spring boot项目的入口程序上添加注解<code>@EnableEurekaServer</code>即可实现Eureka注册中心</p></li> <li><p>导入依赖</p> <div class="language-xml extra-class"><pre class="language-xml"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-eureka-server<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>xxx<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div></li> <li><p>编写配置文件</p> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">server</span><span class="token punctuation">:</span>
+ <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8080</span>
+<span class="token comment">#eureka配置</span>
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+ <span class="token key atrule">instance</span><span class="token punctuation">:</span>
+   <span class="token key atrule">hostname</span><span class="token punctuation">:</span> localhost<span class="token punctuation">:</span><span class="token number">8080</span> <span class="token comment">#eureka server运行的主机名，监控页面的url为http://localhost:8080/</span>
+ <span class="token key atrule">client</span><span class="token punctuation">:</span>
+   <span class="token key atrule">register-with-eureka</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+   <span class="token comment">#表示是否向eureka注册中心注册自己，设为false也表明这个是eureka server</span>
+   <span class="token key atrule">fetch-registry</span><span class="token punctuation">:</span> <span class="token boolean important">false</span> <span class="token comment">#fetch-registry为false表示这个微服务为eureka注册中心</span>
+   <span class="token key atrule">service-url</span><span class="token punctuation">:</span>
+     <span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//$<span class="token punctuation">{</span>eureka.instance.hostname<span class="token punctuation">}</span><span class="token punctuation">:</span>$<span class="token punctuation">{</span>server.port<span class="token punctuation">}</span>/eureka/
+     <span class="token comment">#微服务提供者向注册中心的注册服务的地址，它有默认的url，为&quot;http://localhost:8080/eureka/&quot;</span>
+</code></pre></div></li> <li><p>启动类</p> <div class="language-java extra-class"><pre class="language-java"><code><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token annotation punctuation">@EnableEurekaServer</span> <span class="token comment">//开启EurekaServer</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> test <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">SpringApplication</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>test<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span>args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></li></ul> <h2 id="_4-服务注册"><a href="#_4-服务注册" class="header-anchor">#</a> 4.服务注册</h2> <ul><li><p>注册中心是被动的接收服务提供者需要注册的服务</p></li> <li><p>在服务提供者中导入eureka的依赖：Spring Cloud Starter Eureka</p> <div class="language-xml extra-class"><pre class="language-xml"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.cloud<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-cloud-starter-eureka<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">&gt;</span></span>xxx<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div></li> <li><p>配置文件中配置注册中心的地址</p> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">server</span><span class="token punctuation">:</span>
+	<span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8090</span>
+
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+    <span class="token key atrule">client</span><span class="token punctuation">:</span>
+    	<span class="token key atrule">service-url</span><span class="token punctuation">:</span>
+        	<span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>8080/eureka/
+	<span class="token key atrule">instance</span><span class="token punctuation">:</span>
+		<span class="token key atrule">instance-id</span><span class="token punctuation">:</span> provider<span class="token punctuation">-</span>dept<span class="token punctuation">-</span><span class="token number">8090</span>
+
+</code></pre></div></li> <li><p>启动类</p></li></ul> <div class="language-java extra-class"><pre class="language-java"><code><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token annotation punctuation">@EnableEurekaClient</span> <span class="token comment">//开启EurekaClient</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> test <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">SpringApplication</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>test<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span>args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="_5-信息配置"><a href="#_5-信息配置" class="header-anchor">#</a> 5.信息配置</h2> <ul><li><p>服务提供者导入actuator的依赖</p> <div class="language-xml extra-class"><pre class="language-xml"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>spring-boot-starter-actuator<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div></li> <li><p>配置文件</p> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">info</span><span class="token punctuation">:</span>
+    <span class="token key atrule">app.name</span><span class="token punctuation">:</span> provider<span class="token punctuation">-</span>dept<span class="token punctuation">-</span><span class="token number">8090</span> <span class="token comment">#actuator 配置</span>
+    <span class="token key atrule">company.name</span><span class="token punctuation">:</span> com.hyfly
+</code></pre></div></li> <li><p>查看</p> <div class="language-http extra-class"><pre class="language-http"><code><span class="token header-name keyword">http:</span>//localhost:8090/actuator/info
+</code></pre></div></li></ul> <h2 id="_6-自我保护机制"><a href="#_6-自我保护机制" class="header-anchor">#</a> 6.自我保护机制</h2> <ul><li>现象：将注册到eureka注册中心中的某一个微服务重启的时候，再次刷新eureka监控页面，页面上多出一行红字</li> <li><strong>EureKa自我保护机制：好死不如赖活着</strong></li> <li>某时刻某一个微服务不可用，eureka不会立即清理，依旧会对该微服务的信息进行保存</li> <li>默认情况下，当eureka server在一定时间内没有收到实例的心跳，便会把该实例从注册表中删除（默认是90秒），但是，如果短时间内丢失大量的实例心跳，便会触发eureka server的自我保护机制</li> <li>该保护机制的目的是避免网络连接故障，在发生网络故障时，微服务和注册中心之间无法正常通信，但服务本身是健康的，不应该注销该服务，如果eureka因网络故障而把微服务误删了，那即使网络恢复了，该微服务也不会重新注册到eureka server了，因为只有在微服务启动的时候才会发起注册请求，后面只会发送心跳和服务列表请求，这样的话，该实例虽然是运行着，但永远不会被其它服务所感知</li> <li>Eureka server在短时间内丢失过多的客户端心跳时，会进入自我保护模式，该模式下，eureka会保护注册表中的信息，不在注销任何微服务，当网络故障恢复后，eureka会自动退出保护模式。自我保护模式可以让集群更加健壮</li> <li>在开发测试阶段，需要频繁地重启发布，如果触发了保护机制，则旧的服务实例没有被删除，这时请求有可能跑到旧的实例中，而该实例已经关闭了，这就导致请求错误，影响开发测试。所以可以把自我保护模式关闭，在eureka server配置文件中加上：<code>eureka.server.enable-self-preservation=false</code></li></ul> <h2 id="_7-服务发现-discoveryclient"><a href="#_7-服务发现-discoveryclient" class="header-anchor">#</a> 7.服务发现 DiscoveryClient</h2> <ul><li><p>在服务提供者的 Controller 中编写</p> <div class="language-java extra-class"><pre class="language-java"><code><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">&quot;/dept/discovery&quot;</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">discovery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">ServiceInstance</span><span class="token punctuation">&gt;</span></span> instanceList <span class="token operator">=</span> discoveryClient<span class="token punctuation">.</span><span class="token function">getInstances</span><span class="token punctuation">(</span><span class="token string">&quot;PROVIDER-DEPT&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">ServiceInstance</span> instance<span class="token operator">:</span> instanceList<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>
+                instance<span class="token punctuation">.</span><span class="token function">getHost</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getUri</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getPort</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getServiceId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getMetadata</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getScheme</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;\t&quot;</span><span class="token operator">+</span>
+                instance<span class="token punctuation">.</span><span class="token function">getInstanceId</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> instanceList<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div></li></ul> <h2 id="_8-集群"><a href="#_8-集群" class="header-anchor">#</a> 8.集群</h2> <ul><li><p>单个 yml</p> <div class="language-yml extra-class"><pre class="language-yml"><code><span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">client</span><span class="token punctuation">:</span>
+    <span class="token key atrule">fetch-registry</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+    <span class="token key atrule">register-with-eureka</span><span class="token punctuation">:</span> <span class="token boolean important">false</span>
+    <span class="token key atrule">service-url</span><span class="token punctuation">:</span>
+      <span class="token key atrule">defaultZone</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>23300/eureka/<span class="token punctuation">,</span>http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>23301/eureka/<span class="token punctuation">,</span>http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>23302/eureka/
+
+<span class="token punctuation">---</span>
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span><span class="token number">23300</span>
+  <span class="token key atrule">config</span><span class="token punctuation">:</span>
+    <span class="token key atrule">activate</span><span class="token punctuation">:</span>
+      <span class="token key atrule">on-profile</span><span class="token punctuation">:</span> <span class="token number">23300</span>
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">instance</span><span class="token punctuation">:</span>
+    <span class="token key atrule">hostname</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span><span class="token number">23300</span>
+<span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">23300</span>
+
+<span class="token punctuation">---</span>
+
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> car<span class="token punctuation">-</span>eureka<span class="token punctuation">-</span><span class="token number">23301</span>
+  <span class="token key atrule">config</span><span class="token punctuation">:</span>
+    <span class="token key atrule">activate</span><span class="token punctuation">:</span>
+      <span class="token key atrule">on-profile</span><span class="token punctuation">:</span> <span class="token number">23301</span>
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">instance</span><span class="token punctuation">:</span>
+    <span class="token key atrule">hostname</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span><span class="token number">23301</span>
+<span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">23301</span>
+
+<span class="token punctuation">---</span>
+
+<span class="token key atrule">spring</span><span class="token punctuation">:</span>
+  <span class="token key atrule">application</span><span class="token punctuation">:</span>
+    <span class="token key atrule">name</span><span class="token punctuation">:</span> car<span class="token punctuation">-</span>eureka<span class="token punctuation">-</span><span class="token number">23302</span>
+  <span class="token key atrule">config</span><span class="token punctuation">:</span>
+    <span class="token key atrule">activate</span><span class="token punctuation">:</span>
+      <span class="token key atrule">on-profile</span><span class="token punctuation">:</span> <span class="token number">23302</span>
+<span class="token key atrule">eureka</span><span class="token punctuation">:</span>
+  <span class="token key atrule">instance</span><span class="token punctuation">:</span>
+    <span class="token key atrule">hostname</span><span class="token punctuation">:</span> eureka<span class="token punctuation">-</span><span class="token number">23302</span>
+<span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">23302</span>
+
+</code></pre></div></li> <li><p>在 idea 启动配置中分别设置<code>Active profiles</code>对应的端点<code>23300、23301、23302</code></p></li></ul></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间 :</span> <span class="time">2022年5月24日星期二下午1点29分</span></div></footer> <!---->  <Vssue option="[object Object]" class="vssue theme-default-content content__default"></Vssue></main></div><div class="global-ui"><!----></div></div>
+    <script src="/blog/assets/js/app.b2e426a3.js" defer></script><script src="/blog/assets/js/7.8960d89d.js" defer></script><script src="/blog/assets/js/2.d92b4b40.js" defer></script><script src="/blog/assets/js/46.f0df6c10.js" defer></script>
+  </body>
+</html>

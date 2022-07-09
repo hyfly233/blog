@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>什么是FastDFS | 尘世闲游</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/blog/assets/img/CowFace.ico">
+    <link rel="manifest" href="/blog/manifest.json">
+    <link rel="apple-touch-icon" href="/blog/icons/icon-152x152.png">
+    <meta name="description" content="河边共指星为客  花里空瞻月是卿">
+    <meta name="author" content="hyfly233">
+    <meta name="keywords" content="通过 vuepress 构建的博客">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/blog/assets/css/0.styles.f9dc4244.css" as="style"><link rel="preload" href="/blog/assets/js/app.b2e426a3.js" as="script"><link rel="preload" href="/blog/assets/js/7.8960d89d.js" as="script"><link rel="preload" href="/blog/assets/js/2.d92b4b40.js" as="script"><link rel="preload" href="/blog/assets/js/65.84a6b093.js" as="script"><link rel="prefetch" href="/blog/assets/js/10.141f1246.js"><link rel="prefetch" href="/blog/assets/js/11.2e82364f.js"><link rel="prefetch" href="/blog/assets/js/12.8d414dfa.js"><link rel="prefetch" href="/blog/assets/js/13.2d2fe042.js"><link rel="prefetch" href="/blog/assets/js/14.e72a0aa1.js"><link rel="prefetch" href="/blog/assets/js/15.a5ecd126.js"><link rel="prefetch" href="/blog/assets/js/16.61752051.js"><link rel="prefetch" href="/blog/assets/js/17.774c72db.js"><link rel="prefetch" href="/blog/assets/js/18.96e7d102.js"><link rel="prefetch" href="/blog/assets/js/19.f1ac5fe3.js"><link rel="prefetch" href="/blog/assets/js/20.a02c52b2.js"><link rel="prefetch" href="/blog/assets/js/21.d4b8a578.js"><link rel="prefetch" href="/blog/assets/js/22.47cc081b.js"><link rel="prefetch" href="/blog/assets/js/23.058323fa.js"><link rel="prefetch" href="/blog/assets/js/24.3ea2c5cd.js"><link rel="prefetch" href="/blog/assets/js/25.ff994060.js"><link rel="prefetch" href="/blog/assets/js/26.5b0a4b75.js"><link rel="prefetch" href="/blog/assets/js/27.fd3c406a.js"><link rel="prefetch" href="/blog/assets/js/28.e8cb2701.js"><link rel="prefetch" href="/blog/assets/js/29.e2f84d87.js"><link rel="prefetch" href="/blog/assets/js/3.a45ced3e.js"><link rel="prefetch" href="/blog/assets/js/30.ca1a25fa.js"><link rel="prefetch" href="/blog/assets/js/31.4d15be00.js"><link rel="prefetch" href="/blog/assets/js/32.0bb148f1.js"><link rel="prefetch" href="/blog/assets/js/33.4718f700.js"><link rel="prefetch" href="/blog/assets/js/34.c71c0eef.js"><link rel="prefetch" href="/blog/assets/js/35.12483cd1.js"><link rel="prefetch" href="/blog/assets/js/36.6d41ea29.js"><link rel="prefetch" href="/blog/assets/js/37.c0e66f48.js"><link rel="prefetch" href="/blog/assets/js/38.2ad178fb.js"><link rel="prefetch" href="/blog/assets/js/39.bcea25fa.js"><link rel="prefetch" href="/blog/assets/js/4.be823803.js"><link rel="prefetch" href="/blog/assets/js/40.017ebf28.js"><link rel="prefetch" href="/blog/assets/js/41.61ee2edd.js"><link rel="prefetch" href="/blog/assets/js/42.fe40e9b9.js"><link rel="prefetch" href="/blog/assets/js/43.bba6c442.js"><link rel="prefetch" href="/blog/assets/js/44.b17c25c1.js"><link rel="prefetch" href="/blog/assets/js/45.d67a5f7f.js"><link rel="prefetch" href="/blog/assets/js/46.f0df6c10.js"><link rel="prefetch" href="/blog/assets/js/47.b32fb1c3.js"><link rel="prefetch" href="/blog/assets/js/48.93cc6f49.js"><link rel="prefetch" href="/blog/assets/js/49.63e1ceca.js"><link rel="prefetch" href="/blog/assets/js/5.0b4ec323.js"><link rel="prefetch" href="/blog/assets/js/50.f2e6f492.js"><link rel="prefetch" href="/blog/assets/js/51.fe255690.js"><link rel="prefetch" href="/blog/assets/js/52.e7f1730a.js"><link rel="prefetch" href="/blog/assets/js/53.a07f7d2d.js"><link rel="prefetch" href="/blog/assets/js/54.802c7bce.js"><link rel="prefetch" href="/blog/assets/js/55.0275f966.js"><link rel="prefetch" href="/blog/assets/js/56.ef2f0d02.js"><link rel="prefetch" href="/blog/assets/js/57.2b8837c2.js"><link rel="prefetch" href="/blog/assets/js/58.f0678922.js"><link rel="prefetch" href="/blog/assets/js/59.0ba62c5a.js"><link rel="prefetch" href="/blog/assets/js/6.067bbaab.js"><link rel="prefetch" href="/blog/assets/js/60.867dc945.js"><link rel="prefetch" href="/blog/assets/js/61.4fc914ca.js"><link rel="prefetch" href="/blog/assets/js/62.08d16870.js"><link rel="prefetch" href="/blog/assets/js/63.d39c44a1.js"><link rel="prefetch" href="/blog/assets/js/64.15728e93.js"><link rel="prefetch" href="/blog/assets/js/66.003a2e6d.js"><link rel="prefetch" href="/blog/assets/js/67.a78a4c31.js"><link rel="prefetch" href="/blog/assets/js/68.0987ffeb.js"><link rel="prefetch" href="/blog/assets/js/69.29ebc501.js"><link rel="prefetch" href="/blog/assets/js/70.57031f88.js"><link rel="prefetch" href="/blog/assets/js/71.c760bd6f.js"><link rel="prefetch" href="/blog/assets/js/72.705b1256.js"><link rel="prefetch" href="/blog/assets/js/73.d26969b3.js"><link rel="prefetch" href="/blog/assets/js/74.83bb146c.js"><link rel="prefetch" href="/blog/assets/js/75.50a2e34e.js"><link rel="prefetch" href="/blog/assets/js/76.7e3411cb.js"><link rel="prefetch" href="/blog/assets/js/8.6b21cd98.js"><link rel="prefetch" href="/blog/assets/js/9.952fa60d.js">
+    <link rel="stylesheet" href="/blog/assets/css/0.styles.f9dc4244.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/blog/" class="home-link router-link-active"><img src="/blog/assets/img/favicon.ico" alt="尘世闲游" class="logo"> <span class="site-name can-hide">尘世闲游</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" class="nav-link">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" class="nav-link">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>什么是FastDFS</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#什么是fastdfs" class="sidebar-link">什么是FastDFS</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#fastdfs的系统架构" class="sidebar-link">FastDFS的系统架构</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#" class="sidebar-link"></a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#tracker集群" class="sidebar-link">Tracker集群</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#storage集群" class="sidebar-link">Storage集群</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#storage的状态收集" class="sidebar-link">Storage的状态收集</a></li></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#文件上传流程" class="sidebar-link">文件上传流程</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#文件下载流程" class="sidebar-link">文件下载流程</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_1、安装顺序" class="sidebar-link">1、安装顺序</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_2、依赖环境" class="sidebar-link">2、依赖环境</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_3、下载fastdfs" class="sidebar-link">3、下载FastDFS</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4、tracker-server安装" class="sidebar-link">4、Tracker Server安装</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4-1、tracker安装环境准备" class="sidebar-link">4.1、Tracker安装环境准备</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4-2、libfastcommon基础库" class="sidebar-link">4.2、libfastcommon基础库</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4-3、-编译安装tracker" class="sidebar-link">4.3、 编译安装Tracker</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4-4、启动tracker" class="sidebar-link">4.4、启动Tracker</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_4-5、设置开机启动" class="sidebar-link">4.5、设置开机启动</a></li></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_5、storage-server安装" class="sidebar-link">5、Storage Server安装</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_5-1、storage安装环境准备" class="sidebar-link">5.1、Storage安装环境准备</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_5-2、-编译安装storage" class="sidebar-link">5.2、 编译安装Storage</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_5-3、启动storage" class="sidebar-link">5.3、启动storage</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_5-4、设置启动项" class="sidebar-link">5.4、设置启动项</a></li></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_6、测试上传" class="sidebar-link">6、测试上传</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_7、fastdfs整合nginx" class="sidebar-link">7、FastDFS整合nginx</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_7-1、nginx安装前准备" class="sidebar-link">7.1、nginx安装前准备</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_7-2、安装fastdfs-nginx-module" class="sidebar-link">7.2、安装FastDFS-nginx-module</a></li></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8、-在storage上安装nginx" class="sidebar-link">8、 在Storage上安装nginx</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8-1、storage上安装nginx的目的" class="sidebar-link">8.1、Storage上安装nginx的目的</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8-2、安装nginx" class="sidebar-link">8.2、安装nginx</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8-3、修改nginx的配置文件" class="sidebar-link">8.3、修改nginx的配置文件</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8-4、启动nginx" class="sidebar-link">8.4、启动nginx</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_8-5、设置开机启动" class="sidebar-link">8.5、设置开机启动</a></li></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_9、测试上传" class="sidebar-link">9、测试上传</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html#_10、补充" class="sidebar-link">10、补充</a><ul class="sidebar-sub-headers"></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h2 id="什么是fastdfs"><a href="#什么是fastdfs" class="header-anchor">#</a> 什么是FastDFS</h2> <p>FastDFS是用c语言编写的一款开源的分布式文件系统。FastDFS为互联网量身定制，充分考虑了冗余备份、负载均衡、线性扩容等机制，并注重高可用、高性能等指标，使用FastDFS很容易搭建一套高性能的文件服务器集群提供文件上传、下载等服务。由跟踪服务器（tracker server）、存储服务器（storage server）和客户端（client）组成。它主要解决的是海量数据存储的问题。</p> <h2 id="fastdfs的系统架构"><a href="#fastdfs的系统架构" class="header-anchor">#</a> FastDFS的系统架构</h2> <p>FastDFS架构包括Tracker server和Storage server。客户端请求Tracker server进行文件上传、下载，通过Tracker server调度最终由Storage server完成文件上传和下载。</p> <p>Tracker server作用是负载均衡和调度，通过Tracker server在文件上传时可以根据一些策略找到Storage server提供文件上传服务。可以将tracker称为追踪服务器或调度服务器。</p> <p>Storage server作用是文件存储，客户端上传的文件最终存储在Storage服务器上，Storage server没有实现自己的文件系统而是利用操作系统 的文件系统来管理文件。可以将storage称为存储服务器。</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200204175307346-682674823.png" alt="img"></p> <h3 id=""><a href="#" class="header-anchor">#</a></h3> <h3 id="tracker集群"><a href="#tracker集群" class="header-anchor">#</a> Tracker集群</h3> <p>FastDFS集群中的Tracker server可以有多台，Tracker server之间是相互平等关系同时提供服务，Tracker server不存在单点故障。客户端请求Tracker server采用轮询方式，如果请求的tracker无法提供服务则换另一个tracker。</p> <h3 id="storage集群"><a href="#storage集群" class="header-anchor">#</a> Storage集群</h3> <p>Storage集群采用了分组存储方式。storage集群由一个或多个组构成，集群存储总容量为集群中所有组的存储容量之和。一个组由一台或多台存储服务器组成，组内的Storage server之间是平等关系，不同组的Storage server之间不会相互通信，同组内的Storage server之间会相互连接进行文件同步，从而保证同组内每个storage上的文件完全一致的。一个组的存储容量为该组内存储服务器容量最小的那个，由此可见组内存储服务器的软硬件配置最好是一致的。</p> <p>采用分组存储方式的好处是灵活、可控性较强。比如上传文件时，可以由客户端直接指定上传到的组也可以由tracker进行调度选择。一个分组的存储服务器访问压力较大时，可以在该组增加存储服务器来扩充服务能力（纵向扩容）。当系统容量不足时，可以增加组来扩充存储容量（横向扩容）。</p> <h3 id="storage的状态收集"><a href="#storage的状态收集" class="header-anchor">#</a> Storage的状态收集</h3> <p>Storage server会连接集群中所有的Tracker server，定时向他们报告自己的状态，包括磁盘剩余空间、文件同步状况、文件上传下载次数等统计信息。</p> <h2 id="文件上传流程"><a href="#文件上传流程" class="header-anchor">#</a> 文件上传流程</h2> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200204200428188-146799219.png" alt="img"></p> <p>客户端上传文件后存储服务器将文件ID返回给客户端，此文件ID用于以后访问该文件的索引信息。文件索引信息包括：组名，磁盘编号，数据两级目录，文件名。这里的文件名是由文件上传的源头服务器、文件上传的时间戳、文件大小、随机数经过base64加密后的一个串。</p> <ul><li>组名：文件上传后所在的storage组名称，在文件上传成功后有storage服务器返回，需要客户端自行保存。</li> <li>磁盘编号：storage配置的上传路store_path*与磁盘编号对应。如果配置了store_path0则是M00，如果配置了store_path1则是M01，以此类推。因为FastDFS支持多次盘上传，也就是说如果你的服务器有多块儿挂在磁盘，那么可以配置多个Store_path，如store_path0、store_path1..对应的磁盘编号就是M00、M01，这样在上传的时候会上传到多块磁盘上。</li> <li>数据两级目录：storage服务器在每个虚拟磁盘路径下创建的两级目录，用于存储数据文件。</li> <li>文件名：与文件上传时不同。是由存储服务器根据特定信息生成，文件名包含：源存储服务器IP地址、文件创建时间戳、文件大小、随机数和文件拓展名等信息。</li></ul> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200204200715317-1861991968.png" alt="img"></p> <h2 id="文件下载流程"><a href="#文件下载流程" class="header-anchor">#</a> 文件下载流程</h2> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200204200751548-1942691019.png" alt="img"></p> <p>tracker根据请求的文件路径即文件ID来快速定位文件。</p> <p>比如请求下边的文件：</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200204200826279-459792770.png" alt="img"></p> <ol><li>通过组名tracker能够很快的定位到客户端需要访问的存储服务器组是group1，并选择合适的存储服务器提供客户端访问。</li> <li>选择完一台存储服务器后，存储服务器根据“磁盘编号M00”可以得知使用的是哪块磁盘是M00这块磁盘。由于M00对应的是store_path0,所以根据store_path0配置的路径就可以找到对应的目录。</li> <li>根据两级目录/02/44/和文件名就可以获取到对应的文件了。</li></ol> <p>注意：由于FastDFS只提供了文件上传的服务并没有提供文件下载的接口，所以需要在storage上安装nginx来实现文件下载。</p> <h2 id="_1、安装顺序"><a href="#_1、安装顺序" class="header-anchor">#</a> 1、安装顺序</h2> <ol><li>libfastcommon</li> <li>fdfs_tracker （依赖Gcc、libevent、perl）</li> <li>fdfs_storage</li> <li>FastDFS-nginx-module</li> <li>nginx （依赖pcre-devel、zlib-devel）</li></ol> <h2 id="_2、依赖环境"><a href="#_2、依赖环境" class="header-anchor">#</a> 2、依赖环境</h2> <p>一步到位，FastDFS和Nginx的所有依赖</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install zlib zlib-devel pcre pcre-devel gcc gcc-c++ openssl openssl-devel libevent libevent-devel perl unzip net-tools wget
+</code></pre></div><h2 id="_3、下载fastdfs"><a href="#_3、下载fastdfs" class="header-anchor">#</a> 3、下载FastDFS</h2> <p>tracker和storage使用相同的安装包，下载地址：http://sourceforge.net/projects/FastDFS/ 或https://github.com/happyfish100/FastDFS</p> <h2 id="_4、tracker-server安装"><a href="#_4、tracker-server安装" class="header-anchor">#</a> 4、Tracker Server安装</h2> <h3 id="_4-1、tracker安装环境准备"><a href="#_4-1、tracker安装环境准备" class="header-anchor">#</a> 4.1、Tracker安装环境准备</h3> <p>FastDFS是C语言开发的，需要gcc环境</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install gcc-c++
+</code></pre></div><p>FastDFS依赖libevent库</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install libevent
+</code></pre></div><p>perl库</p> <div class="language- extra-class"><pre class="language-text"><code>yum install perl* 
+</code></pre></div><h3 id="_4-2、libfastcommon基础库"><a href="#_4-2、libfastcommon基础库" class="header-anchor">#</a> 4.2、libfastcommon基础库</h3> <p>libfastcommon是FastDFS官方提供的，libfastcommon包含了FastDFS运行所需要的一些基础库</p> <p>将libfastcommonV1.0.7.tar.gz解压至/usr/local下，执行shell脚本</p> <div class="language- extra-class"><pre class="language-text"><code>cd /usr/local/
+
+tar -zxvf libfastcommonV1.0.7.tar.gz –C /usr/local/
+
+cd libfastcommon-1.0.7
+
+./make.sh
+
+./make.sh install
+</code></pre></div><p>libfastcommon安装好后会自动将库文件拷贝至/usr/lib64下，FastDFS程序引用usr/lib目录，所以需要将/usr/lib64下的库文件拷贝至/usr/lib下</p> <div class="language- extra-class"><pre class="language-text"><code>cp /usr/lib64/libfastcommon.so /usr/lib/
+</code></pre></div><h3 id="_4-3、-编译安装tracker"><a href="#_4-3、-编译安装tracker" class="header-anchor">#</a> 4.3、 编译安装Tracker</h3> <p>将FastDFS_v5.05.tar.gz解压至/usr/local/src/，然后进入目录/usr/local/FastDFS，编译，安装</p> <div class="language- extra-class"><pre class="language-text"><code>tar -zxvf FastDFS_v5.05.tar.gz –C /usr/local/cd /usr/local/FastDFS./make.sh./make.sh instal
+</code></pre></div><p>默认的安装方式，配置文件都存储在/etc/fdfs/，命令文件都安装在/usr/bin/</p> <p>安装成功将安装目录下的conf下的文件拷贝到/etc/fdfs/下。/etc/fdfs/目录是FastDFS配置文件目录</p> <div class="language- extra-class"><pre class="language-text"><code>cp ./* /etc/fdfs/ 
+</code></pre></div><p>进入/etc/fdfs/目录下，修改复制tracker.conf配置文件(建议备份)</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206130659073-823957543.png" alt="img"></p> <p>修改内容</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206130717742-328051877.png" alt="img"></p> <p>其中</p> <p>Tracker默认的服务端口是22122</p> <p>base_path=/opt/fastdfs，tracker的数据文件目录路径，用来存储storage的信息</p> <p>http.server_port=8088，Http服务端口8088</p> <h3 id="_4-4、启动tracker"><a href="#_4-4、启动tracker" class="header-anchor">#</a> 4.4、启动Tracker</h3> <p>启动tracker，查看启动情况</p> <div class="language- extra-class"><pre class="language-text"><code>/usr/bin/fdfs_trackerd /etc/fdfs/tracker.confps -ef|grep fdfs
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206130910113-1796336530.png" alt="img"></p> <h3 id="_4-5、设置开机启动"><a href="#_4-5、设置开机启动" class="header-anchor">#</a> 4.5、设置开机启动</h3> <p>创建文件夹/usr/local/fdfs，拷贝FastDfs目录下stop.sh和restart.sh 到/usr/local/fdfs/，修改启动脚本（建议备份）</p> <div class="language- extra-class"><pre class="language-text"><code>mkdir /usr/local/fdfs
+
+cp restart.sh stop.sh  /usr/local/fdfs/
+
+vim /etc/init.d/fdfs_trackerd
+</code></pre></div><p>修改内容如下</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131044302-585657794.png" alt="img"></p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131053511-1903024614.png" alt="img"></p> <p>注册服务，启动测试</p> <div class="language- extra-class"><pre class="language-text"><code>chkconfig  --add  fdfs_trackerd
+
+service fdfs_trackerd start 
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131150165-230166649.png" alt="img"></p> <h2 id="_5、storage-server安装"><a href="#_5、storage-server安装" class="header-anchor">#</a> 5、Storage Server安装</h2> <h3 id="_5-1、storage安装环境准备"><a href="#_5-1、storage安装环境准备" class="header-anchor">#</a> 5.1、Storage安装环境准备</h3> <p>tracker和storage使用相同的安装包，所以和Tracker Server一样，单机版就用不管了</p> <h3 id="_5-2、-编译安装storage"><a href="#_5-2、-编译安装storage" class="header-anchor">#</a> 5.2、 编译安装Storage</h3> <p>集群，是在另外一台机器上安装Storage。编译安装和Tracker一样，解压tar包，然后make，make install</p> <p>单机，可不管，tracker和storage使用相同的安装包，所有不需要再解压</p> <p>进入/etc/fdfs/目录下，修改storage.conf配置文件</p> <div class="language- extra-class"><pre class="language-text"><code>vim /etc/fdfs/storage.conf
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131307499-1429904143.png" alt="img"></p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131315972-188046284.png" alt="img"></p> <p>tracker_server=192.168.188.21:22122，配置tracker的IP地址，storage是主动连接tracker的</p> <p>创建目录，storage存储数据的目录</p> <div class="language- extra-class"><pre class="language-text"><code>mkdir /opt/fastdfs/fdfs_storage
+</code></pre></div><h3 id="_5-3、启动storage"><a href="#_5-3、启动storage" class="header-anchor">#</a> 5.3、启动storage</h3> <p>启动storage，查看启动情况</p> <div class="language- extra-class"><pre class="language-text"><code>/usr/bin/fdfs_storaged /etc/fdfs/storage.conf 
+
+ps -ef|grep fdfs
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131551724-820416496.png" alt="img"></p> <h3 id="_5-4、设置启动项"><a href="#_5-4、设置启动项" class="header-anchor">#</a> 5.4、设置启动项</h3> <div class="language- extra-class"><pre class="language-text"><code>vim  /etc/init.d/fdfs_storaged
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131622903-522723889.png" alt="img"></p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131630932-196535226.png" alt="img"></p> <p>注册服务，启动服务</p> <div class="language- extra-class"><pre class="language-text"><code>chkconfig - -add fdfs_storaged
+
+service fdfs_storaged start 
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131719788-2088721734.png" alt="img"></p> <h2 id="_6、测试上传"><a href="#_6、测试上传" class="header-anchor">#</a> 6、测试上传</h2> <p>通过/usr/bin/fdfs_test测试上传，集群中在tracker上和storage上修改/etc/fdfs/client.conf配置文件</p> <div class="language- extra-class"><pre class="language-text"><code>vim /etc/fdfs/client.conf
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131811208-458867344.png" alt="img"></p> <p>测试上传格式</p> <div class="language- extra-class"><pre class="language-text"><code>/usr/bin/fdfs_test /etc/fdfs/client.conf upload /opt/1.jpg
+</code></pre></div><p>测试上传成功</p> <p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131851377-873227097.png" alt="img"></p> <p>对应的上传路径</p> <div class="language- extra-class"><pre class="language-text"><code>/opt/fastdfs/fdfs_storage/data/00/00
+
+/wKiMoF46wdiAT1NeABKeZYGkypw508_big.jpg
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206131949232-1150823291.png" alt="img"></p> <h2 id="_7、fastdfs整合nginx"><a href="#_7、fastdfs整合nginx" class="header-anchor">#</a> 7、FastDFS整合nginx</h2> <h3 id="_7-1、nginx安装前准备"><a href="#_7-1、nginx安装前准备" class="header-anchor">#</a> 7.1、nginx安装前准备</h3> <p>进入http://nginx.org/en/download.html 下载最新稳定版tar包</p> <p>安装nginx的依赖包</p> <p>nginx是C语言开发的，需要gcc环境</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install gcc-c++ 
+</code></pre></div><p>PCRE(Perl Compatible Regular Expressions) 是一个Perl库，包括 perl 兼容的正则表达式库。nginx的http模块使用pcre来解析正则表达式，pcre-devel是使用pcre开发的一个二次开发库</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install pcre pcre-devel
+</code></pre></div><p>zlib 提供了很多种压缩和解压缩的方式，nginx使用zlib对http包的内容进行gzip</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install zlib zlib-devel
+</code></pre></div><p>OpenSSL 是一个安全套接字层密码库，nginx支持https，要用https传数据</p> <div class="language- extra-class"><pre class="language-text"><code>yum -y install openssl openssl-devel
+</code></pre></div><h3 id="_7-2、安装fastdfs-nginx-module"><a href="#_7-2、安装fastdfs-nginx-module" class="header-anchor">#</a> 7.2、安装FastDFS-nginx-module</h3> <p>FastDFS-nginx-module是FastDFS和Nginx整合的插件，因为nginx需要给Storage提供下载接口，所以在Storage上需要安装</p> <p>FastDFS-nginx-module.tar.gz作为nginx的一个模块，要随着nginx一起编译，安装，要配置在nginx的安装配置里</p> <p>将fastdfs-nginx-module_v1.16.tar.gz传至/usr/local/，并修改/usr/local/fastdfs-nginx-module/src/中config文件中的路径（建议备份）</p> <div class="language- extra-class"><pre class="language-text"><code>tar -zxvf fastdfs-nginx-module_v1.16.tar.gz –C /usr/local/ 
+
+cd /usr/local/fastdfs-nginx-module/src
+
+vim config
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206133304537-337000148.png" alt="img"></p> <p>将FastDFS-nginx-module/src下的mod_FastDFS.conf拷贝至/etc/fdfs/下,并修改mod_FastDFS.conf的内容</p> <div class="language- extra-class"><pre class="language-text"><code>cp mod_FastDFS.conf /etc/fdfs/
+
+vim /etc/fdfs/mod_FastDFS.conf
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206133401135-51994298.png" alt="img"></p> <p>其中</p> <p>url_have_group_name=true，url中包含group名称</p> <p>store_path0=/home/FastDFS/fdfs_storage，指定文件存储路径</p> <p>将libfdfsclient.so拷贝至/usr/lib下</p> <div class="language- extra-class"><pre class="language-text"><code>cp /usr/lib64/libfdfsclient.so /usr/lib/
+</code></pre></div><h2 id="_8、-在storage上安装nginx"><a href="#_8、-在storage上安装nginx" class="header-anchor">#</a> 8、 在Storage上安装nginx</h2> <h3 id="_8-1、storage上安装nginx的目的"><a href="#_8-1、storage上安装nginx的目的" class="header-anchor">#</a> 8.1、Storage上安装nginx的目的</h3> <p>目的是提供http下载接口，通过访问nginx的服务，来下载文件，静态资源服务器</p> <h3 id="_8-2、安装nginx"><a href="#_8-2、安装nginx" class="header-anchor">#</a> 8.2、安装nginx</h3> <p>创建临时文件目录，解压nginx-1.8.0.tar.gz 到/usr/local/下</p> <div class="language- extra-class"><pre class="language-text"><code>mkdir -p /var/temp/nginx/client
+
+tar -zxvf nginx-1.8.0.tar.gz –C /usr/local/
+
+cd /usr/local/nginx-1.8.0
+</code></pre></div><p>参数配置，配置安装目录和命令文件和配置文件的位置</p> <p>参数设置如下：设置安装前的设置如安装的位置，添加依赖包</p> <div class="language- extra-class"><pre class="language-text"><code>./configure \
+--prefix=/usr/local/nginx \
+--pid-path=/usr/local/nginx/logs/nginx.pid \
+--lock-path=/var/lock/nginx.lock \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--with-http_gzip_static_module \
+--http-client-body-temp-path=/var/temp/nginx/client \
+--http-proxy-temp-path=/var/temp/nginx/proxy \
+--http-fastcgi-temp-path=/var/temp/nginx/fastcgi \
+--http-uwsgi-temp-path=/var/temp/nginx/uwsgi \
+--http-scgi-temp-path=/var/temp/nginx/scgi \
+--add-module=/usr/local/fastdfs-nginx-module/src
+</code></pre></div><p>其中</p> <p>--prefix=/usr/local/nginx \，是nginx的安装目录</p> <p>--add-module=/usr/local/fastdfs-nginx-module/src，是添加依赖模块</p> <p>编译安装</p> <div class="language- extra-class"><pre class="language-text"><code>make
+
+make install
+</code></pre></div><h3 id="_8-3、修改nginx的配置文件"><a href="#_8-3、修改nginx的配置文件" class="header-anchor">#</a> 8.3、修改nginx的配置文件</h3> <p>修改/usr/local/nginx安装目录下的conf下的nginx.conf配置文件</p> <div class="language- extra-class"><pre class="language-text"><code>vim /usr/local/nginx/conf/nginx.conf
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206134832508-1433054045.png" alt="img"></p> <h3 id="_8-4、启动nginx"><a href="#_8-4、启动nginx" class="header-anchor">#</a> 8.4、启动nginx</h3> <div class="language- extra-class"><pre class="language-text"><code>cd /usr/local/nginx/sbin/
+
+./nginx
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206135207706-254972136.png" alt="img"></p> <h3 id="_8-5、设置开机启动"><a href="#_8-5、设置开机启动" class="header-anchor">#</a> 8.5、设置开机启动</h3> <div class="language- extra-class"><pre class="language-text"><code>vim /etc/init.d/nginx
+#!/bin/bash## nginx - this script starts and stops the nginx daemon## chkconfig:   - 85 15# description:  NGINX is an HTTP(S) server, HTTP(S) reverse \#               proxy and IMAP/POP3 proxy server# processname: nginx# config:      /etc/nginx/nginx.conf# config:      /etc/sysconfig/nginx# pidfile:     /var/run/nginx.pid# Source function library.. /etc/rc.d/init.d/functions# Source networking configuration.. /etc/sysconfig/network# Check that networking is up.[ &quot;$NETWORKING&quot; = &quot;no&quot; ] &amp;&amp; exit 0nginx=&quot;/usr/local/nginx/sbin/nginx&quot;prog=$(basename $nginx)NGINX_CONF_FILE=&quot;/usr/local/nginx/conf/nginx.conf&quot;[ -f /etc/sysconfig/nginx ] &amp;&amp; . /etc/sysconfig/nginxlockfile=/var/lock/subsys/nginxmake_dirs() {  # make required directories  user=`$nginx -V 2&gt;&amp;1 | grep &quot;configure arguments:.*--user=&quot; | sed 's/[^*]*--user=\([^ ]*\).*/\1/g' -`  if [ -n &quot;$user&quot; ]; then    if [ -z &quot;`grep $user /etc/passwd`&quot; ]; then      useradd -M -s /bin/nologin $user    fi    options=`$nginx -V 2&gt;&amp;1 | grep 'configure arguments:'`    for opt in $options; do        if [ `echo $opt | grep '.*-temp-path'` ]; then          value=`echo $opt | cut -d &quot;=&quot; -f 2`          if [ ! -d &quot;$value&quot; ]; then            # echo &quot;creating&quot; $value            mkdir -p $value &amp;&amp; chown -R $user $value          fi        fi    done  fi}start() {  [ -x $nginx ] || exit 5  [ -f $NGINX_CONF_FILE ] || exit 6  make_dirs  echo -n $&quot;Starting $prog: &quot;  daemon $nginx -c $NGINX_CONF_FILE  retval=$?  echo  [ $retval -eq 0 ] &amp;&amp; touch $lockfile  return $retval}stop() {  echo -n $&quot;Stopping $prog: &quot;  killproc $prog -QUIT  retval=$?  echo  [ $retval -eq 0 ] &amp;&amp; rm -f $lockfile  return $retval}restart() {  configtest || return $?  stop  sleep 1  start}reload() {  configtest || return $?  echo -n $&quot;Reloading $prog: &quot;  killproc $nginx -HUP  RETVAL=$?  echo}force_reload() {  restart}configtest() {  $nginx -t -c $NGINX_CONF_FILE}rh_status() {  status $prog}rh_status_q() {  rh_status &gt;/dev/null 2&gt;&amp;1}case &quot;$1&quot; in  start)    rh_status_q &amp;&amp; exit 0    $1    ;;  stop)    rh_status_q || exit 0    $1    ;;  restart|configtest)    $1    ;;  reload)    rh_status_q || exit 7    $1    ;;  force-reload)    force_reload    ;;  status)    rh_status    ;;  condrestart|try-restart)    rh_status_q || exit 0    ;;  *)    echo $&quot;Usage: $0 {start|stop|status|restart|reload|configtest}&quot;    exit 2esac
+</code></pre></div><p>其中nginxd，nginx_config，nginx_pid要与自己安装的位置一致</p> <div class="language- extra-class"><pre class="language-text"><code>chmod 777 /etc/init.d/nginx
+</code></pre></div><p>测试启动</p> <div class="language- extra-class"><pre class="language-text"><code>/etc/init.d/nginx start
+
+/etc/init.d/nginx stop
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206135421303-1816024290.png" alt="img"></p> <p>注册服务，开启服务</p> <div class="language- extra-class"><pre class="language-text"><code>chkconfig --add /etc/init.d/nginxservice nginx start
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206135601368-781366509.png" alt="img"></p> <h2 id="_9、测试上传"><a href="#_9、测试上传" class="header-anchor">#</a> 9、测试上传</h2> <p>现在的测试上传，是通过HTTP协议访问，是不同主机之间的访问，Linux作为服务器是有防火墙的，要么关闭防火墙，要么开发访问的端口。</p> <p>临时关闭防火墙（不推荐）</p> <div class="language- extra-class"><pre class="language-text"><code>service iptables stop
+</code></pre></div><p>永久关闭防火墙（不推荐）</p> <div class="language- extra-class"><pre class="language-text"><code>chkconfig iptables off
+</code></pre></div><p>或者</p> <div class="language- extra-class"><pre class="language-text"><code>systemctl stop firewalld
+
+systemctl disable firewalld
+</code></pre></div><p>开放nginx的监听端口80（推荐，依次输入）</p> <div class="language- extra-class"><pre class="language-text"><code>firewall-cmd --add-service=http --permanent
+
+firewall-cmd --add-service=https --permanent
+
+firewall-cmd --add-port=80/tcp --permanent
+
+firewall-cmd --reload//查看开放端口号firewall-cmd --list-all
+</code></pre></div><p>测试上传</p> <div class="language- extra-class"><pre class="language-text"><code>/usr/bin/fdfs_test /etc/fdfs/client.conf upload /opt/1.jpg
+</code></pre></div><p><img src="https://img2018.cnblogs.com/common/991783/202002/991783-20200206135714519-760315682.png" alt="img"></p> <p>浏览器中输入之前上传的图片的url</p> <div class="language- extra-class"><pre class="language-text"><code>http://192.168.140.160/group1/M00/00/00/wKiMoF467-SAM8_CABKeZYGkypw552_big.jpg
+</code></pre></div><p>得到图片，测试成功，单机版FastDFS就已经完成了。</p> <h2 id="_10、补充"><a href="#_10、补充" class="header-anchor">#</a> 10、补充</h2> <p>Tracker上安装nginx的目的是为了做反向代理和负载均衡。Tracker上安装nginx的配置</p> <div class="language- extra-class"><pre class="language-text"><code>./configure \
+--prefix=/usr/local/nginx \
+--pid-path=/usr/local/nginx/logs/nginx.pid \
+--lock-path=/var/lock/nginx.lock \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--with-http_gzip_static_module \
+--http-client-body-temp-path=/var/temp/nginx/client \
+--http-proxy-temp-path=/var/temp/nginx/proxy \
+--http-fastcgi-temp-path=/var/temp/nginx/fastcgi \
+--http-uwsgi-temp-path=/var/temp/nginx/uwsgi \
+--http-scgi-temp-path=/var/temp/nginx/scgi \
+--add-module=/usr/local/ngx_cache_purge-2.3
+</code></pre></div><p>这个添加的是ngx_cache_purge-2.3模块</p> <div class="language- extra-class"><pre class="language-text"><code>--add-module=/usr/local/ngx_cache_purge-2.3
+</code></pre></div><p>剩下的就只是改nginx.conf配置文件，只要熟悉nginx就很简单</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间 :</span> <span class="time">2022年1月27日星期四晚上9点39分</span></div></footer> <!---->  <Vssue option="[object Object]" class="vssue theme-default-content content__default"></Vssue></main></div><div class="global-ui"><!----></div></div>
+    <script src="/blog/assets/js/app.b2e426a3.js" defer></script><script src="/blog/assets/js/7.8960d89d.js" defer></script><script src="/blog/assets/js/2.d92b4b40.js" defer></script><script src="/blog/assets/js/65.84a6b093.js" defer></script>
+  </body>
+</html>

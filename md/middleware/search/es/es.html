@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Elasticsearch 关键概念 | 尘世闲游</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/blog/assets/img/CowFace.ico">
+    <link rel="manifest" href="/blog/manifest.json">
+    <link rel="apple-touch-icon" href="/blog/icons/icon-152x152.png">
+    <meta name="description" content="河边共指星为客  花里空瞻月是卿">
+    <meta name="author" content="hyfly233">
+    <meta name="keywords" content="通过 vuepress 构建的博客">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/blog/assets/css/0.styles.f9dc4244.css" as="style"><link rel="preload" href="/blog/assets/js/app.b2e426a3.js" as="script"><link rel="preload" href="/blog/assets/js/7.8960d89d.js" as="script"><link rel="preload" href="/blog/assets/js/2.d92b4b40.js" as="script"><link rel="preload" href="/blog/assets/js/63.d39c44a1.js" as="script"><link rel="prefetch" href="/blog/assets/js/10.141f1246.js"><link rel="prefetch" href="/blog/assets/js/11.2e82364f.js"><link rel="prefetch" href="/blog/assets/js/12.8d414dfa.js"><link rel="prefetch" href="/blog/assets/js/13.2d2fe042.js"><link rel="prefetch" href="/blog/assets/js/14.e72a0aa1.js"><link rel="prefetch" href="/blog/assets/js/15.a5ecd126.js"><link rel="prefetch" href="/blog/assets/js/16.61752051.js"><link rel="prefetch" href="/blog/assets/js/17.774c72db.js"><link rel="prefetch" href="/blog/assets/js/18.96e7d102.js"><link rel="prefetch" href="/blog/assets/js/19.f1ac5fe3.js"><link rel="prefetch" href="/blog/assets/js/20.a02c52b2.js"><link rel="prefetch" href="/blog/assets/js/21.d4b8a578.js"><link rel="prefetch" href="/blog/assets/js/22.47cc081b.js"><link rel="prefetch" href="/blog/assets/js/23.058323fa.js"><link rel="prefetch" href="/blog/assets/js/24.3ea2c5cd.js"><link rel="prefetch" href="/blog/assets/js/25.ff994060.js"><link rel="prefetch" href="/blog/assets/js/26.5b0a4b75.js"><link rel="prefetch" href="/blog/assets/js/27.fd3c406a.js"><link rel="prefetch" href="/blog/assets/js/28.e8cb2701.js"><link rel="prefetch" href="/blog/assets/js/29.e2f84d87.js"><link rel="prefetch" href="/blog/assets/js/3.a45ced3e.js"><link rel="prefetch" href="/blog/assets/js/30.ca1a25fa.js"><link rel="prefetch" href="/blog/assets/js/31.4d15be00.js"><link rel="prefetch" href="/blog/assets/js/32.0bb148f1.js"><link rel="prefetch" href="/blog/assets/js/33.4718f700.js"><link rel="prefetch" href="/blog/assets/js/34.c71c0eef.js"><link rel="prefetch" href="/blog/assets/js/35.12483cd1.js"><link rel="prefetch" href="/blog/assets/js/36.6d41ea29.js"><link rel="prefetch" href="/blog/assets/js/37.c0e66f48.js"><link rel="prefetch" href="/blog/assets/js/38.2ad178fb.js"><link rel="prefetch" href="/blog/assets/js/39.bcea25fa.js"><link rel="prefetch" href="/blog/assets/js/4.be823803.js"><link rel="prefetch" href="/blog/assets/js/40.017ebf28.js"><link rel="prefetch" href="/blog/assets/js/41.61ee2edd.js"><link rel="prefetch" href="/blog/assets/js/42.fe40e9b9.js"><link rel="prefetch" href="/blog/assets/js/43.bba6c442.js"><link rel="prefetch" href="/blog/assets/js/44.b17c25c1.js"><link rel="prefetch" href="/blog/assets/js/45.d67a5f7f.js"><link rel="prefetch" href="/blog/assets/js/46.f0df6c10.js"><link rel="prefetch" href="/blog/assets/js/47.b32fb1c3.js"><link rel="prefetch" href="/blog/assets/js/48.93cc6f49.js"><link rel="prefetch" href="/blog/assets/js/49.63e1ceca.js"><link rel="prefetch" href="/blog/assets/js/5.0b4ec323.js"><link rel="prefetch" href="/blog/assets/js/50.f2e6f492.js"><link rel="prefetch" href="/blog/assets/js/51.fe255690.js"><link rel="prefetch" href="/blog/assets/js/52.e7f1730a.js"><link rel="prefetch" href="/blog/assets/js/53.a07f7d2d.js"><link rel="prefetch" href="/blog/assets/js/54.802c7bce.js"><link rel="prefetch" href="/blog/assets/js/55.0275f966.js"><link rel="prefetch" href="/blog/assets/js/56.ef2f0d02.js"><link rel="prefetch" href="/blog/assets/js/57.2b8837c2.js"><link rel="prefetch" href="/blog/assets/js/58.f0678922.js"><link rel="prefetch" href="/blog/assets/js/59.0ba62c5a.js"><link rel="prefetch" href="/blog/assets/js/6.067bbaab.js"><link rel="prefetch" href="/blog/assets/js/60.867dc945.js"><link rel="prefetch" href="/blog/assets/js/61.4fc914ca.js"><link rel="prefetch" href="/blog/assets/js/62.08d16870.js"><link rel="prefetch" href="/blog/assets/js/64.15728e93.js"><link rel="prefetch" href="/blog/assets/js/65.84a6b093.js"><link rel="prefetch" href="/blog/assets/js/66.003a2e6d.js"><link rel="prefetch" href="/blog/assets/js/67.a78a4c31.js"><link rel="prefetch" href="/blog/assets/js/68.0987ffeb.js"><link rel="prefetch" href="/blog/assets/js/69.29ebc501.js"><link rel="prefetch" href="/blog/assets/js/70.57031f88.js"><link rel="prefetch" href="/blog/assets/js/71.c760bd6f.js"><link rel="prefetch" href="/blog/assets/js/72.705b1256.js"><link rel="prefetch" href="/blog/assets/js/73.d26969b3.js"><link rel="prefetch" href="/blog/assets/js/74.83bb146c.js"><link rel="prefetch" href="/blog/assets/js/75.50a2e34e.js"><link rel="prefetch" href="/blog/assets/js/76.7e3411cb.js"><link rel="prefetch" href="/blog/assets/js/8.6b21cd98.js"><link rel="prefetch" href="/blog/assets/js/9.952fa60d.js">
+    <link rel="stylesheet" href="/blog/assets/css/0.styles.f9dc4244.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/blog/" class="home-link router-link-active"><img src="/blog/assets/img/favicon.ico" alt="尘世闲游" class="logo"> <span class="site-name can-hide">尘世闲游</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" class="nav-link">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/blog/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Back End" class="dropdown-title"><span class="title">Back End</span> <span class="arrow down"></span></button> <button type="button" aria-label="Back End" class="mobile-dropdown-title"><span class="title">Back End</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Java
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/basis/content.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/multiThread/multiThread.html" class="nav-link">
+  MultiThread
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/jvm/jvm.html" class="nav-link">
+  JVM
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/io/io.html" class="nav-link">
+  IO
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/spring/spring.html" class="nav-link">
+  Spring
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springMvc/springMvc.html" class="nav-link">
+  Spring MVC
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springBoot/springBoot.html" class="nav-link">
+  Spring Boot
+</a></li><li class="dropdown-subitem"><a href="/blog/md/backEnd/java/springCloud/content.html" class="nav-link">
+  Spring Cloud
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Database" class="dropdown-title"><span class="title">Database</span> <span class="arrow down"></span></button> <button type="button" aria-label="Database" class="mobile-dropdown-title"><span class="title">Database</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/database/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mongoDB/mongoDB.html" class="nav-link">
+  MongoDB
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/database/mysql/mysql.html" class="nav-link">
+  MySQL
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Middleware" class="dropdown-title"><span class="title">Middleware</span> <span class="arrow down"></span></button> <button type="button" aria-label="Middleware" class="mobile-dropdown-title"><span class="title">Middleware</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          Cache
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/cache/redis/redis.html" class="nav-link">
+  Redis
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Message
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/message/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/message/rabbitMQ/rabbitMQ.html" class="nav-link">
+  RabbitMQ
+</a></li><li class="dropdown-subitem"><a href="/blog/" class="nav-link">
+  Kafka
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Search
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/search/es/es.html" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  Elastic Search
+</a></li></ul></li><li class="dropdown-item"><h4>
+          Storage
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/basis/basis.html" class="nav-link">
+  Basis
+</a></li><li class="dropdown-subitem"><a href="/blog/md/middleware/storage/fastDfs/fastDfs.html" class="nav-link">
+  FastDFS
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Other" class="dropdown-title"><span class="title">Other</span> <span class="arrow down"></span></button> <button type="button" aria-label="Other" class="mobile-dropdown-title"><span class="title">Other</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blog/md/other/algorithm/algorithm.html" class="nav-link">
+  Algorithm
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/designPatterns/designPatterns.html" class="nav-link">
+  Design Patterns
+</a></li><li class="dropdown-item"><!----> <a href="/blog/md/other/dataStructure/dataStructure.html" class="nav-link">
+  Data Structure
+</a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>Elasticsearch 关键概念</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-关键概念" class="sidebar-link">Elasticsearch 关键概念</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#节点" class="sidebar-link">节点</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#群集" class="sidebar-link">群集</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引" class="sidebar-link">索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#文档" class="sidebar-link">文档</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#碎片" class="sidebar-link">碎片</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#副本" class="sidebar-link">副本</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#优势" class="sidebar-link">优势</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#缺点" class="sidebar-link">缺点</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-填充" class="sidebar-link">Elasticsearch 填充</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#创建索引" class="sidebar-link">创建索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#添加数据" class="sidebar-link">添加数据</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-api约定" class="sidebar-link">Elasticsearch API约定</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#多个索引" class="sidebar-link">多个索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#all-所有索引的关键字" class="sidebar-link">_all 所有索引的关键字</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#通配符" class="sidebar-link">通配符（*，+，–）</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#allow-no-indices" class="sidebar-link">allownoindices</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#expand-wildcards" class="sidebar-link">expand_wildcards</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引名称中的日期数学支持" class="sidebar-link">索引名称中的日期数学支持</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#美化的结果" class="sidebar-link">美化的结果</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#人类可读的输出" class="sidebar-link">人类可读的输出</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-文档api" class="sidebar-link">Elasticsearch 文档API</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引api" class="sidebar-link">索引API</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#自动索引创建" class="sidebar-link">自动索引创建</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#版本控制" class="sidebar-link">版本控制</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#内部版本控制" class="sidebar-link">内部版本控制</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#外部版本控制" class="sidebar-link">外部版本控制</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#操作类型" class="sidebar-link">操作类型</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#自动id生成" class="sidebar-link">自动ID生成</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#获取api" class="sidebar-link">获取API</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#删除api" class="sidebar-link">删除API</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#更新api" class="sidebar-link">更新API</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-搜索api" class="sidebar-link">Elasticsearch 搜索API</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#多索引" class="sidebar-link">多索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#uri搜索" class="sidebar-link">URI搜索</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#请求正文搜索" class="sidebar-link">请求正文搜索</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-聚合" class="sidebar-link">Elasticsearch 聚合</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#指标聚合" class="sidebar-link">指标聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#平均聚合" class="sidebar-link">平均聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#基数聚合" class="sidebar-link">基数聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#扩展统计数据聚合" class="sidebar-link">扩展统计数据聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#最大聚集" class="sidebar-link">最大聚集</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#最小聚合" class="sidebar-link">最小聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#聚合总和" class="sidebar-link">聚合总和</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#统计聚合" class="sidebar-link">统计聚合</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#聚合元数据" class="sidebar-link">聚合元数据</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-索引api" class="sidebar-link">Elasticsearch 索引API</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#创建索引-2" class="sidebar-link">创建索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#删除索引" class="sidebar-link">删除索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#获取索引" class="sidebar-link">获取索引</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引存在" class="sidebar-link">索引存在</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引设置" class="sidebar-link">索引设置</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#索引统计" class="sidebar-link">索引统计</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#冲洗-flush" class="sidebar-link">冲洗(Flush)</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-cat-api" class="sidebar-link">Elasticsearch Cat API</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#详细" class="sidebar-link">详细</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#标头" class="sidebar-link">标头</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#sort-排序" class="sidebar-link">Sort - 排序</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#计数-count" class="sidebar-link">计数 - Count</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-集群api" class="sidebar-link">Elasticsearch 集群API</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#集群运行状况" class="sidebar-link">集群运行状况</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#集群状态" class="sidebar-link">集群状态</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#集群统计" class="sidebar-link">集群统计</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#群集更新设置" class="sidebar-link">群集更新设置</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#节点统计" class="sidebar-link">节点统计</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#节点hot-threads" class="sidebar-link">节点hot_threads</a></li></ul></li><li><a href="/blog/md/middleware/search/es/es.html#匹配所有查询" class="sidebar-link">匹配所有查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#全文查询" class="sidebar-link">全文查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#匹配查询" class="sidebar-link">匹配查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#多重比对查询" class="sidebar-link">多重比对查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#查询字符串查询" class="sidebar-link">查询字符串查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#词级查询" class="sidebar-link">词级查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#范围查询" class="sidebar-link">范围查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#复合查询" class="sidebar-link">复合查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#地理查询" class="sidebar-link">地理查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#字段数据类型" class="sidebar-link">字段数据类型</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#核心数据类型" class="sidebar-link">核心数据类型</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#复杂数据类型" class="sidebar-link">复杂数据类型</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#删除映射类型" class="sidebar-link">删除映射类型</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#配置标准分析器" class="sidebar-link">配置标准分析器</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#分词器" class="sidebar-link">分词器</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#集群级路由和分片分配" class="sidebar-link">集群级路由和分片分配</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#集群级别碎片分配" class="sidebar-link">集群级别碎片分配</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#基于磁盘的分片分配" class="sidebar-link">基于磁盘的分片分配</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#发现" class="sidebar-link">发现</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#网关" class="sidebar-link">网关</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#http" class="sidebar-link">HTTP</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#索引-2" class="sidebar-link">索引</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#断路器" class="sidebar-link">断路器</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#现场数据缓存" class="sidebar-link">现场数据缓存</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#节点查询缓存" class="sidebar-link">节点查询缓存</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#索引缓冲区" class="sidebar-link">索引缓冲区</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#分片请求缓存" class="sidebar-link">分片请求缓存</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#索引恢复" class="sidebar-link">索引恢复</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#ttl间隔" class="sidebar-link">TTL间隔</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#节点-2" class="sidebar-link">节点</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#静态索引设置" class="sidebar-link">静态索引设置</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#动态索引设置" class="sidebar-link">动态索引设置</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#步骤" class="sidebar-link">步骤</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#创建管道" class="sidebar-link">创建管道</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#建立文件" class="sidebar-link">建立文件</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#无管道" class="sidebar-link">无管道</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#策略管理api" class="sidebar-link">策略管理API</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#索引管理api" class="sidebar-link">索引管理API</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#操作管理api" class="sidebar-link">操作管理API</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#elasticsearch-sql的优点" class="sidebar-link">Elasticsearch SQL的优点</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#实例" class="sidebar-link">实例</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#sql查询" class="sidebar-link">SQL查询</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#收集器" class="sidebar-link">收集器</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#导出器" class="sidebar-link">导出器</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#创建汇总作业" class="sidebar-link">创建汇总作业</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#冻结和解冻示例" class="sidebar-link">冻结和解冻示例</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#搜索冻结索引" class="sidebar-link">搜索冻结索引</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#监视冻结的索引" class="sidebar-link">监视冻结的索引</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#先决条件" class="sidebar-link">先决条件</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#单元测试" class="sidebar-link">单元测试</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#整合测试" class="sidebar-link">整合测试</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#测试集群方法" class="sidebar-link">测试集群方法</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#访问客户端" class="sidebar-link">访问客户端</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#随机测试" class="sidebar-link">随机测试</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#生成随机数据" class="sidebar-link">生成随机数据</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#断言" class="sidebar-link">断言</a><ul class="sidebar-sub-headers"></ul></li><li><a href="/blog/md/middleware/search/es/es.html#面试" class="sidebar-link">面试</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_1、倒排索引深入骨髓" class="sidebar-link">1、倒排索引深入骨髓</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_2、elasticsearch的写入原理" class="sidebar-link">2、Elasticsearch的写入原理</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_3、读写性能调优" class="sidebar-link">3、读写性能调优</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#搜索速度调优" class="sidebar-link">搜索速度调优</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_4、es的节点类型" class="sidebar-link">4、ES的节点类型</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_5、mater选举过程" class="sidebar-link">5、Mater选举过程</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_6、elasticsearch调优" class="sidebar-link">6、Elasticsearch调优</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_7、索引备份还原" class="sidebar-link">7、索引备份还原</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_8、数据同步方案" class="sidebar-link">8、数据同步方案</a></li><li class="sidebar-sub-header"><a href="/blog/md/middleware/search/es/es.html#_9、搜索引擎和es-搜索引擎的原理、es的认识或理解" class="sidebar-link">9、搜索引擎和ES（搜索引擎的原理、ES的认识或理解）</a></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h2 id="elasticsearch-关键概念"><a href="#elasticsearch-关键概念" class="header-anchor">#</a> Elasticsearch 关键概念</h2> <h3 id="节点"><a href="#节点" class="header-anchor">#</a> 节点</h3> <p>它指的是Elasticsearch的单个运行实例。单个物理和虚拟服务器可容纳多个节点，这取决于它们的物理资源（如RAM、存储和处理能力）的能力。</p> <h3 id="群集"><a href="#群集" class="header-anchor">#</a> 群集</h3> <p>它是一个或多个节点的集合。群集为所有数据提供了跨所有节点的集体索引和搜索功能。</p> <h3 id="索引"><a href="#索引" class="header-anchor">#</a> 索引</h3> <p>它是不同类型的文档及其属性的集合。索引还使用分片的概念来提高性能。例如，一组文档包含社交网络应用程序的数据。</p> <h3 id="文档"><a href="#文档" class="header-anchor">#</a> 文档</h3> <p>它是以JSON格式定义的特定方式的字段集合。每个文档都属于一种类型，并且位于索引内。每个文档都与一个称为UID的唯一标识符相关联。</p> <h3 id="碎片"><a href="#碎片" class="header-anchor">#</a> 碎片</h3> <p>索引在水平方向上细分为碎片。这意味着每个分片都包含文档的所有属性，但所包含的JSON对象的数量要少于索引。水平分隔使分片成为一个独立的节点，可以将其存储在任何节点中。主分片是索引的原始水平部分，然后将这些主分片复制到副本分片中。</p> <h3 id="副本"><a href="#副本" class="header-anchor">#</a> 副本</h3> <p>Elasticsearch允许用户创建索引和碎片的副本。复制不仅有助于在发生故障时提高数据的可用性，而且还通过在这些副本中执行并行搜索操作来提高搜索性能。</p> <h3 id="优势"><a href="#优势" class="header-anchor">#</a> 优势</h3> <ul><li>Elasticsearch是在Java上开发的，这使得它在几乎所有平台上都兼容。</li> <li>Elasticsearch是实时的，一秒钟后添加的文档就可以在这个引擎中搜索了</li> <li>Elasticsearch是分布式的，因此可以轻松地在任何大型组织中进行扩展和集成。</li> <li>使用 gateway 的概念创建完整的备份非常简单，这个概念在 Elasticsearch 很常见。</li> <li>与Apache Solr相比，在Elasticsearch中处理多租户非常容易。</li> <li>Elasticsearch使用JSON对象作为响应，这使得可以使用大量不同的编程语言来调用Elasticsearch服务器。</li> <li>除了不支持文本渲染的文档类型外，Elasticsearch支持几乎所有文档类型。</li></ul> <h3 id="缺点"><a href="#缺点" class="header-anchor">#</a> 缺点</h3> <ul><li>在处理请求和响应数据方面，Elasticsearch不提供多语言支持（仅在JSON中可用），与Apache Solr不同，后者可以CSV，XML和JSON格式。</li></ul> <h2 id="elasticsearch-填充"><a href="#elasticsearch-填充" class="header-anchor">#</a> Elasticsearch 填充</h2> <h3 id="创建索引"><a href="#创建索引" class="header-anchor">#</a> 创建索引</h3> <p>您可以使用以下命令创建索引-</p> <div class="language- extra-class"><pre class="language-text"><code>PUT school
+</code></pre></div><p>响应</p> <p>如果创建了索引，则可以看到以下输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{&quot;acknowledged&quot;: true}
+</code></pre></div><h3 id="添加数据"><a href="#添加数据" class="header-anchor">#</a> 添加数据</h3> <p>Elasticsearch将存储添加到索引中的文档。给文档提供了一些ID，用于识别文档。</p> <p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>POST school/_doc/10
+{
+   &quot;name&quot;:&quot;Saint Paul School&quot;, &quot;description&quot;:&quot;ICSE Afiliation&quot;,
+   &quot;street&quot;:&quot;Dawarka&quot;, &quot;city&quot;:&quot;Delhi&quot;, &quot;state&quot;:&quot;Delhi&quot;, &quot;zip&quot;:&quot;110075&quot;,
+   &quot;location&quot;:[28.5733056, 77.0122136], &quot;fees&quot;:5000,
+   &quot;tags&quot;:[&quot;Good Faculty&quot;, &quot;Great Sports&quot;], &quot;rating&quot;:&quot;4.5&quot;
+}
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;school&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;10&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 2,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>在这里，添加另一个类似的文档。</p> <div class="language- extra-class"><pre class="language-text"><code>POST school/_doc/16
+{
+   &quot;name&quot;:&quot;Crescent School&quot;, &quot;description&quot;:&quot;State Board Affiliation&quot;,
+   &quot;street&quot;:&quot;Tonk Road&quot;,
+   &quot;city&quot;:&quot;Jaipur&quot;, &quot;state&quot;:&quot;RJ&quot;, &quot;zip&quot;:&quot;176114&quot;,&quot;location&quot;:[26.8535922,75.7923988],
+   &quot;fees&quot;:2500, &quot;tags&quot;:[&quot;Well equipped labs&quot;], &quot;rating&quot;:&quot;4.5&quot;
+}
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;school&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;16&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 9,
+   &quot;_primary_term&quot; : 7
+}
+</code></pre></div><h2 id="elasticsearch-api约定"><a href="#elasticsearch-api约定" class="header-anchor">#</a> Elasticsearch API约定</h2> <h3 id="多个索引"><a href="#多个索引" class="header-anchor">#</a> 多个索引</h3> <p>API中的大多数操作，主要是搜索和其他操作，都是针对一个或多个索引的。这有助于用户只需执行一次查询，就可以在多个位置或所有可用数据中进行搜索。许多不同的符号用于在多个索引中执行操作。我们将在本章中讨论其中的一些。</p> <p>逗号分隔符号</p> <div class="language- extra-class"><pre class="language-text"><code>POST /index1,index2,index3/_search
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;any_string&quot;
+      }
+   }
+}
+</code></pre></div><p>响应</p> <p>来自index1, index2, index3的JSON对象中包含any_string</p> <h3 id="all-所有索引的关键字"><a href="#all-所有索引的关键字" class="header-anchor">#</a> _all 所有索引的关键字</h3> <div class="language- extra-class"><pre class="language-text"><code>POST /_all/_search
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;any_string&quot;
+      }
+   }
+}
+</code></pre></div><p>响应</p> <p>来自所有索引的JSON对象，其中包含any_string</p> <h3 id="通配符"><a href="#通配符" class="header-anchor">#</a> 通配符（*，+，–）</h3> <div class="language- extra-class"><pre class="language-text"><code>POST /school*/_search
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;CBSE&quot;
+      }
+   }
+}
+</code></pre></div><p>响应</p> <p>来自所有索引的JSON对象，这些索引始于其中包含CBSE的学校。</p> <p>另外，您也可以使用以下代码-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /school*,-schools_gov /_search
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;CBSE&quot;
+      }
+   }
+}
+</code></pre></div><p>响应</p> <p>JSON对象来自所有以“ school”开头的索引，但不是来自school_gov并包含CBSE的索引。</p> <p>还有一些URL查询字符串参数-</p> <ul><li><strong>ignore_unavailable</strong>−如果index(es)URL中不存在一个或多个，则不会发生错误或将停止任何操作。例如，school索引存在，但book_shops不存在。</li></ul> <div class="language- extra-class"><pre class="language-text"><code>POST /school*,book_shops/_search
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;CBSE&quot;
+      }
+   }
+}
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;error&quot;:{
+      &quot;root_cause&quot;:[{
+         &quot;type&quot;:&quot;index_not_found_exception&quot;, &quot;reason&quot;:&quot;no such index&quot;,
+         &quot;resource.type&quot;:&quot;index_or_alias&quot;, &quot;resource.id&quot;:&quot;book_shops&quot;,
+         &quot;index&quot;:&quot;book_shops&quot;
+      }],
+      &quot;type&quot;:&quot;index_not_found_exception&quot;, &quot;reason&quot;:&quot;no such index&quot;,
+      &quot;resource.type&quot;:&quot;index_or_alias&quot;, &quot;resource.id&quot;:&quot;book_shops&quot;,
+      &quot;index&quot;:&quot;book_shops&quot;
+   },&quot;status&quot;:404
+}
+</code></pre></div><p>考虑以下代码-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /school*,book_shops/_search?ignore_unavailable = true
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;CBSE&quot;
+      }
+   }
+}
+</code></pre></div><p>响应（无错误）</p> <p>来自所有索引的JSON对象，这些索引始于其中包含CBSE的学校。</p> <h3 id="allow-no-indices"><a href="#allow-no-indices" class="header-anchor">#</a> allow_no_indices</h3> <p><strong>true</strong>如果带有通配符的URL没有索引，则此参数的值将防止错误。例如，没有以schools_pri开头的索引-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools_pri*/_search?allow_no_indices = true
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;match_all&quot;:{}
+   }
+}
+</code></pre></div><p>响应（无错误）</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot;:1,&quot;timed_out&quot;: false, &quot;_shards&quot;:{&quot;total&quot;:0, &quot;successful&quot;:0, &quot;failed&quot;:0},
+   &quot;hits&quot;:{&quot;total&quot;:0, &quot;max_score&quot;:0.0, &quot;hits&quot;:[]}
+}
+</code></pre></div><h3 id="expand-wildcards"><a href="#expand-wildcards" class="header-anchor">#</a> expand_wildcards</h3> <p>此参数决定通配符是否需要扩展为开放索引或封闭索引，或同时执行这两者。此参数的值可以是打开和关闭的，也可以是没有。</p> <p>例如，封闭索引学校-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_close
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>{&quot;acknowledged&quot;:true}
+</code></pre></div><p>考虑以下代码-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /school*/_search?expand_wildcards = closed
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;match_all&quot;:{}
+   }
+}
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;error&quot;:{
+      &quot;root_cause&quot;:[{
+         &quot;type&quot;:&quot;index_closed_exception&quot;, &quot;reason&quot;:&quot;closed&quot;, &quot;index&quot;:&quot;schools&quot;
+      }],
+      &quot;type&quot;:&quot;index_closed_exception&quot;, &quot;reason&quot;:&quot;closed&quot;, &quot;index&quot;:&quot;schools&quot;
+   }, &quot;status&quot;:403
+}
+</code></pre></div><h3 id="索引名称中的日期数学支持"><a href="#索引名称中的日期数学支持" class="header-anchor">#</a> 索引名称中的日期数学支持</h3> <p>Elasticsearch提供了根据日期和时间搜索索引的功能。我们需要以特定格式指定日期和时间。例如，accountdetail-2015.12.30，索引将存储2015年12月30日的银行帐户详细信息。可以执行数学运算以获取特定日期或日期和时间范围的详细信息。</p> <p>日期数学索引名称的格式-</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;static_name{date_math_expr{date_format|time_zone}}&gt;
+/&lt;accountdetail-{now-2d{YYYY.MM.dd|utc}}&gt;/_search
+</code></pre></div><p>static_name是表达式的一部分，在每个日期的数学索引（如客户明细）中都保持不变。date_math_expr包含数学表达式，该数学表达式像now-2d一样动态确定日期和时间。date_format包含将日期写入诸如YYYY.MM.dd之类的索引中的格式。如果今天是2015年12月30日，则&lt;accountdetail- {now-2d {YYYY.MM.dd}}&gt;将返回accountdetail-2015.12.28。</p> <table><thead><tr><th style="text-align:left;">表达</th> <th style="text-align:left;">解析为</th></tr></thead> <tbody><tr><td style="text-align:left;">&lt;accountdetail-{now-d}&gt;</td> <td style="text-align:left;">accountdetail-2015.12.29</td></tr> <tr><td style="text-align:left;">&lt;accountdetail-{now-M}&gt;</td> <td style="text-align:left;">accountdetail-2015.11.30</td></tr> <tr><td style="text-align:left;">&lt;accountdetail-{now{YYYY.MM}}&gt;</td> <td style="text-align:left;">accountdetail-2015.12</td></tr></tbody></table> <p>现在，我们将看到Elasticsearch中提供的一些常用选项，这些选项可用于获取指定格式的响应。</p> <h3 id="美化的结果"><a href="#美化的结果" class="header-anchor">#</a> 美化的结果</h3> <p>我们可以通过添加URL查询参数（即pretty = true）来在格式良好的JSON对象中获得响应。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?pretty = true
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;match_all&quot;:{}
+   }
+}
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>……………………..
+{
+   &quot;_index&quot; : &quot;schools&quot;, &quot;_type&quot; : &quot;school&quot;, &quot;_id&quot; : &quot;1&quot;, &quot;_score&quot; : 1.0,
+   &quot;_source&quot;:{
+      &quot;name&quot;:&quot;Central School&quot;, &quot;description&quot;:&quot;CBSE Affiliation&quot;,
+      &quot;street&quot;:&quot;Nagan&quot;, &quot;city&quot;:&quot;paprola&quot;, &quot;state&quot;:&quot;HP&quot;, &quot;zip&quot;:&quot;176115&quot;,
+      &quot;location&quot;: [31.8955385, 76.8380405], &quot;fees&quot;:2000,
+      &quot;tags&quot;:[&quot;Senior Secondary&quot;, &quot;beautiful campus&quot;], &quot;rating&quot;:&quot;3.5&quot;
+   }
+}
+………………….
+</code></pre></div><h3 id="人类可读的输出"><a href="#人类可读的输出" class="header-anchor">#</a> 人类可读的输出</h3> <p>此选项可以将统计响应更改为人类可读形式（如果human = true）或计算机可读形式（如果human = false）。例如，如果human = true，则distance_kilometer = 20KM；如果human = false，则distance_meter = 20000，此时需要其他计算机程序使用响应。</p> <p>响应过滤</p> <p>通过将它们添加到field_path参数中，我们可以过滤对较少字段的响应。例如，</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?filter_path = hits.total
+</code></pre></div><p>请求正文</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;query&quot;:{
+      &quot;match_all&quot;:{}
+   }
+}
+</code></pre></div><p>响应</p> <div class="language- extra-class"><pre class="language-text"><code>{&quot;hits&quot;:{&quot;total&quot;:3}}
+</code></pre></div><h2 id="elasticsearch-文档api"><a href="#elasticsearch-文档api" class="header-anchor">#</a> Elasticsearch 文档API</h2> <p>Elasticsearch提供了单文档API和多文档API，其中API调用分别针对单个文档和多个文档。</p> <h3 id="索引api"><a href="#索引api" class="header-anchor">#</a> 索引API</h3> <p>当对具有特定映射的相应索引进行请求时，它有助于在索引中添加或更新JSON文档。例如，以下请求会将JSON对象添加到索引学校和学校映射下-</p> <div class="language- extra-class"><pre class="language-text"><code>PUT schools/_doc/5
+{
+   name&quot;:&quot;City School&quot;, &quot;description&quot;:&quot;ICSE&quot;, &quot;street&quot;:&quot;West End&quot;,
+   &quot;city&quot;:&quot;Meerut&quot;,
+   &quot;state&quot;:&quot;UP&quot;, &quot;zip&quot;:&quot;250002&quot;, &quot;location&quot;:[28.9926174, 77.692485],
+   &quot;fees&quot;:3500,
+   &quot;tags&quot;:[&quot;fully computerized&quot;], &quot;rating&quot;:&quot;4.5&quot;
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;5&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 2,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><h3 id="自动索引创建"><a href="#自动索引创建" class="header-anchor">#</a> 自动索引创建</h3> <p>当请求将JSON对象添加到特定索引时，如果该索引不存在，则此API会自动创建该索引以及该特定JSON对象的基础映射。可以通过将elasticsearch.yml文件中存在的以下参数的值更改为false来禁用此功能。</p> <div class="language- extra-class"><pre class="language-text"><code>action.auto_create_index:false
+index.mapper.dynamic:false
+</code></pre></div><p>您还可以限制索引的自动创建，通过更改以下参数的值，只允许使用具有特定模式的索引名称-</p> <div class="language- extra-class"><pre class="language-text"><code>action.auto_create_index:+acc*,-bank*
+</code></pre></div><p><strong>注意</strong>：此处 + 表示允许，而 – 表示不允许。</p> <h3 id="版本控制"><a href="#版本控制" class="header-anchor">#</a> 版本控制</h3> <p>Elasticsearch还提供了版本控制工具。我们可以使用版本查询参数来指定特定文档的版本。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT schools/_doc/5?version=7&amp;version_type=external
+{
+   &quot;name&quot;:&quot;Central School&quot;, &quot;description&quot;:&quot;CBSE Affiliation&quot;, &quot;street&quot;:&quot;Nagan&quot;,
+   &quot;city&quot;:&quot;paprola&quot;, &quot;state&quot;:&quot;HP&quot;, &quot;zip&quot;:&quot;176115&quot;, &quot;location&quot;:[31.8955385, 76.8380405],
+   &quot;fees&quot;:2200, &quot;tags&quot;:[&quot;Senior Secondary&quot;, &quot;beautiful campus&quot;], &quot;rating&quot;:&quot;3.3&quot;
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;5&quot;,
+   &quot;_version&quot; : 7,
+   &quot;result&quot; : &quot;updated&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 3,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>版本控制是一个实时过程，不受实时搜索操作的影响。</p> <p>有两种最重要的版本控制类型-</p> <h3 id="内部版本控制"><a href="#内部版本控制" class="header-anchor">#</a> 内部版本控制</h3> <p>内部版本控制是默认版本，从1开始，并随着每次更新（包括删除）而递增。</p> <h3 id="外部版本控制"><a href="#外部版本控制" class="header-anchor">#</a> 外部版本控制</h3> <p>当文档的版本控制存储在外部系统（如第三方版本控制系统）中时，将使用此功能。要启用此功能，我们需要将version_type设置为external。在这里，Elasticsearch将存储外部系统指定的版本号，并且不会自动对其进行递增。</p> <h3 id="操作类型"><a href="#操作类型" class="header-anchor">#</a> 操作类型</h3> <p>操作类型用于强制执行创建操作。这有助于避免覆盖现有文档。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT chapter/_doc/1?op_type=create
+{
+   &quot;Text&quot;:&quot;this is chapter one&quot;
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;chapter&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 0,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><h3 id="自动id生成"><a href="#自动id生成" class="header-anchor">#</a> 自动ID生成</h3> <p>如果在索引操作中未指定ID，则Elasticsearch会自动为该文档生成ID。</p> <div class="language- extra-class"><pre class="language-text"><code>POST chapter/_doc/
+{
+   &quot;user&quot; : &quot;tpoint&quot;,
+   &quot;post_date&quot; : &quot;2018-12-25T14:12:12&quot;,
+   &quot;message&quot; : &quot;Elasticsearch Tutorial&quot;
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;chapter&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;PVghWGoB7LiDTeV6LSGu&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 1,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><h3 id="获取api"><a href="#获取api" class="header-anchor">#</a> 获取API</h3> <p>API通过对特定文档执行get请求来帮助提取类型JSON对象。</p> <div class="language- extra-class"><pre class="language-text"><code>pre class=&quot;prettyprint notranslate&quot; &gt; GET schools/_doc/5
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;5&quot;,
+   &quot;_version&quot; : 7,
+   &quot;_seq_no&quot; : 3,
+   &quot;_primary_term&quot; : 1,
+   &quot;found&quot; : true,
+   &quot;_source&quot; : {
+      &quot;name&quot; : &quot;Central School&quot;,
+      &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+      &quot;street&quot; : &quot;Nagan&quot;,
+      &quot;city&quot; : &quot;paprola&quot;,
+      &quot;state&quot; : &quot;HP&quot;,
+      &quot;zip&quot; : &quot;176115&quot;,
+      &quot;location&quot; : [
+         31.8955385,
+         76.8380405
+      ],
+      &quot;fees&quot; : 2200,
+      &quot;tags&quot; : [
+         &quot;Senior Secondary&quot;,
+         &quot;beautiful campus&quot;
+      ],
+      &quot;rating&quot; : &quot;3.3&quot;
+   }
+}
+</code></pre></div><ul><li>此操作是实时的，不受索引刷新率的影响。</li> <li>您还可以指定版本，然后Elasticsearch将仅获取该文档的版本。</li> <li>您还可以在请求中指定_all，以便Elasticsearch可以按每种类型搜索该文档ID，它将返回第一个匹配的文档。</li> <li>您还可以在特定文档的结果中指定所需的字段。</li></ul> <div class="language- extra-class"><pre class="language-text"><code>GET schools/_doc/5?_source_includes=name,fees
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;5&quot;,
+   &quot;_version&quot; : 7,
+   &quot;_seq_no&quot; : 3,
+   &quot;_primary_term&quot; : 1,
+   &quot;found&quot; : true,
+   &quot;_source&quot; : {
+      &quot;fees&quot; : 2200,
+      &quot;name&quot; : &quot;Central School&quot;
+   }
+}
+</code></pre></div><p>您还可以通过在get请求中添加_source部分来获取结果中的源部分。</p> <div class="language- extra-class"><pre class="language-text"><code>GET schools/_doc/5?_source
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;5&quot;,
+   &quot;_version&quot; : 7,
+   &quot;_seq_no&quot; : 3,
+   &quot;_primary_term&quot; : 1,
+   &quot;found&quot; : true,
+   &quot;_source&quot; : {
+      &quot;name&quot; : &quot;Central School&quot;,
+      &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+      &quot;street&quot; : &quot;Nagan&quot;,
+      &quot;city&quot; : &quot;paprola&quot;,
+      &quot;state&quot; : &quot;HP&quot;,
+      &quot;zip&quot; : &quot;176115&quot;,
+      &quot;location&quot; : [
+         31.8955385,
+         76.8380405
+      ],
+      &quot;fees&quot; : 2200,
+      &quot;tags&quot; : [
+         &quot;Senior Secondary&quot;,
+         &quot;beautiful campus&quot;
+      ],
+      &quot;rating&quot; : &quot;3.3&quot;
+   }
+}
+</code></pre></div><p>您还可以通过将refresh参数设置为true来刷新分片，然后再执行get操作。</p> <h3 id="删除api"><a href="#删除api" class="header-anchor">#</a> 删除API</h3> <p>您可以通过向Elasticsearch发送HTTP DELETE请求来删除特定的索引，映射或文档。</p> <div class="language- extra-class"><pre class="language-text"><code>DELETE schools/_doc/4
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;found&quot;:true, &quot;_index&quot;:&quot;schools&quot;, &quot;_type&quot;:&quot;school&quot;, &quot;_id&quot;:&quot;4&quot;, &quot;_version&quot;:2,
+   &quot;_shards&quot;:{&quot;total&quot;:2, &quot;successful&quot;:1, &quot;failed&quot;:0}
+}
+</code></pre></div><p>可以指定文档的版本以删除该特定版本。可以指定路由参数以从特定用户删除文档，并且如果文档不属于该特定用户，则操作将失败。在此操作中，您可以像GET API一样指定刷新和超时选项。</p> <h3 id="更新api"><a href="#更新api" class="header-anchor">#</a> 更新API</h3> <p>脚本用于执行此操作，版本控制用于确保在获取和重新编制索引期间未发生任何更新。例如，您可以使用脚本更新学费-</p> <div class="language- extra-class"><pre class="language-text"><code>POST schools/_update/4
+{
+   &quot;script&quot; : {
+      &quot;source&quot;: &quot;ctx._source.name = params.sname&quot;,
+      &quot;lang&quot;: &quot;painless&quot;,
+      &quot;params&quot; : {
+         &quot;sname&quot; : &quot;City Wise School&quot;
+      }
+   }
+ }
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;schools&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;4&quot;,
+   &quot;_version&quot; : 3,
+   &quot;result&quot; : &quot;updated&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 4,
+   &quot;_primary_term&quot; : 2
+}
+</code></pre></div><h2 id="elasticsearch-搜索api"><a href="#elasticsearch-搜索api" class="header-anchor">#</a> Elasticsearch 搜索API</h2> <p>该API用于在Elasticsearch中搜索内容。用户可以通过发送带有查询字符串作为参数的get请求进行搜索，或者可以在发布请求的消息正文中发布查询。搜索 api 主要是多索引、多类型的。</p> <h3 id="多索引"><a href="#多索引" class="header-anchor">#</a> 多索引</h3> <p>Elasticsearch允许我们搜索所有索引或某些特定索引中存在的文档。例如，如果我们需要搜索名称包含“ central”的所有文档，则可以执行以下操作：</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_all/_search?q=city:paprola
+</code></pre></div><p>在运行上面的代码时，我们得到以下响应-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 33,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 7,
+      &quot;successful&quot; : 7,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 1,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 0.9808292,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;5&quot;,
+            &quot;_score&quot; : 0.9808292,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;Central School&quot;,
+               &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+               &quot;street&quot; : &quot;Nagan&quot;,
+               &quot;city&quot; : &quot;paprola&quot;,
+               &quot;state&quot; : &quot;HP&quot;,
+               &quot;zip&quot; : &quot;176115&quot;,
+               &quot;location&quot; : [
+                  31.8955385,
+                  76.8380405
+               ],
+               &quot;fees&quot; : 2200,
+               &quot;tags&quot; : [
+                  &quot;Senior Secondary&quot;,
+                  &quot;beautiful campus&quot;
+               ],
+               &quot;rating&quot; : &quot;3.3&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><h3 id="uri搜索"><a href="#uri搜索" class="header-anchor">#</a> URI搜索</h3> <p>可以使用统一资源标识符在搜索操作中传递许多参数-</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">参数及说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;"><strong>Q</strong>此参数用于指定查询字符串</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;"><strong>lenient</strong>此参数用于指定查询字符串。只要将此参数设置为 true，就可以忽略基于 Formatbased 的错误。默认情况下它是假的。</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;"><strong>fields</strong>此参数用于指定查询字符串</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;"><strong>sort</strong>我们可以通过使用这个参数得到排序的结果，这个参数的可能值是fieldName, fieldName:asc/ fieldName:desc</td></tr> <tr><td style="text-align:left;">5</td> <td style="text-align:left;"><strong>timeout</strong>我们可以通过使用这个参数来限制搜索时间，并且响应只包含指定时间内的命中。默认情况下，没有超时</td></tr> <tr><td style="text-align:left;">6</td> <td style="text-align:left;"><strong>terminate_after</strong>们可以将响应限制为每个碎片的指定数量的文档，到达该分片时，查询将提前终止。默认情况下，没有 termin_after.</td></tr> <tr><td style="text-align:left;">7</td> <td style="text-align:left;"><strong>from</strong>要返回的命中数的起始索引。默认为0。</td></tr> <tr><td style="text-align:left;">8</td> <td style="text-align:left;"><strong>size</strong>它表示要返回的命中数，默认值为10。</td></tr></tbody></table> <h3 id="请求正文搜索"><a href="#请求正文搜索" class="header-anchor">#</a> 请求正文搜索</h3> <p>可以在请求正文中使用查询DSL来指定查询</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search
+{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;up&quot;
+      }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下响应-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 11,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 1,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 0.47000363,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;4&quot;,
+            &quot;_score&quot; : 0.47000363,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;City Best School&quot;,
+               &quot;description&quot; : &quot;ICSE&quot;,
+               &quot;street&quot; : &quot;West End&quot;,
+               &quot;city&quot; : &quot;Meerut&quot;,
+               &quot;state&quot; : &quot;UP&quot;,
+               &quot;zip&quot; : &quot;250002&quot;,
+               &quot;location&quot; : [
+                  28.9926174,
+                  77.692485
+               ],
+               &quot;fees&quot; : 3500,
+               &quot;tags&quot; : [
+                  &quot;fully computerized&quot;
+               ],
+               &quot;rating&quot; : &quot;4.5&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><h2 id="elasticsearch-聚合"><a href="#elasticsearch-聚合" class="header-anchor">#</a> Elasticsearch 聚合</h2> <p>聚合框架收集搜索查询选择的所有数据，并由许多构建块组成，这有助于构建数据的复杂摘要。聚合的基本结构如下所示-</p> <div class="language- extra-class"><pre class="language-text"><code>&quot;aggregations&quot; : {
+   &quot;&quot; : {
+      &quot;&quot; : {
+
+      }
+ 
+      [,&quot;meta&quot; : { [] } ]?
+      [,&quot;aggregations&quot; : { []+ } ]?
+   }
+   [,&quot;&quot; : { ... } ]*
+}
+</code></pre></div><p>聚合有不同的类型，每种类型都有自己的目的。本章将详细讨论这些问题。</p> <h3 id="指标聚合"><a href="#指标聚合" class="header-anchor">#</a> 指标聚合</h3> <p>这些聚合有助于根据聚合文档的字段值计算矩阵，有时还可以从脚本生成一些值。</p> <p>数值矩阵既可以是单值（如平均聚合），也可以是多值（如统计数据）。</p> <h3 id="平均聚合"><a href="#平均聚合" class="header-anchor">#</a> 平均聚合</h3> <p>此聚合用于获取聚合文档中存在的任何数字字段的平均值。例如，</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search
+{
+   &quot;aggs&quot;:{
+      &quot;avg_fees&quot;:{&quot;avg&quot;:{&quot;field&quot;:&quot;fees&quot;}}
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 41,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 1.0,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;5&quot;,
+            &quot;_score&quot; : 1.0,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;Central School&quot;,
+               &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+               &quot;street&quot; : &quot;Nagan&quot;,
+               &quot;city&quot; : &quot;paprola&quot;,
+               &quot;state&quot; : &quot;HP&quot;,
+               &quot;zip&quot; : &quot;176115&quot;,
+               &quot;location&quot; : [
+                  31.8955385,
+                  76.8380405
+               ],
+            &quot;fees&quot; : 2200,
+            &quot;tags&quot; : [
+               &quot;Senior Secondary&quot;,
+               &quot;beautiful campus&quot;
+            ],
+            &quot;rating&quot; : &quot;3.3&quot;
+         }
+      },
+      {
+         &quot;_index&quot; : &quot;schools&quot;,
+         &quot;_type&quot; : &quot;school&quot;,
+         &quot;_id&quot; : &quot;4&quot;,
+         &quot;_score&quot; : 1.0,
+         &quot;_source&quot; : {
+            &quot;name&quot; : &quot;City Best School&quot;,
+            &quot;description&quot; : &quot;ICSE&quot;,
+            &quot;street&quot; : &quot;West End&quot;,
+            &quot;city&quot; : &quot;Meerut&quot;,
+            &quot;state&quot; : &quot;UP&quot;,
+            &quot;zip&quot; : &quot;250002&quot;,
+            &quot;location&quot; : [
+               28.9926174,
+               77.692485
+            ],
+            &quot;fees&quot; : 3500,
+            &quot;tags&quot; : [
+               &quot;fully computerized&quot;
+            ],
+            &quot;rating&quot; : &quot;4.5&quot;
+         }
+      }
+   ]
+ },
+   &quot;aggregations&quot; : {
+      &quot;avg_fees&quot; : {
+         &quot;value&quot; : 2850.0
+      }
+   }
+}
+</code></pre></div><h3 id="基数聚合"><a href="#基数聚合" class="header-anchor">#</a> 基数聚合</h3> <p>此聚合提供了特定字段的不同值的计数。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot;:{
+      &quot;distinct_name_count&quot;:{&quot;cardinality&quot;:{&quot;field&quot;:&quot;fees&quot;}}
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 2,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;distinct_name_count&quot; : {
+         &quot;value&quot; : 2
+      }
+   }
+}
+</code></pre></div><p><strong>Note</strong> −基数的值为2，因为费用有两个不同的值。</p> <h3 id="扩展统计数据聚合"><a href="#扩展统计数据聚合" class="header-anchor">#</a> 扩展统计数据聚合</h3> <p>此聚合将生成有关聚合文档中特定数字字段的所有统计信息。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+      &quot;fees_stats&quot; : { &quot;extended_stats&quot; : { &quot;field&quot; : &quot;fees&quot; } }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 8,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;fees_stats&quot; : {
+         &quot;count&quot; : 2,
+         &quot;min&quot; : 2200.0,
+         &quot;max&quot; : 3500.0,
+         &quot;avg&quot; : 2850.0,
+         &quot;sum&quot; : 5700.0,
+         &quot;sum_of_squares&quot; : 1.709E7,
+         &quot;variance&quot; : 422500.0,
+         &quot;std_deviation&quot; : 650.0,
+         &quot;std_deviation_bounds&quot; : {
+            &quot;upper&quot; : 4150.0,
+            &quot;lower&quot; : 1550.0
+         }
+      }
+   }
+}
+</code></pre></div><h3 id="最大聚集"><a href="#最大聚集" class="header-anchor">#</a> 最大聚集</h3> <p>此聚合查找聚合文档中特定数字字段的最大值。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+   &quot;max_fees&quot; : { &quot;max&quot; : { &quot;field&quot; : &quot;fees&quot; } }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 16,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+  &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;max_fees&quot; : {
+         &quot;value&quot; : 3500.0
+      }
+   }
+}
+</code></pre></div><h3 id="最小聚合"><a href="#最小聚合" class="header-anchor">#</a> 最小聚合</h3> <p>此聚合在聚合的文档中查找特定数字字段的最小值。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+      &quot;min_fees&quot; : { &quot;min&quot; : { &quot;field&quot; : &quot;fees&quot; } }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 2,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+  &quot;aggregations&quot; : {
+      &quot;min_fees&quot; : {
+         &quot;value&quot; : 2200.0
+      }
+   }
+}
+</code></pre></div><h3 id="聚合总和"><a href="#聚合总和" class="header-anchor">#</a> 聚合总和</h3> <p>此聚合计算聚合文档中特定数值字段的和。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+      &quot;total_fees&quot; : { &quot;sum&quot; : { &quot;field&quot; : &quot;fees&quot; } }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 8,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;total_fees&quot; : {
+         &quot;value&quot; : 5700.0
+      }
+   }
+}
+</code></pre></div><p>在特殊情况下还有其他一些度量标准聚合，例如地理边界聚合和地理质心聚合，以实现地理位置。</p> <h3 id="统计聚合"><a href="#统计聚合" class="header-anchor">#</a> 统计聚合</h3> <p>一种多值度量标准聚合，可根据从聚合文档中提取的数值来计算统计信息。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+      &quot;grades_stats&quot; : { &quot;stats&quot; : { &quot;field&quot; : &quot;fees&quot; } }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 2,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;grades_stats&quot; : {
+         &quot;count&quot; : 2,
+         &quot;min&quot; : 2200.0,
+         &quot;max&quot; : 3500.0,
+         &quot;avg&quot; : 2850.0,
+         &quot;sum&quot; : 5700.0
+      }
+   }
+}
+</code></pre></div><h3 id="聚合元数据"><a href="#聚合元数据" class="header-anchor">#</a> 聚合元数据</h3> <p>您可以在请求时使用meta标记添加一些有关聚合的数据，并作为响应获取。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search?size=0
+{
+   &quot;aggs&quot; : {
+      &quot;min_fees&quot; : { &quot;avg&quot; : { &quot;field&quot; : &quot;fees&quot; } ,
+         &quot;meta&quot; :{
+            &quot;dsc&quot; :&quot;Lowest Fees This Year&quot;
+         }
+      }
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 0,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   },
+   &quot;aggregations&quot; : {
+      &quot;min_fees&quot; : {
+         &quot;meta&quot; : {
+            &quot;dsc&quot; : &quot;Lowest Fees This Year&quot;
+         },
+         &quot;value&quot; : 2850.0
+      }
+   }
+}
+</code></pre></div><h2 id="elasticsearch-索引api"><a href="#elasticsearch-索引api" class="header-anchor">#</a> Elasticsearch 索引API</h2> <p>这些API负责管理索引的所有方面，例如设置，别名，映射，索引模板。</p> <h3 id="创建索引-2"><a href="#创建索引-2" class="header-anchor">#</a> 创建索引</h3> <p>该API可帮助您创建索引。当用户将JSON对象传递给任何索引时，可以自动创建索引，也可以在此之前创建索引。要创建索引，您只需要发送带有设置，映射和别名的PUT请求，或者仅发送不带正文的简单请求。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT colleges
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;acknowledged&quot; : true,
+   &quot;shards_acknowledged&quot; : true,
+   &quot;index&quot; : &quot;colleges&quot;
+}
+</code></pre></div><p>我们也可以在上面的命令中添加一些设置-</p> <div class="language- extra-class"><pre class="language-text"><code>PUT colleges
+{
+  &quot;settings&quot; : {
+      &quot;index&quot; : {
+         &quot;number_of_shards&quot; : 3,
+         &quot;number_of_replicas&quot; : 2
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;acknowledged&quot; : true,
+   &quot;shards_acknowledged&quot; : true,
+   &quot;index&quot; : &quot;colleges&quot;
+}
+</code></pre></div><h3 id="删除索引"><a href="#删除索引" class="header-anchor">#</a> 删除索引</h3> <p>此API可帮助您删除任何索引。您只需要传递带有该特定索引名称的删除请求即可。</p> <div class="language- extra-class"><pre class="language-text"><code>DELETE /colleges
+</code></pre></div><p>您可以仅使用_all或*删除所有索引。</p> <h3 id="获取索引"><a href="#获取索引" class="header-anchor">#</a> 获取索引</h3> <p>可以通过仅将get请求发送到一个或多个索引来调用此API。这将返回有关索引的信息。</p> <div class="language- extra-class"><pre class="language-text"><code>GET colleges
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;colleges&quot; : {
+      &quot;aliases&quot; : {
+         &quot;alias_1&quot; : { },
+         &quot;alias_2&quot; : {
+            &quot;filter&quot; : {
+               &quot;term&quot; : {
+                  &quot;user&quot; : &quot;pkay&quot;
+               }
+            },
+            &quot;index_routing&quot; : &quot;pkay&quot;,
+            &quot;search_routing&quot; : &quot;pkay&quot;
+         }
+      },
+      &quot;mappings&quot; : { },
+      &quot;settings&quot; : {
+         &quot;index&quot; : {
+            &quot;creation_date&quot; : &quot;1556245406616&quot;,
+            &quot;number_of_shards&quot; : &quot;1&quot;,
+            &quot;number_of_replicas&quot; : &quot;1&quot;,
+            &quot;uuid&quot; : &quot;3ExJbdl2R1qDLssIkwDAug&quot;,
+            &quot;version&quot; : {
+               &quot;created&quot; : &quot;7000099&quot;
+            },
+            &quot;provided_name&quot; : &quot;colleges&quot;
+         }
+      }
+   }
+}
+</code></pre></div><p>您可以使用_all或*获取所有索引的信息。</p> <h3 id="索引存在"><a href="#索引存在" class="header-anchor">#</a> 索引存在</h3> <p>索引的存在可以通过仅向该索引发送get请求来确定。如果HTTP响应是200，则存在。如果是404，则不存在。</p> <div class="language- extra-class"><pre class="language-text"><code>HEAD colleges
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>200-OK
+</code></pre></div><h3 id="索引设置"><a href="#索引设置" class="header-anchor">#</a> 索引设置</h3> <p>您只需在网址末尾附加_settings关键字即可获取索引设置。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /colleges/_settings
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;colleges&quot; : {
+      &quot;settings&quot; : {
+         &quot;index&quot; : {
+            &quot;creation_date&quot; : &quot;1556245406616&quot;,
+            &quot;number_of_shards&quot; : &quot;1&quot;,
+            &quot;number_of_replicas&quot; : &quot;1&quot;,
+            &quot;uuid&quot; : &quot;3ExJbdl2R1qDLssIkwDAug&quot;,
+            &quot;version&quot; : {
+               &quot;created&quot; : &quot;7000099&quot;
+            },
+            &quot;provided_name&quot; : &quot;colleges&quot;
+         }
+      }
+   }
+}
+</code></pre></div><h3 id="索引统计"><a href="#索引统计" class="header-anchor">#</a> 索引统计</h3> <p>该API可帮助您提取有关特定索引的统计信息。您只需要在末尾发送带有索引URL和_stats关键字的get请求。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_stats
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>………………………………………………
+},
+   &quot;request_cache&quot; : {
+      &quot;memory_size_in_bytes&quot; : 849,
+      &quot;evictions&quot; : 0,
+      &quot;hit_count&quot; : 1171,
+      &quot;miss_count&quot; : 4
+   },
+   &quot;recovery&quot; : {
+      &quot;current_as_source&quot; : 0,
+      &quot;current_as_target&quot; : 0,
+      &quot;throttle_time_in_millis&quot; : 0
+   }
+} ………………………………………………
+</code></pre></div><h3 id="冲洗-flush"><a href="#冲洗-flush" class="header-anchor">#</a> 冲洗(Flush)</h3> <p>索引的刷新过程可确保当前仅保留在事务日志中的所有数据也将永久保留在Lucene中。这减少了恢复时间，因为在打开Lucene索引之后，不需要从事务日志中重新索引数据。</p> <div class="language- extra-class"><pre class="language-text"><code>POST colleges/_flush
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的输出-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   } 
+}
+</code></pre></div><h2 id="elasticsearch-cat-api"><a href="#elasticsearch-cat-api" class="header-anchor">#</a> Elasticsearch Cat API</h2> <p>通常，来自各种Elasticsearch API的结果以JSON格式显示。但是，JSON并非总是易于阅读。因此，Elasticsearch中提供了cat APIs功能，有助于使结果的打印格式更易于阅读和理解。cat API中使用了各种参数，这些参数具有不同的用途，例如-术语V使输出变得冗长。</p> <p>让我们在本章中更详细地了解cat API。</p> <h3 id="详细"><a href="#详细" class="header-anchor">#</a> 详细</h3> <p>详细的输出可以很好地显示cat命令的结果。在下面给出的示例中，我们获得了集群中存在的各种索引的详细信息。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cat/indices?v
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>health status index uuid pri repdocs.countdocs.deletedstore.sizepri.store.size
+yellow open schools RkMyEn2SQ4yUgzT6EQYuAA 1 1 2 1 21.6kb 21.6kb
+yellow open index_4_analysis zVmZdM1sTV61YJYrNXf1gg 1 1 0 0 283b 283b
+yellow open sensor-2018-01-01 KIrrHwABRB-ilGqTu3OaVQ 1 1 1 0 4.2kb 4.2kb
+yellow open colleges 3ExJbdl2R1qDLssIkwDAug 1 1 0 0 283b 283b
+</code></pre></div><h3 id="标头"><a href="#标头" class="header-anchor">#</a> 标头</h3> <p>h参数（也称为标头）仅用于显示命令中提到的那些列。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cat/nodes?h=ip,port
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>127.0.0.1 9300
+</code></pre></div><h3 id="sort-排序"><a href="#sort-排序" class="header-anchor">#</a> Sort - 排序</h3> <p>sort命令接受查询字符串，该字符串可以按查询中的指定列对表进行排序。默认排序是升序的，但是可以通过在列中添加：desc来更改。</p> <p>下面的示例给出了按字段索引模式的降序排列的模板的结果。</p> <div class="language- extra-class"><pre class="language-text"><code>GET _cat/templates?v&amp;s=order:desc,index_patterns
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>name index_patterns order version
+.triggered_watches [.triggered_watches*] 2147483647
+.watch-history-9 [.watcher-history-9*] 2147483647
+.watches [.watches*] 2147483647
+.kibana_task_manager [.kibana_task_manager] 0 7000099
+</code></pre></div><h3 id="计数-count"><a href="#计数-count" class="header-anchor">#</a> 计数 - Count</h3> <p>count参数提供整个集群中文档总数的计数。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cat/count?v
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>epoch timestamp count
+1557633536 03:58:56 17809
+</code></pre></div><h2 id="elasticsearch-集群api"><a href="#elasticsearch-集群api" class="header-anchor">#</a> Elasticsearch 集群API</h2> <p>群集API用于获取有关群集及其节点的信息并在其中进行更改。要调用此API，我们需要指定节点名称，地址或_local。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_nodes/_local
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>………………………………………………
+cluster_name&quot; : &quot;elasticsearch&quot;,
+   &quot;nodes&quot; : {
+      &quot;FKH-5blYTJmff2rJ_lQOCg&quot; : {
+         &quot;name&quot; : &quot;ubuntu&quot;,
+         &quot;transport_address&quot; : &quot;127.0.0.1:9300&quot;,
+         &quot;host&quot; : &quot;127.0.0.1&quot;,
+         &quot;ip&quot; : &quot;127.0.0.1&quot;,
+         &quot;version&quot; : &quot;7.0.0&quot;,
+         &quot;build_flavor&quot; : &quot;default&quot;,
+         &quot;build_type&quot; : &quot;tar&quot;,
+         &quot;build_hash&quot; : &quot;b7e28a7&quot;,
+         &quot;total_indexing_buffer&quot; : 106502553,
+         &quot;roles&quot; : [
+            &quot;master&quot;,
+            &quot;data&quot;,
+            &quot;ingest&quot;
+         ],
+         &quot;attributes&quot; : {
+………………………………………………
+</code></pre></div><h3 id="集群运行状况"><a href="#集群运行状况" class="header-anchor">#</a> 集群运行状况</h3> <p>API用于通过附加'health'关键字来获取集群运行状况的状态。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cluster/health
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+   &quot;status&quot; : &quot;yellow&quot;,
+   &quot;timed_out&quot; : false,
+   &quot;number_of_nodes&quot; : 1,
+   &quot;number_of_data_nodes&quot; : 1,
+   &quot;active_primary_shards&quot; : 7,
+   &quot;active_shards&quot; : 7,
+   &quot;relocating_shards&quot; : 0,
+   &quot;initializing_shards&quot; : 0,
+   &quot;unassigned_shards&quot; : 4,
+   &quot;delayed_unassigned_shards&quot; : 0,
+   &quot;number_of_pending_tasks&quot; : 0,
+   &quot;number_of_in_flight_fetch&quot; : 0,
+   &quot;task_max_waiting_in_queue_millis&quot; : 0,
+   &quot;active_shards_percent_as_number&quot; : 63.63636363636363
+}
+</code></pre></div><h3 id="集群状态"><a href="#集群状态" class="header-anchor">#</a> 集群状态</h3> <p>该API用于通过附加'state'关键字URL来获取有关集群的状态信息。状态信息包含版本，主节点，其他节点，路由表，元数据和块。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cluster/state
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>………………………………………………
+{
+   &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+   &quot;cluster_uuid&quot; : &quot;IzKu0OoVTQ6LxqONJnN2eQ&quot;,
+   &quot;version&quot; : 89,
+   &quot;state_uuid&quot; : &quot;y3BlwvspR1eUQBTo0aBjig&quot;,
+   &quot;master_node&quot; : &quot;FKH-5blYTJmff2rJ_lQOCg&quot;,
+   &quot;blocks&quot; : { },
+   &quot;nodes&quot; : {
+      &quot;FKH-5blYTJmff2rJ_lQOCg&quot; : {
+      &quot;name&quot; : &quot;ubuntu&quot;,
+      &quot;ephemeral_id&quot; : &quot;426kTGpITGixhEzaM-5Qyg&quot;,
+      &quot;transport
+   }
+………………………………………………
+</code></pre></div><h3 id="集群统计"><a href="#集群统计" class="header-anchor">#</a> 集群统计</h3> <p>该API通过使用'stats'关键字来帮助检索有关群集的统计信息。该API返回分片号，存储大小，内存使用率，节点数，角色，操作系统和文件系统。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cluster/stats
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>………………………………………….
+&quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+&quot;cluster_uuid&quot; : &quot;IzKu0OoVTQ6LxqONJnN2eQ&quot;,
+&quot;timestamp&quot; : 1556435464704,
+&quot;status&quot; : &quot;yellow&quot;,
+&quot;indices&quot; : {
+   &quot;count&quot; : 7,
+   &quot;shards&quot; : {
+      &quot;total&quot; : 7,
+      &quot;primaries&quot; : 7,
+      &quot;replication&quot; : 0.0,
+      &quot;index&quot; : {
+         &quot;shards&quot; : {
+         &quot;min&quot; : 1,
+         &quot;max&quot; : 1,
+         &quot;avg&quot; : 1.0
+      },
+      &quot;primaries&quot; : {
+         &quot;min&quot; : 1,
+         &quot;max&quot; : 1,
+         &quot;avg&quot; : 1.0
+      },
+      &quot;replication&quot; : {
+         &quot;min&quot; : 0.0,
+         &quot;max&quot; : 0.0,
+         &quot;avg&quot; : 0.0
+      }
+………………………………………….
+</code></pre></div><h3 id="群集更新设置"><a href="#群集更新设置" class="header-anchor">#</a> 群集更新设置</h3> <p>使用此API，您可以使用“设置”关键字来更新集群的设置。有两种类型的设置-持久性（在重新启动中应用）和瞬态（在完整的集群重新启动后无法生存）。</p> <h3 id="节点统计"><a href="#节点统计" class="header-anchor">#</a> 节点统计</h3> <p>该API用于检索集群中另外一个节点的统计信息。节点统计信息与集群几乎相同。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_nodes/stats
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_nodes&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
+   &quot;nodes&quot; : {
+      &quot;FKH-5blYTJmff2rJ_lQOCg&quot; : {
+         &quot;timestamp&quot; : 1556437348653,
+         &quot;name&quot; : &quot;ubuntu&quot;,
+         &quot;transport_address&quot; : &quot;127.0.0.1:9300&quot;,
+         &quot;host&quot; : &quot;127.0.0.1&quot;,
+         &quot;ip&quot; : &quot;127.0.0.1:9300&quot;,
+         &quot;roles&quot; : [
+            &quot;master&quot;,
+            &quot;data&quot;,
+            &quot;ingest&quot;
+         ],
+         &quot;attributes&quot; : {
+            &quot;ml.machine_memory&quot; : &quot;4112797696&quot;,
+            &quot;xpack.installed&quot; : &quot;true&quot;,
+            &quot;ml.max_open_jobs&quot; : &quot;20&quot;
+         },
+………………………………………………………….
+</code></pre></div><h3 id="节点hot-threads"><a href="#节点hot-threads" class="header-anchor">#</a> 节点hot_threads</h3> <p>该API可帮助您检索有关群集中每个节点上的当前热线程的信息。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_nodes/hot_threads
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>:::{ubuntu}{FKH-5blYTJmff2rJ_lQOCg}{426kTGpITGixhEzaM5Qyg}{127.0.0.1}{127.0.0.1:9300}{ml.machine_memory=4112797696,
+xpack.installed=true, ml.max_open_jobs=20}
+ Hot threads at 2019-04-28T07:43:58.265Z, interval=500ms, busiestThreads=3,
+ignoreIdleThreads=true:
+</code></pre></div><h1 id="elasticsearch-查询dsl"><a href="#elasticsearch-查询dsl" class="header-anchor">#</a> Elasticsearch 查询DSL</h1> <p>在Elasticsearch中，搜索是通过使用基于JSON的查询来进行的。查询由两个子句组成-</p> <ul><li>叶子查询子句——这些子句是匹配的、术语或范围，它们在特定字段中查找特定的值。</li> <li>复合查询子句—这些查询是叶查询子句和其他复合查询的组合，用于提取所需的信息。</li></ul> <p>Elasticsearch支持大量查询。查询以查询关键字开头，然后以JSON对象的形式包含条件和过滤器。下面描述了不同类型的查询。</p> <h2 id="匹配所有查询"><a href="#匹配所有查询" class="header-anchor">#</a> 匹配所有查询</h2> <p>这是最基本的查询；它返回所有内容，每个对象的得分为1.0。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search
+{
+   &quot;query&quot;:{
+      &quot;match_all&quot;:{}
+   }
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 7,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 1.0,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;5&quot;,
+            &quot;_score&quot; : 1.0,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;Central School&quot;,
+               &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+               &quot;street&quot; : &quot;Nagan&quot;,
+               &quot;city&quot; : &quot;paprola&quot;,
+               &quot;state&quot; : &quot;HP&quot;,
+               &quot;zip&quot; : &quot;176115&quot;,
+               &quot;location&quot; : [
+                  31.8955385,
+                  76.8380405
+               ],
+               &quot;fees&quot; : 2200,
+               &quot;tags&quot; : [
+                  &quot;Senior Secondary&quot;,
+                  &quot;beautiful campus&quot;
+               ],
+               &quot;rating&quot; : &quot;3.3&quot;
+            }
+         },
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;4&quot;,
+            &quot;_score&quot; : 1.0,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;City Best School&quot;,
+               &quot;description&quot; : &quot;ICSE&quot;,
+               &quot;street&quot; : &quot;West End&quot;,
+               &quot;city&quot; : &quot;Meerut&quot;,
+               &quot;state&quot; : &quot;UP&quot;,
+               &quot;zip&quot; : &quot;250002&quot;,
+               &quot;location&quot; : [
+                  28.9926174,
+                  77.692485
+               ],
+               &quot;fees&quot; : 3500,
+               &quot;tags&quot; : [
+                  &quot;fully computerized&quot;
+               ],
+               &quot;rating&quot; : &quot;4.5&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><h2 id="全文查询"><a href="#全文查询" class="header-anchor">#</a> 全文查询</h2> <p>这些查询用于搜索全文，例如章节或新闻文章。该查询根据与该特定索引或文档相关联的分析器工作。在本节中，我们将讨论全文查询的不同类型。</p> <h2 id="匹配查询"><a href="#匹配查询" class="header-anchor">#</a> 匹配查询</h2> <p>此查询将文本或短语与一个或多个字段的值匹配。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools*/_search
+{
+   &quot;query&quot;:{
+      &quot;match&quot; : {
+         &quot;rating&quot;:&quot;4.5&quot;
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 44,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 1,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 0.47000363,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;4&quot;,
+            &quot;_score&quot; : 0.47000363,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;City Best School&quot;,
+               &quot;description&quot; : &quot;ICSE&quot;,
+               &quot;street&quot; : &quot;West End&quot;,
+               &quot;city&quot; : &quot;Meerut&quot;,
+               &quot;state&quot; : &quot;UP&quot;,
+               &quot;zip&quot; : &quot;250002&quot;,
+               &quot;location&quot; : [
+                  28.9926174,
+                  77.692485
+               ],
+               &quot;fees&quot; : 3500,
+               &quot;tags&quot; : [
+                  &quot;fully computerized&quot;
+               ],
+               &quot;rating&quot; : &quot;4.5&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><h2 id="多重比对查询"><a href="#多重比对查询" class="header-anchor">#</a> 多重比对查询</h2> <p>此查询将一个或多个字段匹配的文本或短语匹配。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools*/_search
+{
+   &quot;query&quot;:{
+      &quot;multi_match&quot; : {
+         &quot;query&quot;: &quot;paprola&quot;,
+         &quot;fields&quot;: [ &quot;city&quot;, &quot;state&quot; ]
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 12,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 1,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 0.9808292,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;5&quot;,
+            &quot;_score&quot; : 0.9808292,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;Central School&quot;,
+               &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+               &quot;street&quot; : &quot;Nagan&quot;,
+               &quot;city&quot; : &quot;paprola&quot;,
+               &quot;state&quot; : &quot;HP&quot;,
+               &quot;zip&quot; : &quot;176115&quot;,
+               &quot;location&quot; : [
+                  31.8955385,
+                  76.8380405
+               ],
+               &quot;fees&quot; : 2200,
+               &quot;tags&quot; : [
+                  &quot;Senior Secondary&quot;,
+                  &quot;beautiful campus&quot;
+               ],
+               &quot;rating&quot; : &quot;3.3&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><h2 id="查询字符串查询"><a href="#查询字符串查询" class="header-anchor">#</a> 查询字符串查询</h2> <p>该查询使用查询解析器和query_string关键字。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools*/_search
+{
+   &quot;query&quot;:{
+      &quot;query_string&quot;:{
+         &quot;query&quot;:&quot;beautiful&quot;
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 60,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+      &quot;value&quot; : 1,
+      &quot;relation&quot; : &quot;eq&quot;
+   },
+………………………………….
+</code></pre></div><h2 id="词级查询"><a href="#词级查询" class="header-anchor">#</a> 词级查询</h2> <p>这些查询主要处理结构化数据，例如数字，日期和枚举。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools*/_search
+{
+   &quot;query&quot;:{
+      &quot;term&quot;:{&quot;zip&quot;:&quot;176115&quot;}
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>……………………………..
+hits&quot; : [
+   {
+      &quot;_index&quot; : &quot;schools&quot;,
+      &quot;_type&quot; : &quot;school&quot;,
+      &quot;_id&quot; : &quot;5&quot;,
+      &quot;_score&quot; : 0.9808292,
+      &quot;_source&quot; : {
+         &quot;name&quot; : &quot;Central School&quot;,
+         &quot;description&quot; : &quot;CBSE Affiliation&quot;,
+         &quot;street&quot; : &quot;Nagan&quot;,
+         &quot;city&quot; : &quot;paprola&quot;,
+         &quot;state&quot; : &quot;HP&quot;,
+         &quot;zip&quot; : &quot;176115&quot;,
+         &quot;location&quot; : [
+            31.8955385,
+            76.8380405
+         ],
+      }
+   }
+]   
+…………………………………………..
+</code></pre></div><h2 id="范围查询"><a href="#范围查询" class="header-anchor">#</a> 范围查询</h2> <p>该查询用于查找具有给定值范围之间的值的对象。为此，我们需要使用运算符，例如-</p> <ul><li><strong>gte</strong> −大于等于</li> <li><strong>gt</strong> −大于</li> <li><strong>lte</strong> −小于等于</li> <li><strong>lt</strong> −小于</li></ul> <p>例如，观察下面给出的代码-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools*/_search
+{
+   &quot;query&quot;:{
+      &quot;range&quot;:{
+         &quot;rating&quot;:{
+            &quot;gte&quot;:3.5
+         }
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 24,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 1,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 1.0,
+      &quot;hits&quot; : [
+         {
+            &quot;_index&quot; : &quot;schools&quot;,
+            &quot;_type&quot; : &quot;school&quot;,
+            &quot;_id&quot; : &quot;4&quot;,
+            &quot;_score&quot; : 1.0,
+            &quot;_source&quot; : {
+               &quot;name&quot; : &quot;City Best School&quot;,
+               &quot;description&quot; : &quot;ICSE&quot;,
+               &quot;street&quot; : &quot;West End&quot;,
+               &quot;city&quot; : &quot;Meerut&quot;,
+               &quot;state&quot; : &quot;UP&quot;,
+               &quot;zip&quot; : &quot;250002&quot;,
+               &quot;location&quot; : [
+                  28.9926174,
+                  77.692485
+               ],
+               &quot;fees&quot; : 3500,
+               &quot;tags&quot; : [
+                  &quot;fully computerized&quot;
+               ],
+               &quot;rating&quot; : &quot;4.5&quot;
+            }
+         }
+      ]
+   }
+}
+</code></pre></div><p>还存在其他类型的术语级别查询，例如-</p> <ul><li><strong>存在查询</strong> −如果某个字段的值为非空值。</li> <li><strong>缺少查询</strong> −这与存在查询完全相反，该查询搜索没有特定字段或值为空的对象。</li> <li><strong>通配符或regexp查询</strong> −此查询使用正则表达式在对象中查找模式。</li></ul> <h2 id="复合查询"><a href="#复合查询" class="header-anchor">#</a> 复合查询</h2> <p>这些查询是不同查询的集合，这些查询通过使用布尔运算符（例如和/或，或不）或针对不同的索引或具有函数调用等彼此合并。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /schools/_search
+{
+   &quot;query&quot;: {
+      &quot;bool&quot; : {
+         &quot;must&quot; : {
+            &quot;term&quot; : { &quot;state&quot; : &quot;UP&quot; }
+         },
+         &quot;filter&quot;: {
+            &quot;term&quot; : { &quot;fees&quot; : &quot;2200&quot; }
+         },
+         &quot;minimum_should_match&quot; : 1,
+         &quot;boost&quot; : 1.0
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 6,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 0,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : null,
+      &quot;hits&quot; : [ ]
+   }
+}
+</code></pre></div><h2 id="地理查询"><a href="#地理查询" class="header-anchor">#</a> 地理查询</h2> <p>这些查询处理地理位置和地理位置。这些查询有助于找出学校或任何其他地理位置附近的地理对象。您需要使用地理位置数据类型。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /geo_example
+{
+   &quot;mappings&quot;: {
+      &quot;properties&quot;: {
+         &quot;location&quot;: {
+            &quot;type&quot;: &quot;geo_shape&quot;
+         }
+      }
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{  &quot;acknowledged&quot; : true,
+   &quot;shards_acknowledged&quot; : true,
+   &quot;index&quot; : &quot;geo_example&quot;
+}
+</code></pre></div><p>现在，我们将数据发布到上面创建的索引中。</p> <div class="language- extra-class"><pre class="language-text"><code>POST /geo_example/_doc?refresh
+{
+   &quot;name&quot;: &quot;Chapter One, London, UK&quot;,
+   &quot;location&quot;: {
+      &quot;type&quot;: &quot;point&quot;,
+      &quot;coordinates&quot;: [11.660544, 57.800286]
+   }
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 1,
+   &quot;timed_out&quot; : false,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 1,
+      &quot;successful&quot; : 1,
+      &quot;skipped&quot; : 0,
+      &quot;failed&quot; : 0
+   },
+   &quot;hits&quot; : {
+      &quot;total&quot; : {
+         &quot;value&quot; : 2,
+         &quot;relation&quot; : &quot;eq&quot;
+      },
+      &quot;max_score&quot; : 1.0,
+      &quot;hits&quot; : [
+         &quot;_index&quot; : &quot;geo_example&quot;,
+         &quot;_type&quot; : &quot;_doc&quot;,
+         &quot;_id&quot; : &quot;hASWZ2oBbkdGzVfiXHKD&quot;,
+         &quot;_score&quot; : 1.0,
+         &quot;_source&quot; : {
+            &quot;name&quot; : &quot;Chapter One, London, UK&quot;,
+            &quot;location&quot; : {
+               &quot;type&quot; : &quot;point&quot;,
+               &quot;coordinates&quot; : [
+                  11.660544,
+                  57.800286
+               ]
+            }
+         }
+      }
+   }
+</code></pre></div><h1 id="elasticsearch-映射"><a href="#elasticsearch-映射" class="header-anchor">#</a> Elasticsearch 映射</h1> <p>映射是存储在索引中的文档的轮廓。它定义了数据类型，如geo_point或字符串，以及文档中显示的字段的格式和规则，以控制动态添加字段的映射。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT bankaccountdetails
+{
+   &quot;mappings&quot;:{
+      &quot;properties&quot;:{
+         &quot;name&quot;: { &quot;type&quot;:&quot;text&quot;}, &quot;date&quot;:{ &quot;type&quot;:&quot;date&quot;},
+         &quot;balance&quot;:{ &quot;type&quot;:&quot;double&quot;}, &quot;liability&quot;:{ &quot;type&quot;:&quot;double&quot;}
+      }
+   }
+ }
+</code></pre></div><p>当我们运行上面的代码时，我们得到如下所示的响应-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;acknowledged&quot; : true,
+   &quot;shards_acknowledged&quot; : true,
+   &quot;index&quot; : &quot;bankaccountdetails&quot;
+}
+</code></pre></div><h2 id="字段数据类型"><a href="#字段数据类型" class="header-anchor">#</a> 字段数据类型</h2> <p>Elasticsearch为文档中的字段支持多种不同的数据类型。这里详细讨论了用于在Elasticsearch中存储字段的数据类型。</p> <h2 id="核心数据类型"><a href="#核心数据类型" class="header-anchor">#</a> 核心数据类型</h2> <p>这些是基本数据类型，例如文本，关键字，日期，长整型，双精度型，布尔型或ip，几乎所有系统都支持。</p> <h2 id="复杂数据类型"><a href="#复杂数据类型" class="header-anchor">#</a> 复杂数据类型</h2> <p>这些数据类型是核心数据类型的组合。这些包括数组，JSON对象和嵌套数据类型。嵌套数据类型的示例如下所示＆minus</p> <div class="language- extra-class"><pre class="language-text"><code>POST /tabletennis/_doc/1
+{
+   &quot;group&quot; : &quot;players&quot;,
+   &quot;user&quot; : [
+      {
+         &quot;first&quot; : &quot;dave&quot;, &quot;last&quot; : &quot;jones&quot;
+      },
+      {
+         &quot;first&quot; : &quot;kevin&quot;, &quot;last&quot; : &quot;morris&quot;
+      }
+   ]
+}
+</code></pre></div><p>当我们运行上面的代码时，我们得到如下所示的响应-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;tabletennis&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   _version&quot; : 2,
+   &quot;result&quot; : &quot;updated&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 1,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>另一个示例代码如下所示-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /accountdetails/_doc/1
+{
+   &quot;from_acc&quot;:&quot;7056443341&quot;, &quot;to_acc&quot;:&quot;7032460534&quot;,
+   &quot;date&quot;:&quot;11/1/2016&quot;, &quot;amount&quot;:10000
+}
+</code></pre></div><p>当我们运行上面的代码时，我们得到如下所示的响应-</p> <div class="language- extra-class"><pre class="language-text"><code>{  &quot;_index&quot; : &quot;accountdetails&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 1,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>我们可以使用以下命令检查以上文档-</p> <div class="language- extra-class"><pre class="language-text"><code>GET /accountdetails/_mappings?include_type_name=false
+</code></pre></div><h2 id="删除映射类型"><a href="#删除映射类型" class="header-anchor">#</a> 删除映射类型</h2> <p>在Elasticsearch 7.0.0或更高版本中创建的索引不再接受_default_映射。中创建的索引6.x将继续在Elasticsearch 6.x中像以前一样起作用。在7.0中的API中已弃用类型。</p> <h1 id="elasticsearch-分析"><a href="#elasticsearch-分析" class="header-anchor">#</a> Elasticsearch 分析</h1> <p>当在搜索操作期间处理查询时，分析模块会分析任何索引中的内容。该模块由分析器，令牌生成器，令牌过滤器和字符过滤器组成。如果未定义分析器，则默认情况下，内置分析器，令牌，过滤器和令牌生成器会在分析模块中注册。</p> <p>在下面的示例中，我们使用一个标准分析器，该分析器在没有指定其他分析器时使用。它将根据语法对句子进行分析，并生成句子中使用的单词。</p> <div class="language- extra-class"><pre class="language-text"><code>POST _analyze
+{
+   &quot;analyzer&quot;: &quot;standard&quot;,
+   &quot;text&quot;: &quot;Today's weather is beautiful&quot;
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;tokens&quot; : [
+      {
+         &quot;token&quot; : &quot;today's&quot;,
+         &quot;start_offset&quot; : 0,
+         &quot;end_offset&quot; : 7,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 0
+      },
+      {
+         &quot;token&quot; : &quot;weather&quot;,
+         &quot;start_offset&quot; : 8,
+         &quot;end_offset&quot; : 15,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 1
+      },
+      {
+         &quot;token&quot; : &quot;is&quot;,
+         &quot;start_offset&quot; : 16,
+         &quot;end_offset&quot; : 18,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 2
+      },
+      {
+         &quot;token&quot; : &quot;beautiful&quot;,
+         &quot;start_offset&quot; : 19,
+         &quot;end_offset&quot; : 28,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 3
+      }
+   ]
+}
+</code></pre></div><h2 id="配置标准分析器"><a href="#配置标准分析器" class="header-anchor">#</a> 配置标准分析器</h2> <p>我们可以使用各种参数配置标准分析器，以获取我们的自定义要求。</p> <p>在以下示例中，我们将标准分析器配置为max_token_length为5。</p> <p>为此，我们首先使用具有max_length_token参数的分析器创建索引。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT index_4_analysis
+{
+   &quot;settings&quot;: {
+      &quot;analysis&quot;: {
+         &quot;analyzer&quot;: {
+            &quot;my_english_analyzer&quot;: {
+               &quot;type&quot;: &quot;standard&quot;,
+               &quot;max_token_length&quot;: 5,
+               &quot;stopwords&quot;: &quot;_english_&quot;
+            }
+         }
+      }
+   }
+}
+</code></pre></div><p>接下来，我们用如下所示的文本应用分析器。请注意令牌是如何不显示的，因为它在开头有两个空格，在结尾有两个空格。对于“ is”这个词，它的开头有一个空格，结尾有一个空格。把它们全部取出来，就变成了4个带空格的字母，这并不意味着它就是一个单词。至少在开头或结尾应该有一个非空格字符，使它成为一个要计数的单词。</p> <div class="language- extra-class"><pre class="language-text"><code>POST index_4_analysis/_analyze
+{
+   &quot;analyzer&quot;: &quot;my_english_analyzer&quot;,
+   &quot;text&quot;: &quot;Today's weather is beautiful&quot;
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;tokens&quot; : [
+      {
+         &quot;token&quot; : &quot;today&quot;,
+         &quot;start_offset&quot; : 0,
+         &quot;end_offset&quot; : 5,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 0
+      },
+      {
+         &quot;token&quot; : &quot;s&quot;,
+         &quot;start_offset&quot; : 6,
+         &quot;end_offset&quot; : 7,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 1
+      },
+      {
+         &quot;token&quot; : &quot;weath&quot;,
+         &quot;start_offset&quot; : 8,
+         &quot;end_offset&quot; : 13,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 2
+      },
+      {
+         &quot;token&quot; : &quot;er&quot;,
+         &quot;start_offset&quot; : 13,
+         &quot;end_offset&quot; : 15,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 3
+      },
+      {
+         &quot;token&quot; : &quot;beaut&quot;,
+         &quot;start_offset&quot; : 19,
+         &quot;end_offset&quot; : 24,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 5
+      },
+      {
+         &quot;token&quot; : &quot;iful&quot;,
+         &quot;start_offset&quot; : 24,
+         &quot;end_offset&quot; : 28,
+         &quot;type&quot; : &quot;&quot;,
+         &quot;position&quot; : 6
+      }
+   ]
+}
+</code></pre></div><p>下表列出了各种分析仪的列表及其说明-</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">分析器和说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;">标准分析器(<strong>standard</strong>)stopwords和max_token_length设置可以为这个分析器设置。默认情况下，stopwords列表为空，max_token_length为255。</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;">简单分析器(<strong>simple</strong>)该分析器由小写的 tokenizer 组成。</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;">**空白分析器 (whitespace)**该分析器由空格标记器组成</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;">**停止分析器 (stop)**可以配置stopwords和stopwords_path。默认情况下，stopwords初始化为英文停止词，stopwords_path包含包含停止词的文本文件的路径</td></tr></tbody></table> <h2 id="分词器"><a href="#分词器" class="header-anchor">#</a> 分词器</h2> <p>令牌生成器用于从Elasticsearch中的文本生成令牌。通过将空格或其他标点符号考虑在内，可以将文本分解为标记。Elasticsearch有很多内置的标记器，可以在自定义分析器中使用。</p> <p>下面显示了一个分词器的示例，该分词器在遇到非字母的字符时将文本分解为多个词，但也会将所有词都小写，如下所示-</p> <div class="language- extra-class"><pre class="language-text"><code>POST _analyze
+{
+   &quot;tokenizer&quot;: &quot;lowercase&quot;,
+   &quot;text&quot;: &quot;It Was a Beautiful Weather 5 Days ago.&quot;
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;tokens&quot; : [
+      {
+         &quot;token&quot; : &quot;it&quot;,
+         &quot;start_offset&quot; : 0,
+         &quot;end_offset&quot; : 2,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 0
+      },
+      {
+         &quot;token&quot; : &quot;was&quot;,
+         &quot;start_offset&quot; : 3,
+         &quot;end_offset&quot; : 6,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 1
+      },
+      {
+         &quot;token&quot; : &quot;a&quot;,
+         &quot;start_offset&quot; : 7,
+         &quot;end_offset&quot; : 8,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 2
+      },
+      {
+         &quot;token&quot; : &quot;beautiful&quot;,
+         &quot;start_offset&quot; : 9,
+         &quot;end_offset&quot; : 18,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 3
+      },
+      {
+         &quot;token&quot; : &quot;weather&quot;,
+         &quot;start_offset&quot; : 19,
+         &quot;end_offset&quot; : 26,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 4
+      },
+      {
+         &quot;token&quot; : &quot;days&quot;,
+         &quot;start_offset&quot; : 29,
+         &quot;end_offset&quot; : 33,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 5
+      },
+      {
+         &quot;token&quot; : &quot;ago&quot;,
+         &quot;start_offset&quot; : 34,
+         &quot;end_offset&quot; : 37,
+         &quot;type&quot; : &quot;word&quot;,
+         &quot;position&quot; : 6
+      }
+   ]
+}
+</code></pre></div><p>令牌生成器的列表及其说明如下表所示：</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">分词器和说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;">**标准标记器 (standard)**这是基于基于语法的标记器构建的，max_token_length可以为这个标记器配置。</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;"><strong>边缘 NGram 标记器</strong>**(edgeNGram)** 像min_gram, max_gram, token_chars这样的设置可以为这个标记器设置。</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;">**关键字标记器 (keyword)**这将生成整个输入作为输出，buffer_size可以为此设置。</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;">**字母标记器(letter)**这将捕获整个单词，直到遇到一个非字母。</td></tr></tbody></table> <h1 id="elasticsearch-模块"><a href="#elasticsearch-模块" class="header-anchor">#</a> Elasticsearch 模块</h1> <p>Elasticsearch由许多模块组成，这些模块负责其功能。这些模块具有两种类型的设置，如下所示：</p> <ul><li><strong>静态设置</strong>−在启动Elasticsearch之前，需要在config(elasticsearch.yml)文件中配置这些设置。您需要更新集群中的所有关注节点，以反映这些设置的更改。</li> <li><strong>动态设置</strong> −这些设置可以在实时Elasticsearch上进行设置。</li></ul> <p>我们将在本章以下各节中讨论Elasticsearch的不同模块。</p> <h2 id="集群级路由和分片分配"><a href="#集群级路由和分片分配" class="header-anchor">#</a> 集群级路由和分片分配</h2> <p>集群级设置决定将碎片分配给不同的节点，并重新分配碎片以重新平衡集群。以下是控制碎片分配的设置。</p> <h2 id="集群级别碎片分配"><a href="#集群级别碎片分配" class="header-anchor">#</a> 集群级别碎片分配</h2> <table><thead><tr><th style="text-align:center;">设置</th> <th style="text-align:center;">可能的值</th> <th style="text-align:center;">描述</th></tr></thead> <tbody><tr><td style="text-align:center;">cluster.routing.allocation.enable</td> <td style="text-align:center;"></td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">all</td> <td style="text-align:center;">此默认值允许为所有类型的碎片分配碎片。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">primaries</td> <td style="text-align:center;">这只允许为主碎片分配碎片。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">new_primaries</td> <td style="text-align:center;">这只允许为新索引的主碎片分配碎片。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">none</td> <td style="text-align:center;">这不允许任何碎片分配。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .node_concurrent_recoveries</td> <td style="text-align:center;">数值(默认值为2)</td> <td style="text-align:center;">这限制了并发碎片恢复的数量。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .node_initial_primaries_recoveries</td> <td style="text-align:center;">数值（默认为4）</td> <td style="text-align:center;">这限制了并行初始主恢复的数量。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .same_shard.host</td> <td style="text-align:center;">布尔值（默认为false）</td> <td style="text-align:center;">这限制了在同一物理节点中分配同一分片的多个副本。</td></tr> <tr><td style="text-align:center;">index.recovery.concurrent _streams</td> <td style="text-align:center;">数值（默认为3）</td> <td style="text-align:center;">这控制从对等碎片恢复碎片时每个节点打开的网络流的数量。</td></tr> <tr><td style="text-align:center;">index.recovery.concurrent _small_file_streams</td> <td style="text-align:center;">数值（默认为2）</td> <td style="text-align:center;">这可以控制碎片恢复时大小小于5mb的小文件在每个节点上打开的流的数量。</td></tr> <tr><td style="text-align:center;">cluster.routing.rebalance.enable</td> <td style="text-align:center;"></td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">all</td> <td style="text-align:center;">此默认值允许平衡所有类型的碎片。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">primaries</td> <td style="text-align:center;">这只允许主碎片进行碎片平衡。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">replicas</td> <td style="text-align:center;">这只允许对副本碎片进行碎片平衡。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">none</td> <td style="text-align:center;">这不允许任何形式的碎片平衡。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .allow_rebalance</td> <td style="text-align:center;"></td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">always</td> <td style="text-align:center;">此默认值始终允许重新平衡。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">indexs_primaries_active</td> <td style="text-align:center;">这允许在分配集群中的所有主碎片时重新平衡。</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">Indices_all_active</td> <td style="text-align:center;">这允许在分配所有主碎片和副本碎片时重新平衡</td> <td style="text-align:center;"></td></tr> <tr><td style="text-align:center;">cluster.routing.allocation.cluster _concurrent_rebalance</td> <td style="text-align:center;">数值（默认为2）</td> <td style="text-align:center;">这限制了集群中并发分片平衡的数量。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .balance.shard</td> <td style="text-align:center;">浮点值（默认为0.45f）</td> <td style="text-align:center;">这定义了分配给每个节点的碎片的权重因子。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .balance.index</td> <td style="text-align:center;">浮点值（默认为0.55f）</td> <td style="text-align:center;">这定义了在特定节点上分配的每个索引的碎片数的比率。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation .balance.threshold</td> <td style="text-align:center;">非负浮点值（默认为1.0f）</td> <td style="text-align:center;">这是应该执行的操作的最小优化值。</td></tr></tbody></table> <h2 id="基于磁盘的分片分配"><a href="#基于磁盘的分片分配" class="header-anchor">#</a> 基于磁盘的分片分配</h2> <table><thead><tr><th style="text-align:center;">设置</th> <th style="text-align:center;">可能的值</th> <th style="text-align:center;">描述</th></tr></thead> <tbody><tr><td style="text-align:center;">cluster.routing.allocation.disk.threshold_enabled</td> <td style="text-align:center;">布尔值（默认为true）</td> <td style="text-align:center;">这将启用和禁用磁盘分配决策程序。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation.disk.watermark.low</td> <td style="text-align:center;">字符串值（默认为85%）</td> <td style="text-align:center;">这表示磁盘的最大使用率；此后，将无法将其他分片分配给该磁盘。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation.disk.watermark.high</td> <td style="text-align:center;">字符串值(默认为90%)</td> <td style="text-align:center;">这表示分配时的最大使用量；如果在分配时达到了这一点，那么Elasticsearch会将那个分片分配给另一个磁盘。</td></tr> <tr><td style="text-align:center;">cluster.info.update.interval</td> <td style="text-align:center;">字符串值（默认30s）</td> <td style="text-align:center;">这是两次磁盘使用情况检查之间的间隔。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation.disk.include_relocations</td> <td style="text-align:center;">布尔值(默认情况下为 true)</td> <td style="text-align:center;">这决定了在计算磁盘使用率时是否考虑当前分配的分片。</td></tr></tbody></table> <h2 id="发现"><a href="#发现" class="header-anchor">#</a> 发现</h2> <p>这个模块帮助集群发现并维护集群中所有节点的状态。当从集群中添加或删除节点时，集群的状态会发生变化。集群名称设置用于创建不同集群之间的逻辑差异。有一些模块可以帮助您使用云供应商提供的API，如下所示-</p> <ul><li>Azure发现</li> <li>EC2发现</li> <li>Google计算引擎发现</li> <li>禅Zen发现</li></ul> <h2 id="网关"><a href="#网关" class="header-anchor">#</a> 网关</h2> <p>该模块在整个集群重新启动时维护集群状态和分片数据。以下是该模块的静态设置-</p> <table><thead><tr><th style="text-align:center;">设置</th> <th style="text-align:center;">可能的值</th> <th style="text-align:center;">描述</th></tr></thead> <tbody><tr><td style="text-align:center;">gateway.expected_nodes</td> <td style="text-align:center;">数值（默认为0）</td> <td style="text-align:center;">群集中用于恢复本地分片的节点数。</td></tr> <tr><td style="text-align:center;">gateway.expected_master_nodes</td> <td style="text-align:center;">数值（默认为0）</td> <td style="text-align:center;">开始恢复之前，预期在群集中的主节点数。</td></tr> <tr><td style="text-align:center;">gateway.expected_data_nodes</td> <td style="text-align:center;">数值（默认为0）</td> <td style="text-align:center;">开始恢复之前，群集中预期的数据节点数。</td></tr> <tr><td style="text-align:center;">gateway.recover_after_time</td> <td style="text-align:center;">字符串值（默认为5m）</td> <td style="text-align:center;">这是两次磁盘使用情况检查之间的间隔。</td></tr> <tr><td style="text-align:center;">cluster.routing.allocation. disk.include_relocations</td> <td style="text-align:center;">布尔值（默认为true）</td> <td style="text-align:center;">这指定了恢复过程将等待开始的时间，而不管群集中加入的节点数量如何。gateway.recover_ after_nodes gateway.recover_after_master_nodes gateway.recover_after_data_nodes</td></tr></tbody></table> <h2 id="http"><a href="#http" class="header-anchor">#</a> HTTP</h2> <p>该模块管理HTTP客户端和Elasticsearch API之间的通信。可以通过将值更改http.enabled为false来禁用此模块。</p> <p>以下是用于控制此模块的设置（在elasticsearch.yml中配置）-</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">设定与说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;"><strong>http.port</strong>这是访问Elasticsearch的端口，范围为9200-9300。</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;"><strong>http.publish_port</strong>此端口用于http客户端，在防火墙的情况下也很有用。</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;"><strong>http.bind_host</strong>这是 http 服务的主机地址。</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;"><strong>http.publish_host</strong>这是http客户机的主机地址。</td></tr> <tr><td style="text-align:left;">5</td> <td style="text-align:left;"><strong>http.max_content_length</strong>这是http请求中内容的最大大小。它的默认值是100mb。</td></tr> <tr><td style="text-align:left;">6</td> <td style="text-align:left;"><strong>http.max_initial_line_length</strong>这是URL的最大大小，其默认值为4kb。</td></tr> <tr><td style="text-align:left;">7</td> <td style="text-align:left;"><strong>http.max_header_size</strong>这是 http 头的最大大小，默认值为8kb。</td></tr> <tr><td style="text-align:left;">8</td> <td style="text-align:left;"><strong>http.compression</strong>这将启用或禁用对压缩的支持，其默认值为false。</td></tr> <tr><td style="text-align:left;">9</td> <td style="text-align:left;"><strong>http.pipelinig</strong>这将启用或禁用 HTTP 管道。</td></tr> <tr><td style="text-align:left;">10</td> <td style="text-align:left;"><strong>http.pipelining.max_events</strong>这限制了在关闭HTTP请求之前要排队的事件数。</td></tr></tbody></table> <h2 id="索引-2"><a href="#索引-2" class="header-anchor">#</a> 索引</h2> <p>此模块维护为每个索引全局设置的设置。以下设置主要与内存使用有关-</p> <h2 id="断路器"><a href="#断路器" class="header-anchor">#</a> 断路器</h2> <p>这用于防止操作引起OutOfMemroyError。该设置主要限制JVM堆大小。例如，indexs.breaker.total.limit设置，默认为JVM堆的70％。</p> <h2 id="现场数据缓存"><a href="#现场数据缓存" class="header-anchor">#</a> 现场数据缓存</h2> <p>主要用于在字段上聚合时使用。建议有足够的内存来分配它。可以使用index.fielddata.cache.size设置来控制用于字段数据缓存的内存量。</p> <h2 id="节点查询缓存"><a href="#节点查询缓存" class="header-anchor">#</a> 节点查询缓存</h2> <p>该内存用于缓存查询结果。该缓存使用最近最少使用(LRU)驱逐策略。Indices.queries.cahce.size设置控制此缓存的内存大小。</p> <h2 id="索引缓冲区"><a href="#索引缓冲区" class="header-anchor">#</a> 索引缓冲区</h2> <p>该缓冲区将新创建的文档存储在索引中，并在缓冲区已满时刷新它们。像indexs.memory.index_buffer_size这样的设置控制为此缓冲区分配的堆数量。</p> <h2 id="分片请求缓存"><a href="#分片请求缓存" class="header-anchor">#</a> 分片请求缓存</h2> <p>该缓存用于存储每个分片的本地搜索数据。可以在创建索引期间启用缓存，也可以通过发送URL参数来禁用缓存。</p> <div class="language- extra-class"><pre class="language-text"><code>Disable cache - ?request_cache = true
+Enable cache &quot;index.requests.cache.enable&quot;: true
+</code></pre></div><h2 id="索引恢复"><a href="#索引恢复" class="header-anchor">#</a> 索引恢复</h2> <p>它在恢复过程中控制资源。以下是设置-</p> <table><thead><tr><th style="text-align:left;">设置</th> <th style="text-align:left;">默认值</th></tr></thead> <tbody><tr><td style="text-align:left;">indices.recovery.concurrent_streams</td> <td style="text-align:left;">3</td></tr> <tr><td style="text-align:left;">indices.recovery.concurrent_small_file_streams</td> <td style="text-align:left;">2</td></tr> <tr><td style="text-align:left;">indices.recovery.file_chunk_size</td> <td style="text-align:left;">512kb</td></tr> <tr><td style="text-align:left;">indices.recovery.translog_ops</td> <td style="text-align:left;">1000</td></tr> <tr><td style="text-align:left;">indices.recovery.translog_size</td> <td style="text-align:left;">512kb</td></tr> <tr><td style="text-align:left;">indices.recovery.compress</td> <td style="text-align:left;">true</td></tr> <tr><td style="text-align:left;">indices.recovery.max_bytes_per_sec</td> <td style="text-align:left;">40mb</td></tr></tbody></table> <h2 id="ttl间隔"><a href="#ttl间隔" class="header-anchor">#</a> TTL间隔</h2> <p>生存时间(TTL)间隔定义了文档的时间，之后该文档将被删除。以下是用于控制此过程的动态设置-</p> <table><thead><tr><th style="text-align:left;">设置</th> <th style="text-align:left;">默认值</th></tr></thead> <tbody><tr><td style="text-align:left;">indices.ttl.interval</td> <td style="text-align:left;">60s</td></tr> <tr><td style="text-align:left;">indices.ttl.bulk_size</td> <td style="text-align:left;">1000</td></tr></tbody></table> <h2 id="节点-2"><a href="#节点-2" class="header-anchor">#</a> 节点</h2> <p>每个节点都可以选择是否为数据节点。可以通过更改 node.data 设置来更改此属性。将该值设置为 false 将定义该节点不是数据节点。</p> <h1 id="lasticsearch-索引模块"><a href="#lasticsearch-索引模块" class="header-anchor">#</a> lasticsearch 索引模块</h1> <p>这些是为每个索引创建的模块，用于控制索引的设置和行为。例如，索引可以使用多少个分片或该索引的主分片可以具有的副本数等。索引设置有两种类型-</p> <ul><li><strong>静态</strong>−这些只能在创建索引时或在关闭的索引上进行设置。</li> <li><strong>动态</strong> −这些可以在实时索引上更改。</li></ul> <h2 id="静态索引设置"><a href="#静态索引设置" class="header-anchor">#</a> 静态索引设置</h2> <p>下表显示了静态索引设置的列表-</p> <table><thead><tr><th style="text-align:left;">设置</th> <th style="text-align:left;">可能的值</th> <th style="text-align:left;">描述</th></tr></thead> <tbody><tr><td style="text-align:left;">index.number_of_shards</td> <td style="text-align:left;">默认值为5，最大值为1024</td> <td style="text-align:left;">索引应该具有的主碎片的数量。</td></tr> <tr><td style="text-align:left;">index.shard.check_on_startup</td> <td style="text-align:left;">默认为 false。可以为 True</td> <td style="text-align:left;">在打开之前是否应该检查碎片是否损坏。</td></tr> <tr><td style="text-align:left;">index.codec</td> <td style="text-align:left;">LZ4压缩。</td> <td style="text-align:left;">用于存储数据的压缩类型。</td></tr> <tr><td style="text-align:left;">index.routing_partition_size</td> <td style="text-align:left;">1</td> <td style="text-align:left;">自定义路由值可以转到的碎片数。</td></tr> <tr><td style="text-align:left;">index.load_fixed_bitset_filters_eagerly</td> <td style="text-align:left;">false</td> <td style="text-align:left;">指示是否为嵌套查询预先加载缓存筛选器</td></tr></tbody></table> <h2 id="动态索引设置"><a href="#动态索引设置" class="header-anchor">#</a> 动态索引设置</h2> <p>下表显示了动态索引设置的列表-</p> <table><thead><tr><th style="text-align:left;">设置</th> <th style="text-align:left;">可能的值</th> <th style="text-align:left;">描述</th></tr></thead> <tbody><tr><td style="text-align:left;">index.number_of_replicas</td> <td style="text-align:left;">默认为1</td> <td style="text-align:left;">每个主分片具有的副本数。</td></tr> <tr><td style="text-align:left;">index.auto_expand_replicas</td> <td style="text-align:left;">由下限和上限(0-5)分隔的破折号</td> <td style="text-align:left;">根据群集中数据节点的数量自动扩展副本的数量。</td></tr> <tr><td style="text-align:left;">index.search.idle.after</td> <td style="text-align:left;">30seconds</td> <td style="text-align:left;">在被认为是搜索空闲之前，碎片不能接收搜索或获取请求的时间。</td></tr> <tr><td style="text-align:left;">index.refresh_interval</td> <td style="text-align:left;">1 second</td> <td style="text-align:left;">执行刷新操作的频率，刷新操作使最近对索引的更改可见以供搜索。</td></tr></tbody></table> <h1 id="elasticsearch-ingest节点"><a href="#elasticsearch-ingest节点" class="header-anchor">#</a> Elasticsearch Ingest节点</h1> <table><thead><tr><th>index.blocks.read_only</th> <th>1 true/false</th> <th>设置为true将使索引和索引元数据为只读，设置为false将允许写入和元数据更改。</th></tr></thead> <tbody><tr><td></td> <td></td> <td></td></tr></tbody></table> <p>有时我们需要在转换文档之前对其进行索引。例如，我们要从文档中删除一个字段或重命名一个字段，然后对其进行索引。这由Ingest节点处理。</p> <p>群集中的每个节点都具有提取功能，但也可以对其进行自定义以仅由特定节点进行处理。</p> <h2 id="步骤"><a href="#步骤" class="header-anchor">#</a> 步骤</h2> <p>摄取节点的工作涉及两个步骤-</p> <ul><li>创建管道</li> <li>建立文件</li></ul> <h2 id="创建管道"><a href="#创建管道" class="header-anchor">#</a> 创建管道</h2> <p>首先创建一个包含处理器的管道，然后执行该管道，如下所示-</p> <div class="language- extra-class"><pre class="language-text"><code>PUT _ingest/pipeline/int-converter
+{
+   &quot;description&quot;: &quot;converts the content of the seq field to an integer&quot;,
+   &quot;processors&quot; : [
+      {
+         &quot;convert&quot; : {
+            &quot;field&quot; : &quot;seq&quot;,
+            &quot;type&quot;: &quot;integer&quot;
+         }
+      }
+   ]
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;acknowledged&quot; : true
+}
+</code></pre></div><h2 id="建立文件"><a href="#建立文件" class="header-anchor">#</a> 建立文件</h2> <p>接下来，我们使用管道转换器创建一个文档。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /logs/_doc/1?pipeline=int-converter
+{
+   &quot;seq&quot;:&quot;21&quot;,
+   &quot;name&quot;:&quot;nhooo&quot;,
+   &quot;Addrs&quot;:&quot;Hyderabad&quot;
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;logs&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 0,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>接下来，我们使用GET命令搜索上面创建的文档，如下所示-</p> <div class="language- extra-class"><pre class="language-text"><code>GET /logs/_doc/1
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;logs&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   &quot;_version&quot; : 1,
+   &quot;_seq_no&quot; : 0,
+   &quot;_primary_term&quot; : 1,
+   &quot;found&quot; : true,
+   &quot;_source&quot; : {
+      &quot;Addrs&quot; : &quot;Hyderabad&quot;,
+      &quot;name&quot; : &quot;nhooo&quot;,
+      &quot;seq&quot; : 21
+   }
+}
+</code></pre></div><p>您可以在上方看到21变为整数。</p> <h2 id="无管道"><a href="#无管道" class="header-anchor">#</a> 无管道</h2> <p>现在，我们无需使用管道即可创建文档。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /logs/_doc/2
+{
+   &quot;seq&quot;:&quot;11&quot;,
+   &quot;name&quot;:&quot;Tutorix&quot;,
+   &quot;Addrs&quot;:&quot;Secunderabad&quot;
+}
+GET /logs/_doc/2
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;logs&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;2&quot;,
+   &quot;_version&quot; : 1,
+   &quot;_seq_no&quot; : 1,
+   &quot;_primary_term&quot; : 1,
+   &quot;found&quot; : true,
+   &quot;_source&quot; : {
+      &quot;seq&quot; : &quot;11&quot;,
+      &quot;name&quot; : &quot;Tutorix&quot;,
+      &quot;Addrs&quot; : &quot;Secunderabad&quot;
+   }
+}
+</code></pre></div><p>您可以在上面看到11是一个不使用管道的字符串。</p> <h1 id="elasticsearch-管理索引生命周期"><a href="#elasticsearch-管理索引生命周期" class="header-anchor">#</a> Elasticsearch 管理索引生命周期</h1> <p>管理索引生命周期涉及基于分片大小和性能要求等因素执行管理操作。索引生命周期管理(ILM)API使您能够随着时间自动管理索引。</p> <p>本章列出了ILM API及其用法。</p> <h2 id="策略管理api"><a href="#策略管理api" class="header-anchor">#</a> 策略管理API</h2> <table><thead><tr><th style="text-align:left;">API名称</th> <th style="text-align:left;">作用</th> <th style="text-align:left;">实例</th></tr></thead> <tbody><tr><td style="text-align:left;">创建生命周期策略。</td> <td style="text-align:left;">创建生命周期策略。如果指定的策略存在，则替换该策略，并增加策略版本。</td> <td style="text-align:left;">PUT_ilm / policy / policy_id</td></tr> <tr><td style="text-align:left;">获取生命周期策略。</td> <td style="text-align:left;">返回指定的策略定义。包括策略版本和上次修改日期。如果未指定任何策略，则返回所有已定义的策略。</td> <td style="text-align:left;">GET_ilm / policy / policy_id</td></tr> <tr><td style="text-align:left;">删除生命周期策略</td> <td style="text-align:left;">删除指定的生命周期策略定义。您无法删除当前正在使用的策略。如果该策略用于管理任何索引，则请求将失败并返回错误。</td> <td style="text-align:left;">DELETE_ilm / policy / policy_id</td></tr></tbody></table> <h2 id="索引管理api"><a href="#索引管理api" class="header-anchor">#</a> 索引管理API</h2> <table><thead><tr><th style="text-align:left;">API名称</th> <th style="text-align:left;">作用</th> <th style="text-align:left;">实例</th></tr></thead> <tbody><tr><td style="text-align:left;">转移到生命周期步骤 API。</td> <td style="text-align:left;">手动将索引移至指定步骤并执行该步骤。</td> <td style="text-align:left;">POST_ilm/move/index</td></tr> <tr><td style="text-align:left;">重试策略。</td> <td style="text-align:left;">将策略设置回发生错误的步骤并执行该步骤。</td> <td style="text-align:left;">POST index/_ilm/retry</td></tr> <tr><td style="text-align:left;">从索引API编辑中删除策略。</td> <td style="text-align:left;">删除分配的生命周期策略，并停止管理指定的索引。如果指定了索引模式，则从所有匹配的索引中删除分配的策略。</td> <td style="text-align:left;">POST index/_ilm/remove</td></tr></tbody></table> <h2 id="操作管理api"><a href="#操作管理api" class="header-anchor">#</a> 操作管理API</h2> <table><thead><tr><th style="text-align:left;">API名称</th> <th style="text-align:left;">作用</th> <th style="text-align:left;">实例</th></tr></thead> <tbody><tr><td style="text-align:left;">获取索引生命周期管理状态API。</td> <td style="text-align:left;">返回ILM插件的状态。响应中的operation_mode字段显示以下三种状态之一：STARTED，STOPPING或STOPPED。</td> <td style="text-align:left;">GET /_ilm/status</td></tr> <tr><td style="text-align:left;">启动索引生命周期管理API。</td> <td style="text-align:left;">如果当前已停止，则启动ILM插件。形成集群后，会自动启动ILM。</td> <td style="text-align:left;">POST /_ilm/start</td></tr> <tr><td style="text-align:left;">停止索引生命周期管理API。</td> <td style="text-align:left;">停止所有生命周期管理操作并停止ILM插件。当您在群集上执行维护并且需要防止ILM对索引执行任何操作时，此功能很有用。</td> <td style="text-align:left;">POST /_ilm/stop</td></tr> <tr><td style="text-align:left;">解释生命周期API。</td> <td style="text-align:left;">检索有关索引的当前生命周期状态的信息，例如当前正在执行的阶段，操作和步骤。显示索引何时输入每个索引，运行阶段的定义以及有关任何失败的信息。</td> <td style="text-align:left;">GET index/_ilm/explain</td></tr></tbody></table> <h1 id="elasticsearch-sql访问"><a href="#elasticsearch-sql访问" class="header-anchor">#</a> Elasticsearch SQL访问</h1> <p>它是一个组件，允许对 Elasticsearch 实时执行类似 sql 的查询。您可以将 Elasticsearch SQL 看作是一个翻译器，它同时理解 SQL 和 Elasticsearch，并且通过 Elasticsearch 功能，可以方便地实时读取和处理数据。</p> <h2 id="elasticsearch-sql的优点"><a href="#elasticsearch-sql的优点" class="header-anchor">#</a> Elasticsearch SQL的优点</h2> <ul><li><strong>它具有本地集成</strong> −根据底层存储，对相关节点高效地执行每个查询。</li> <li><strong>没有外部部件</strong> −不需要额外的硬件、进程、运行时或库来查询Elasticsearch。</li> <li><strong>轻量级和高效率</strong> −它包含并公开了SQL，以便实时进行适当的全文本搜索。</li></ul> <h2 id="实例"><a href="#实例" class="header-anchor">#</a> 实例</h2> <div class="language- extra-class"><pre class="language-text"><code>PUT /schoollist/_bulk?refresh
+   {&quot;index&quot;:{&quot;_id&quot;: &quot;CBSE&quot;}}
+   {&quot;name&quot;: &quot;GleanDale&quot;, &quot;Address&quot;: &quot;JR. Court Lane&quot;, &quot;start_date&quot;: &quot;2011-06-02&quot;,
+   &quot;student_count&quot;: 561}
+   {&quot;index&quot;:{&quot;_id&quot;: &quot;ICSE&quot;}}
+   {&quot;name&quot;: &quot;Top-Notch&quot;, &quot;Address&quot;: &quot;Gachibowli Main Road&quot;, &quot;start_date&quot;: &quot;1989-
+   05-26&quot;, &quot;student_count&quot;: 482}
+   {&quot;index&quot;:{&quot;_id&quot;: &quot;State Board&quot;}}
+   {&quot;name&quot;: &quot;Sunshine&quot;, &quot;Address&quot;: &quot;Main Street&quot;, &quot;start_date&quot;: &quot;1965-06-01&quot;,
+   &quot;student_count&quot;: 604}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;took&quot; : 277,
+   &quot;errors&quot; : false,
+   &quot;items&quot; : [
+      {
+         &quot;index&quot; : {
+            &quot;_index&quot; : &quot;schoollist&quot;,
+            &quot;_type&quot; : &quot;_doc&quot;,
+            &quot;_id&quot; : &quot;CBSE&quot;,
+            &quot;_version&quot; : 1,
+            &quot;result&quot; : &quot;created&quot;,
+            &quot;forced_refresh&quot; : true,
+            &quot;_shards&quot; : {
+               &quot;total&quot; : 2,
+               &quot;successful&quot; : 1,
+               &quot;failed&quot; : 0
+            },
+            &quot;_seq_no&quot; : 0,
+            &quot;_primary_term&quot; : 1,
+            &quot;status&quot; : 201
+         }
+      },
+      {
+         &quot;index&quot; : {
+            &quot;_index&quot; : &quot;schoollist&quot;,
+            &quot;_type&quot; : &quot;_doc&quot;,
+            &quot;_id&quot; : &quot;ICSE&quot;,
+            &quot;_version&quot; : 1,
+            &quot;result&quot; : &quot;created&quot;,
+            &quot;forced_refresh&quot; : true,
+            &quot;_shards&quot; : {
+               &quot;total&quot; : 2,
+               &quot;successful&quot; : 1,
+               &quot;failed&quot; : 0
+            },
+            &quot;_seq_no&quot; : 1,
+            &quot;_primary_term&quot; : 1,
+            &quot;status&quot; : 201
+         }
+      },
+      {
+         &quot;index&quot; : {
+            &quot;_index&quot; : &quot;schoollist&quot;,
+            &quot;_type&quot; : &quot;_doc&quot;,
+            &quot;_id&quot; : &quot;State Board&quot;,
+            &quot;_version&quot; : 1,
+            &quot;result&quot; : &quot;created&quot;,
+            &quot;forced_refresh&quot; : true,
+            &quot;_shards&quot; : {
+               &quot;total&quot; : 2,
+               &quot;successful&quot; : 1,
+               &quot;failed&quot; : 0
+            },
+            &quot;_seq_no&quot; : 2,
+            &quot;_primary_term&quot; : 1,
+            &quot;status&quot; : 201
+         }
+      }
+   ]
+}
+</code></pre></div><h2 id="sql查询"><a href="#sql查询" class="header-anchor">#</a> SQL查询</h2> <p>以下示例显示了如何构建SQL查询-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /_sql?format=txt
+{
+   &quot;query&quot;: &quot;SELECT * FROM schoollist WHERE start_date &lt; '2000-01-01'&quot;
+}
+</code></pre></div><p>运行上面的代码后，我们得到如下所示的响应：</p> <div class="language- extra-class"><pre class="language-text"><code>Address             | name          | start_date             | student_count
+--------------------+---------------+------------------------+---------------
+Gachibowli Main Road|Top-Notch      |1989-05-26T00:00:00.000Z|482
+Main Street         |Sunshine       |1965-06-01T00:00:00.000Z|604
+</code></pre></div><p><strong>Note</strong> −通过更改上面的SQL查询，您可以获得不同的结果集。</p> <h1 id="elasticsearch-监视"><a href="#elasticsearch-监视" class="header-anchor">#</a> Elasticsearch 监视</h1> <p>为了监视集群的运行状况，监视功能从每个节点收集度量并将它们存储在Elasticsearch索引中。与Elasticsearch中的监视相关的所有设置必须在elasticsearch.yml 每个节点的文件，或者在可能的情况下，在动态集群设置中。</p> <p>为了开始监视，我们需要检查集群设置，可以通过以下方式完成：</p> <div class="language- extra-class"><pre class="language-text"><code>GET _cluster/settings
+{
+   &quot;persistent&quot; : { },
+   &quot;transient&quot; : { }
+}
+</code></pre></div><p>堆栈中的每个组件负责监视自身，然后将这些文档转发到Elasticsearch生产集群以进行路由和索引编制（存储）。Elasticsearch中的路由和索引过程由所谓的收集器和导出器处理。</p> <h2 id="收集器"><a href="#收集器" class="header-anchor">#</a> 收集器</h2> <p>收集器在每个收集间隔运行一次，以从它选择监视的Elasticsearch中的公共API获取数据。数据收集完成后，数据将批量交给导出器，并发送到监控集群。</p> <p>每种数据类型仅收集一个收集器。每个收集器可以创建零个或多个监视文档。</p> <h2 id="导出器"><a href="#导出器" class="header-anchor">#</a> 导出器</h2> <p>导出器将从任何Elastic Stack源收集的数据路由到监视集群。可以配置多个导出器，但是常规设置和默认设置是使用一个导出器。导出器可以在节点级别和群集级别进行配置。</p> <p>Elasticsearch中有两种类型的导出器-</p> <ul><li><strong>local</strong> −此导出器将数据路由回同一群集</li> <li><strong>http</strong> −首选的导出器，可用于将数据路由到可通过HTTP访问的任何受支持的Elasticsearch集群中。</li></ul> <p>在导出程序可以路由监控数据之前，它们必须设置一定的Elasticsearch资源。这些资源包括模板和摄取管道</p> <h1 id="elasticsearch-汇总数据"><a href="#elasticsearch-汇总数据" class="header-anchor">#</a> Elasticsearch 汇总数据</h1> <p>汇总作业是一项周期性任务，它汇总索引模式指定的索引中的数据，并将其汇总到新索引中。在下面的示例中，我们创建了一个名为sensor的索引，该索引具有不同的日期时间戳。然后我们创建一个rollup作业，使用cron job周期性地从这些索引中汇总数据。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /sensor/_doc/1
+{
+   &quot;timestamp&quot;: 1516729294000,
+   &quot;temperature&quot;: 200,
+   &quot;voltage&quot;: 5.2,
+   &quot;node&quot;: &quot;a&quot;
+}
+</code></pre></div><p>在运行上面的代码时，我们得到以下结果-</p> <div class="language- extra-class"><pre class="language-text"><code>{
+   &quot;_index&quot; : &quot;sensor&quot;,
+   &quot;_type&quot; : &quot;_doc&quot;,
+   &quot;_id&quot; : &quot;1&quot;,
+   &quot;_version&quot; : 1,
+   &quot;result&quot; : &quot;created&quot;,
+   &quot;_shards&quot; : {
+      &quot;total&quot; : 2,
+      &quot;successful&quot; : 1,
+      &quot;failed&quot; : 0
+   },
+   &quot;_seq_no&quot; : 0,
+   &quot;_primary_term&quot; : 1
+}
+</code></pre></div><p>现在，为其他文档添加第二个文档，依此类推。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /sensor-2018-01-01/_doc/2
+{
+   &quot;timestamp&quot;: 1413729294000,
+   &quot;temperature&quot;: 201,
+   &quot;voltage&quot;: 5.9,
+   &quot;node&quot;: &quot;a&quot;
+}
+</code></pre></div><h2 id="创建汇总作业"><a href="#创建汇总作业" class="header-anchor">#</a> 创建汇总作业</h2> <div class="language- extra-class"><pre class="language-text"><code>PUT _rollup/job/sensor
+{
+   &quot;index_pattern&quot;: &quot;sensor-*&quot;,
+   &quot;rollup_index&quot;: &quot;sensor_rollup&quot;,
+   &quot;cron&quot;: &quot;*/30 * * * * ?&quot;,
+   &quot;page_size&quot; :1000,
+   &quot;groups&quot; : {
+      &quot;date_histogram&quot;: {
+         &quot;field&quot;: &quot;timestamp&quot;,
+         &quot;interval&quot;: &quot;60m&quot;
+      },
+      &quot;terms&quot;: {
+         &quot;fields&quot;: [&quot;node&quot;]
+      }
+   },
+   &quot;metrics&quot;: [
+      {
+         &quot;field&quot;: &quot;temperature&quot;,
+         &quot;metrics&quot;: [&quot;min&quot;, &quot;max&quot;, &quot;sum&quot;]
+      },
+      {
+         &quot;field&quot;: &quot;voltage&quot;,
+         &quot;metrics&quot;: [&quot;avg&quot;]
+      }
+   ]
+}
+</code></pre></div><p>cron参数控制作业的激活时间和激活频率。当汇总作业的cron计划触发时，它将从上次激活后从上次中断的地方开始汇总</p> <p>在作业运行并处理了一些数据之后，我们可以使用DSL查询进行一些搜索。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /sensor_rollup/_rollup_search
+{
+   &quot;size&quot;: 0,
+   &quot;aggregations&quot;: {
+      &quot;max_temperature&quot;: {
+         &quot;max&quot;: {
+            &quot;field&quot;: &quot;temperature&quot;
+         }
+      }
+   }
+}
+</code></pre></div><h1 id="elasticsearch-冻结索引"><a href="#elasticsearch-冻结索引" class="header-anchor">#</a> Elasticsearch 冻结索引</h1> <p>频繁搜索的索引保存在内存中，因为重建索引和帮助进行高效搜索需要时间。另一方面，可能有我们很少访问的索引。这些索引不需要占用内存，可以在需要时重新构建。这类指数被称为冻结索引。</p> <p>每当搜索分片时，Elasticsearch都会构建冻结索引的每个分片的瞬态数据结构，并在搜索完成后立即丢弃这些数据结构。由于Elasticsearch不会在内存中维护这些临时数据结构，因此冻结索引消耗的堆要比普通索引少得多。与其他方式相比，这允许更高的磁盘与堆的比率。</p> <h2 id="冻结和解冻示例"><a href="#冻结和解冻示例" class="header-anchor">#</a> 冻结和解冻示例</h2> <p>以下示例冻结和解冻索引-</p> <div class="language- extra-class"><pre class="language-text"><code>POST /index_name/_freeze
+POST /index_name/_unfreeze
+</code></pre></div><p>预期对冻结索引的搜索将缓慢执行。冻结索引不适用于较高的搜索负载。即使对未冻结的索引进行的搜索在几毫秒内完成，对冻结索引的搜索也可能需要数秒或数分钟才能完成。</p> <h2 id="搜索冻结索引"><a href="#搜索冻结索引" class="header-anchor">#</a> 搜索冻结索引</h2> <p>每个节点的并发加载的冻结索引数受search_throttled线程池中的线程数限制，默认情况下为1。要包含冻结索引，必须使用查询参数− <em>ignore_throttled = false</em>来执行搜索请求*。*</p> <div class="language- extra-class"><pre class="language-text"><code>GET /index_name/_search?q=user:tpoint&amp;ignore_throttled=false
+</code></pre></div><h2 id="监视冻结的索引"><a href="#监视冻结的索引" class="header-anchor">#</a> 监视冻结的索引</h2> <p>冻结索引是使用搜索限制和内存有效分片实现的普通索引。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /_cat/indices/index_name?v&amp;h=i,sth
+</code></pre></div><h1 id="elasticsearch-测试"><a href="#elasticsearch-测试" class="header-anchor">#</a> Elasticsearch 测试</h1> <p>Elasticsearch提供了一个jar文件，可以将其添加到任何Java IDE中，并可以用于测试与Elasticsearch相关的代码。使用Elasticsearch提供的框架可以执行一系列测试。在本章中，我们将详细讨论这些测试-</p> <ul><li>单元测试</li> <li>整合测试</li> <li>随机测试</li></ul> <h2 id="先决条件"><a href="#先决条件" class="header-anchor">#</a> 先决条件</h2> <p>要开始测试，您需要将Elasticsearch测试依赖项添加到您的程序中。您可以将maven用于此目的，并可以在pom.xml中添加以下内容。</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;dependency&gt;
+   &lt;groupId&gt;org.elasticsearch&lt;/groupId&gt;
+   &lt;artifactId&gt;elasticsearch&lt;/artifactId&gt;
+   &lt;version&gt;2.1.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></div><p>EsSetup已被初始化，以启动和停止Elasticsearch节点并创建索引。</p> <div class="language- extra-class"><pre class="language-text"><code>EsSetup esSetup = new EsSetup();
+</code></pre></div><p>esSetup.execute() 带有createIndex的函数将创建索引，您需要指定设置，类型和数据。</p> <h2 id="单元测试"><a href="#单元测试" class="header-anchor">#</a> 单元测试</h2> <p>单元测试是通过使用JUnit和Elasticsearch测试框架进行的。可以使用Elasticsearch类创建节点和索引，并且可以使用test方法执行测试。ESTestCase和ESTokenStreamTestCase类用于此测试。</p> <h2 id="整合测试"><a href="#整合测试" class="header-anchor">#</a> 整合测试</h2> <p>集成测试使用群集中的多个节点。ESIntegTestCase类用于此测试。有多种方法可以简化准备测试用例的工作。</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">方法与说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;">**refresh()**将刷新群集中的所有索引</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;">**ensureGreen()**确保绿色健康集群状态</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;">**ensureYellow()**确保黄色运行状况群集状态</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;">**createIndex(name)**使用传递给此方法的名称创建索引</td></tr> <tr><td style="text-align:left;">5</td> <td style="text-align:left;">**flush()**将刷新群集中的所有索引</td></tr> <tr><td style="text-align:left;">6</td> <td style="text-align:left;">**flushAndRefresh()**flush() 和 refresh()</td></tr> <tr><td style="text-align:left;">7</td> <td style="text-align:left;">**indexExists(name)**验证指定索引是否存在</td></tr> <tr><td style="text-align:left;">8</td> <td style="text-align:left;">**clusterService()**返回集群服务 java 类</td></tr> <tr><td style="text-align:left;">9</td> <td style="text-align:left;">**cluster()**返回测试群集类</td></tr></tbody></table> <h2 id="测试集群方法"><a href="#测试集群方法" class="header-anchor">#</a> 测试集群方法</h2> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">方法与说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;">**ensureAtLeastNumNodes(n)**确保群集中最多的最小节点数大于或等于指定的数目</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;">**ensureAtMostNumNodes(n)**确保群集中最多的节点数小于或等于指定的数目</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;">**stopRandomNode()**停止群集中的随机节点</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;">**stopCurrentMasterNode()**停止主节点</td></tr> <tr><td style="text-align:left;">5</td> <td style="text-align:left;">**stopRandomNonMaster()**停止群集中不是主节点的随机节点</td></tr> <tr><td style="text-align:left;">6</td> <td style="text-align:left;">**buildNode()**创建新节点</td></tr> <tr><td style="text-align:left;">7</td> <td style="text-align:left;">**startNode(settings)**启动新节点</td></tr> <tr><td style="text-align:left;">8</td> <td style="text-align:left;">**nodeSettings()**重写此方法以更改节点设置</td></tr></tbody></table> <h2 id="访问客户端"><a href="#访问客户端" class="header-anchor">#</a> 访问客户端</h2> <p>客户机用于访问集群中的不同节点并执行某些操作。ESIntegTestCase.client()方法用于获取随机客户端。Elasticsearch还提供了访问客户端的其他方法，这些方法可以使用ESIntegTestCase.internalCluster()方法。</p> <table><thead><tr><th style="text-align:left;">序号</th> <th style="text-align:left;">方法与说明</th></tr></thead> <tbody><tr><td style="text-align:left;">1</td> <td style="text-align:left;">**iterator()**这有助于您访问所有可用的客户端</td></tr> <tr><td style="text-align:left;">2</td> <td style="text-align:left;">**masterClient()**这将返回一个与主节点通信的客户机</td></tr> <tr><td style="text-align:left;">3</td> <td style="text-align:left;">**nonMasterClient()**这将返回一个客户端，该客户端不与主节点通信</td></tr> <tr><td style="text-align:left;">4</td> <td style="text-align:left;">**clientNodeClient()**这将返回当前处于客户端节点上的客户端</td></tr></tbody></table> <h2 id="随机测试"><a href="#随机测试" class="header-anchor">#</a> 随机测试</h2> <p>此测试用于测试用户代码与所有可能的数据，以便将来不会出现任何类型的数据失败。随机数据是执行此测试的最佳选择。</p> <h2 id="生成随机数据"><a href="#生成随机数据" class="header-anchor">#</a> 生成随机数据</h2> <p>在此测试中，Random类由RandomizedTest提供的实例实例化，并提供了许多用于获取不同类型数据的方法。</p> <table><thead><tr><th style="text-align:left;">方法</th> <th style="text-align:left;">返回值</th></tr></thead> <tbody><tr><td style="text-align:left;">getRandom()</td> <td style="text-align:left;">Instance of random class</td></tr> <tr><td style="text-align:left;">randomBoolean()</td> <td style="text-align:left;">Random boolean</td></tr> <tr><td style="text-align:left;">randomByte()</td> <td style="text-align:left;">Random byte</td></tr> <tr><td style="text-align:left;">randomShort()</td> <td style="text-align:left;">Random short</td></tr> <tr><td style="text-align:left;">randomInt()</td> <td style="text-align:left;">Random integer</td></tr> <tr><td style="text-align:left;">randomLong()</td> <td style="text-align:left;">Random long</td></tr> <tr><td style="text-align:left;">randomFloat()</td> <td style="text-align:left;">Random float</td></tr> <tr><td style="text-align:left;">randomDouble()</td> <td style="text-align:left;">Random double</td></tr> <tr><td style="text-align:left;">randomLocale()</td> <td style="text-align:left;">Random locale</td></tr> <tr><td style="text-align:left;">randomTimeZone()</td> <td style="text-align:left;">Random time zone</td></tr> <tr><td style="text-align:left;">randomFrom()</td> <td style="text-align:left;">Random element from array</td></tr></tbody></table> <h2 id="断言"><a href="#断言" class="header-anchor">#</a> 断言</h2> <p>ElasticsearchAssertions和ElasticsearchGeoAssertions类包含断言，这些断言用于在测试时执行一些常规检查。例如，观察此处给出的代码-</p> <div class="language- extra-class"><pre class="language-text"><code>SearchResponse seearchResponse = client().prepareSearch();
+assertHitCount(searchResponse, 6);
+assertFirstHit(searchResponse, hasId(&quot;6&quot;));
+assertSearchHits(searchResponse, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;,”5”,”6”);
+</code></pre></div><h2 id="面试"><a href="#面试" class="header-anchor">#</a> 面试</h2> <h3 id="_1、倒排索引深入骨髓"><a href="#_1、倒排索引深入骨髓" class="header-anchor">#</a> 1、倒排索引深入骨髓</h3> <ul><li><h4 id="倒排索引的原理以及它是用来解决哪些问题-谈谈你对倒排索引的理解"><a href="#倒排索引的原理以及它是用来解决哪些问题-谈谈你对倒排索引的理解" class="header-anchor">#</a> 倒排索引的原理以及它是用来解决哪些问题（谈谈你对倒排索引的理解）</h4></li> <li><h4 id="倒排索引底层数据结构-倒排索引的数据结构"><a href="#倒排索引底层数据结构-倒排索引的数据结构" class="header-anchor">#</a> 倒排索引底层数据结构（倒排索引的数据结构）</h4></li> <li><h4 id="倒排表的压缩算法-底层算法"><a href="#倒排表的压缩算法-底层算法" class="header-anchor">#</a> 倒排表的压缩算法（底层算法）</h4></li> <li><h4 id="trie字典树-prefix-trees-原理-类似题目-b-trees-b-trees-红黑树等"><a href="#trie字典树-prefix-trees-原理-类似题目-b-trees-b-trees-红黑树等" class="header-anchor">#</a> Trie字典树（Prefix Trees）原理（类似题目：B-Trees/B+Trees/红黑树等）</h4></li> <li><h4 id="fst原理-fst的构建过程以及fst在lucene中的应用原理"><a href="#fst原理-fst的构建过程以及fst在lucene中的应用原理" class="header-anchor">#</a> FST原理（FST的构建过程以及FST在Lucene中的应用原理）</h4></li> <li><h4 id="索引文件的内部结构-tip和-tim文件内部数据结构"><a href="#索引文件的内部结构-tip和-tim文件内部数据结构" class="header-anchor">#</a> 索引文件的内部结构（.tip和.tim文件内部数据结构）</h4></li> <li><h4 id="fst在lucene的读写过程-lucene源码实现"><a href="#fst在lucene的读写过程-lucene源码实现" class="header-anchor">#</a> FST在Lucene的读写过程（Lucene源码实现）</h4></li></ul> <h3 id="_2、elasticsearch的写入原理"><a href="#_2、elasticsearch的写入原理" class="header-anchor">#</a> 2、Elasticsearch的写入原理</h3> <h3 id="_3、读写性能调优"><a href="#_3、读写性能调优" class="header-anchor">#</a> 3、读写性能调优</h3> <h4 id="写入性能调优"><a href="#写入性能调优" class="header-anchor">#</a> 写入性能调优：</h4> <ul><li><p>增加flush时间间隔，目的是减小数据写入磁盘的频率，减小磁盘IO</p></li> <li><p>增加refresh_interval的参数值，目的是减少segment文件的创建，减少segment的merge次数，merge是发生在jvm中的，有可能导致full GC，增加refresh会降低搜索的实时性。</p></li> <li><p>增加Buffer大小，本质也是减小refresh的时间间隔，因为导致segment文件创建的原因不仅有时间阈值，还有buffer空间大小，写满了也会创建。         默认最小值 48MB&lt; 默认值 堆空间的10% &lt; 默认最大无限制</p></li> <li><p>大批量的数据写入尽量控制在低检索请求的时间段，大批量的写入请求越集中越好。</p> <ul><li>第一是减小读写之间的资源抢占，读写分离</li> <li>第二，当检索请求数量很少的时候，可以减少甚至完全删除副本分片，关闭segment的自动创建以达到高效利用内存的目的，因为副本的存在会导致主从之间频繁的进行数据同步，大大增加服务器的资源占用。</li></ul></li> <li><p>Lucene的数据的fsync是发生在OS cache的，要给OS cache预留足够的内从大小，详见JVM调优。</p></li> <li><p>通用最小化算法，能用更小的字段类型就用更小的，keyword类型比int更快，</p></li> <li><p>ignore_above：字段保留的长度，越小越好</p></li> <li><p>调整_source字段，通过include和exclude过滤</p></li> <li><p>store：开辟另一块存储空间，可以节省带宽</p> <p><em><strong>*注意：<em>********sourse********：********设置为false********，********则不存储元数据********，********可以节省磁盘********，********并且不影响搜索********。但是禁用</em>********source必须三思而后行********：*</strong></em></p> <p>\1. <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-update.html" target="_blank" rel="noopener noreferrer">update<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>，<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-update-by-query.html" target="_blank" rel="noopener noreferrer">update_by_query<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>和<a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-reindex.html" target="_blank" rel="noopener noreferrer">reindex<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>不可用。</p> <p>\2. 高亮失效</p> <p>\3. reindex失效，原本可以修改的mapping部分参数将无法修改，并且无法升级索引</p> <p>\4. 无法查看元数据和聚合搜索</p> <p>影响索引的容灾能力</p></li> <li><p>禁用_all字段：_all字段的包含所有字段分词后的Term，作用是可以在搜索时不指定特定字段，从所有字段中检索，ES 6.0之前需要手动关闭</p></li> <li><p>关闭Norms字段：计算评分用的，如果你确定当前字段将来不需要计算评分，设置false可以节省大量的磁盘空间，有助于提升性能。常见的比如filter和agg字段，都可以设为关闭。</p></li> <li><p>关闭index_options（谨慎使用，高端操作）：词设置用于在index time过程中哪些内容会被添加到倒排索引的文件中，例如TF，docCount、postion、offsets等，减少option的选项可以减少在创建索引时的CPU占用率，不过在实际场景中很难确定业务是否会用到这些信息，除非是在一开始就非常确定用不到，否则不建议删除</p> <h3 id="搜索速度调优"><a href="#搜索速度调优" class="header-anchor">#</a> 搜索速度调优</h3></li> <li><p>禁用swap</p></li> <li><p>使用filter代替query</p></li> <li><p>避免深度分页，避免单页数据过大，可以参考百度或者淘宝的做法。es提供两种解决方案scroll search和search after</p></li> <li><p>注意关于index type的使用</p></li> <li><p>避免使用稀疏数据</p></li> <li><p>避免单索引业务重耦合</p></li> <li><p>命名规范</p></li> <li><p>冷热分离的架构设计</p></li> <li><p>fielddata：搜索时正排索引，doc_value为index time正排索引。</p></li> <li><p>enabled：是否创建倒排索引</p></li> <li><p>doc_values：正排索引，对于不需要聚合的字段，关闭正排索引可节省资源，提高查询速度</p></li> <li><p>开启自适应副本选择（ARS），6.1版本支持，7.0默认开启，</p></li></ul> <h3 id="_4、es的节点类型"><a href="#_4、es的节点类型" class="header-anchor">#</a> 4、ES的节点类型</h3> <ul><li>master：候选节点</li> <li>data：数据节点</li> <li>data_content：数据内容节点</li> <li>data_hot：热节点</li> <li>data_warm：索引不再定期更新，但仍可查询</li> <li>data_code：冷节点，只读索引</li> <li>Ingest：预处理节点，作用类似于Logstash中的Filter</li> <li>ml：机器学习节点</li> <li>remote_cluster_client：候选客户端节点</li> <li>transform：转换节点</li> <li>voting_only：仅投票节点</li></ul> <h3 id="_5、mater选举过程"><a href="#_5、mater选举过程" class="header-anchor">#</a> 5、Mater选举过程</h3> <ul><li><h4 id="设计思路-所有分布式系统都需要解决数据的一致性问题-处理这类问题一般采取两种策略"><a href="#设计思路-所有分布式系统都需要解决数据的一致性问题-处理这类问题一般采取两种策略" class="header-anchor">#</a> 设计思路：所有分布式系统都需要解决数据的一致性问题，处理这类问题一般采取两种策略：</h4> <ul><li><h4 id="避免数据不一致情况的发生"><a href="#避免数据不一致情况的发生" class="header-anchor">#</a> 避免数据不一致情况的发生</h4></li> <li><h4 id="定义数据不一致后的处理策略"><a href="#定义数据不一致后的处理策略" class="header-anchor">#</a> 定义数据不一致后的处理策略</h4></li></ul></li> <li><h4 id="主从模式和无主模式"><a href="#主从模式和无主模式" class="header-anchor">#</a> 主从模式和无主模式</h4> <ul><li><h4 id="es为什么使用主从模式"><a href="#es为什么使用主从模式" class="header-anchor">#</a> ES为什么使用主从模式？</h4> <ul><li>在相对稳定的对等网络中节，点的数量远小于单个节点可以维护的节点数，并且网络环境不必经常处理节点的加入和离开。</li></ul></li></ul></li> <li><h4 id="es的选举算法"><a href="#es的选举算法" class="header-anchor">#</a> ES的选举算法</h4> <ul><li>Bully和Paxos</li></ul></li> <li><h4 id="脑裂是什么以及如何避免"><a href="#脑裂是什么以及如何避免" class="header-anchor">#</a> 脑裂是什么以及如何避免</h4></li></ul> <h3 id="_6、elasticsearch调优"><a href="#_6、elasticsearch调优" class="header-anchor">#</a> 6、Elasticsearch调优</h3> <ul><li><h4 id="通用法则"><a href="#通用法则" class="header-anchor">#</a> 通用法则</h4> <ul><li>通用最小化算法：对于搜索引擎级的大数据检索，每个bit尤为珍贵。</li> <li>业务分离：聚合和搜索分离</li></ul></li> <li><h4 id="数据结构-学员案例"><a href="#数据结构-学员案例" class="header-anchor">#</a> 数据结构 学员案例</h4></li> <li><h4 id="硬件优化"><a href="#硬件优化" class="header-anchor">#</a> 硬件优化</h4> <p>​		es的默认配置是一个非常合理的默认配置，绝大多数情况下是不需要修改的，如果不理解某项配置的含义，没有经过验证就贸然修改默认配置，可能造成严重的后果。比如max_result_window这个设置，默认值是1W，这个设置是分页数据每页最大返回的数据量，冒然修改为较大值会导致OOM。ES没有银弹，不可能通过修改某个配置从而大幅提升ES的性能，通常出厂配置里大部分设置已经是最优配置，只有少数和具体的业务相关的设置，事先无法给出最好的默认配置，这些可能是需要我们手动去设置的。关于配置文件，如果你做不到彻底明白配置的含义，不要随意修改。</p> <p>​		jvm heap分配：7.6版本默认1GB，这个值太小，很容易导致OOM。Jvm heap大小不要超过物理内存的50%，最大也不要超过32GB（compressed oop），它可用于其内部缓存的内存就越多，但可供操作系统用于文件系统缓存的内存就越少，heap过大会导致GC时间过长</p> <ul><li><p>节点：</p> <p>根据业务量不同，内存的需求也不同，一般生产建议不要少于16G。ES是比较依赖内存的，并且对内存的消耗也很大，内存对ES的重要性甚至是高于CPU的，所以即使是数据量不大的业务，为了保证服务的稳定性，在满足业务需求的前提下，我们仍需考虑留有不少于20%的冗余性能。一般来说，按照百万级、千万级、亿级数据的索引，我们为每个节点分配的内存为16G/32G/64G就足够了，太大的内存，性价比就不是那么高了。</p></li> <li><p>内存：</p> <p>根据业务量不同，内存的需求也不同，一般生产建议不要少于16G。ES是比较依赖内存的，并且对内存的消耗也很大，内存对ES的重要性甚至是高于CPU的，所以即使是数据量不大的业务，为了保证服务的稳定性，在满足业务需求的前提下，我们仍需考虑留有不少于20%的冗余性能。一般来说，按照百万级、千万级、亿级数据的索引，我们为每个节点分配的内存为16G/32G/64G就足够了，太大的内存，性价比就不是那么高了。</p></li> <li><p>磁盘：</p> <p>对于ES来说，磁盘可能是最重要的了，因为数据都是存储在磁盘上的，当然这里说的磁盘指的是磁盘的性能。磁盘性能往往是硬件性能的瓶颈，木桶效应中的最短板。ES应用可能要面临不间断的大量的数据读取和写入。生产环境可以考虑把节点冷热分离，“热节点”使用SSD做存储，可以大幅提高系统性能；冷数据存储在机械硬盘中，降低成本。另外，关于磁盘阵列，可以使用raid 0。</p></li> <li><p>CPU：</p> <p>CPU对计算机而言可谓是最重要的硬件，但对于ES来说，可能不是他最依赖的配置，因为提升CPU配置可能不会像提升磁盘或者内存配置带来的性能收益更直接、显著。当然也不是说CPU的性能就不重要，只不过是说，在硬件成本预算一定的前提下，应该把更多的预算花在磁盘以及内存上面。通常来说单节点cpu 4核起步，不同角色的节点对CPU的要求也不同。服务器的CPU不需要太高的单核性能，更多的核心数和线程数意味着更高的并发处理能力。现在PC的配置8核都已经普及了，更不用说服务器了。</p></li> <li><p>网络：</p> <p>ES是天生自带分布式属性的，并且ES的分布式系统是基于对等网络的，节点与节点之间的通信十分的频繁，延迟对于ES的用户体验是致命的，所以对于ES来说，低延迟的网络是非常有必要的。因此，使用扩地域的多个数据中心的方案是非常不可取的，ES可以容忍集群夸多个机房，可以有多个内网环境，支持跨AZ部署，但是不能接受多个机房跨地域构建集群，一旦发生了网络故障，集群可能直接GG，即使能够保证服务正常运行，维护这样（跨地域单个集群）的集群带来的额外成本可能远小于它带来的额外收益。</p></li> <li><p>集群规划：没有最好的配置，只有最合适的配置。</p></li> <li><p>在集群搭建之前，首先你要搞清楚，你ES cluster的使用目的是什么？主要应用于哪些场景，比如是用来存储事务日志，或者是站内搜索，或者是用于数据的聚合分析。针对不同的应用场景，应该指定不同的优化方案。</p></li> <li><p>集群需要多少种配置（内存型/IO型/运算型），每种配置需要多少数量，通常需要和产品运营和运维测试商定，是业务量和服务器的承载能力而定，并留有一定的余量。</p></li> <li><p>一个合理的ES集群配置应不少于5台服务器，避免脑裂时无法选举出新的Master节点的情况，另外可能还需要一些其他的单独的节点，比如ELK系统中的Kibana、Logstash等。</p></li></ul></li> <li><h4 id="架构优化"><a href="#架构优化" class="header-anchor">#</a> 架构优化:</h4> <ul><li><h4 id="合理的分配角色和每个节点的配置-在部署集群的时候-应该根据多方面的情况去评估集群需要多大规模去支撑业务。这个是需要根据在你当前的硬件环境下测试数据的写入和搜索性能-然后根据你目前的业务参数来动态评估的-比如"><a href="#合理的分配角色和每个节点的配置-在部署集群的时候-应该根据多方面的情况去评估集群需要多大规模去支撑业务。这个是需要根据在你当前的硬件环境下测试数据的写入和搜索性能-然后根据你目前的业务参数来动态评估的-比如" class="header-anchor">#</a> 合理的分配角色和每个节点的配置，在部署集群的时候，应该根据多方面的情况去评估集群需要多大规模去支撑业务。这个是需要根据在你当前的硬件环境下测试数据的写入和搜索性能，然后根据你目前的业务参数来动态评估的，比如：</h4> <ul><li>业务数据的总量、每天的增量</li> <li>查询的并发以及QPS</li> <li>峰值的请求量</li></ul></li> <li><h4 id="节点并非越多越好-会增加主节点的压力"><a href="#节点并非越多越好-会增加主节点的压力" class="header-anchor">#</a> 节点并非越多越好，会增加主节点的压力</h4></li> <li><h4 id="分片并非越多越好-从deep-pageing-的角度来说-分片越多-jvm开销越大-负载均衡-协调-节点的转发压力也越大-查询速度也越慢。单个分片也并非越大越好-一般来说单个分片大小控制在30-50gb。"><a href="#分片并非越多越好-从deep-pageing-的角度来说-分片越多-jvm开销越大-负载均衡-协调-节点的转发压力也越大-查询速度也越慢。单个分片也并非越大越好-一般来说单个分片大小控制在30-50gb。" class="header-anchor">#</a> 分片并非越多越好，从deep pageing 的角度来说，分片越多，JVM开销越大，负载均衡（协调）节点的转发压力也越大，查询速度也越慢。单个分片也并非越大越好，一般来说单个分片大小控制在30-50GB。</h4></li> <li></li></ul></li> <li><h4 id="mpping优化"><a href="#mpping优化" class="header-anchor">#</a> Mpping优化：</h4> <ul><li><h4 id="优化字段的类型-关闭对业务无用的字段"><a href="#优化字段的类型-关闭对业务无用的字段" class="header-anchor">#</a> 优化字段的类型，关闭对业务无用的字段</h4></li> <li><h4 id="尽量不要使用dynamic-mapping分片大小"><a href="#尽量不要使用dynamic-mapping分片大小" class="header-anchor">#</a> 尽量不要使用dynamic mapping分片大小</h4></li></ul></li> <li><h4 id="developer调优-修炼内功-提升修养"><a href="#developer调优-修炼内功-提升修养" class="header-anchor">#</a> Developer调优：修炼内功，提升修养</h4></li></ul> <h3 id="_7、索引备份还原"><a href="#_7、索引备份还原" class="header-anchor">#</a> 7、索引备份还原</h3> <p>​		snapshot，</p> <h3 id="_8、数据同步方案"><a href="#_8、数据同步方案" class="header-anchor">#</a> 8、数据同步方案</h3> <ul><li><h4 id="数据一致性问题"><a href="#数据一致性问题" class="header-anchor">#</a> 数据一致性问题</h4></li> <li><h4 id="基于canal-binlog同步mysql"><a href="#基于canal-binlog同步mysql" class="header-anchor">#</a> 基于Canal+binlog同步MySql</h4></li> <li><h4 id="基于packetbeat监听9200端口"><a href="#基于packetbeat监听9200端口" class="header-anchor">#</a> 基于packetbeat监听9200端口</h4></li></ul> <h3 id="_9、搜索引擎和es-搜索引擎的原理、es的认识或理解"><a href="#_9、搜索引擎和es-搜索引擎的原理、es的认识或理解" class="header-anchor">#</a> 9、搜索引擎和ES（搜索引擎的原理、ES的认识或理解）</h3> <ul><li><h4 id="概念-大数据检索-区分搜索-、大数据分析、大数据存储"><a href="#概念-大数据检索-区分搜索-、大数据分析、大数据存储" class="header-anchor">#</a> 概念：大数据检索（区分搜索）、大数据分析、大数据存储</h4></li> <li><h4 id="性能-pb级数据秒查-nrt-near-real-time"><a href="#性能-pb级数据秒查-nrt-near-real-time" class="header-anchor">#</a> 性能：PB级数据秒查（NRT Near Real Time）</h4> <ul><li>高效的压缩算法</li> <li>快速的编码和解码算法</li> <li>合理的数据结构</li> <li>通用最小化算法</li></ul></li> <li><h4 id="场景-搜索引擎、垂直搜索、bi、github、elkb"><a href="#场景-搜索引擎、垂直搜索、bi、github、elkb" class="header-anchor">#</a> 场景：搜索引擎、垂直搜索、BI、GIthub、ELKB</h4></li></ul></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间 :</span> <span class="time">2022年2月9日星期三晚上11点31分</span></div></footer> <!---->  <Vssue option="[object Object]" class="vssue theme-default-content content__default"></Vssue></main></div><div class="global-ui"><!----></div></div>
+    <script src="/blog/assets/js/app.b2e426a3.js" defer></script><script src="/blog/assets/js/7.8960d89d.js" defer></script><script src="/blog/assets/js/2.d92b4b40.js" defer></script><script src="/blog/assets/js/63.d39c44a1.js" defer></script>
+  </body>
+</html>
