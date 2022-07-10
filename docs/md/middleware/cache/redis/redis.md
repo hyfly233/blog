@@ -1065,24 +1065,25 @@ Redis 内存数据集大小上升到一定大小的时候，就会施行数据�
 
 ## 缓存穿透
 
-缓存穿透：数据库和reids中没有该数据，然后查了redis再查数据库，没有查出数据。
+缓存穿透：**数据库和reids中没有该数据**，然后查了redis再查数据库，没有查出数据。
 
-所以应该让有效地请求到达数据库，即便放大前置环节的复杂度和成本
 
-+ redis 中放 null key （可能浪费空间）
-+ 布隆过滤器（` [布隆过滤器-阿里云开发者社区 (aliyun.com)](https://developer.aliyun.com/article/773205) `）
 
-请求的时候加锁
++ 所以应该让有效地请求到达数据库，即便放大前置环节的复杂度和成本
+  + redis 中放 null key （可能浪费空间）
+  + 布隆过滤器（` [布隆过滤器-阿里云开发者社区 (aliyun.com)](https://developer.aliyun.com/article/773205) `）
+
++ 请求的时候加锁
 
 
 
 ## 缓存击穿
 
-缓存击穿：热点key过期（没有被缓存的），但数据库中有，大量并发查询该 key，就绕过redis，直接去数据库查
+缓存击穿：热点key过期（没有被缓存的），但**数据库中有**，大量并发查询该 key，就绕过redis，直接去数据库查
 
-+ 请求的时候加锁，因为查询的key是同一个，所以必须由一个redis提供锁，锁必须是唯一的
++ 请求的时候加锁，因为查询的key是同一个，所以必须由一个redis提供锁，锁必须是唯一的，红锁
 
-  
+
 
 步骤：
 
@@ -1112,93 +1113,73 @@ Redis 内存数据集大小上升到一定大小的时候，就会施行数据�
 
 ## Redis是怎么删除过期key的、缓存如何回收的？
 
-```
-1，后台在轮询，分段分批的删除哪些过期的key
-2，请求的时候判断时候已经过期了
-尽量的把内存无用空间回收回来~！
-```
++ 后台在轮询，分段分批的删除哪些过期的key
++ 请求的时候判断时候已经过期了，尽量的把内存无用空间回收回来
 
 
 
 ## 缓存是如何淘汰的
 
-```
-0，内存空间不足的情况下：
-1，淘汰机制里有不允许淘汰
-2，lru/lfu/random/TTL
-3，全空间
-4，设置过过期的key的集合中
-```
++ 淘汰机制里有不允许淘汰
++ lru/lfu/random/TTL
++ 全空间
++ 设置过过期的key的集合中
 
-9. 如何进行缓存预热？
 
-   ```
-   1，提前把数据塞入redis，(你知道那些是热数据吗？肯定不知道，会造成上线很多数据没有缓存命中)
-   2，开发逻辑上也要规避差集(你没缓存的)，会造成击穿，穿透，雪崩，实施456中的锁方案
-   3，一劳永逸，未来也不怕了
-   *，结合4，5，6点去看，看图理解
-   ```
 
-10. 数据库与缓存不一致如何解决？
+Redis的回收策略
 
-    ```
-    1，恶心点的，我们可以使用分布式事务来解决，（意义不大），顶多读多，写稀有情况下
-    结合图去思考
-    1，redis是缓存，更倾向于稍微的有时差
-    2，还是减少DB的操作
-    3. 完全异步化，使用 MQ
-    4，真的要落地，就使用 canal binlog
-    ```
++ volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰
 
-11. 简述一下主从不一致的问题？
++ volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰
 
-    ```
-    1，redis的确默认是弱一致性，异步的同步
-    2，锁不能用主从、(可用单实例/分片集群/redlock)==>redisson
-    3，在配置中提供了必须有多少个Client连接能同步，你可以配置同步因子，趋向于强制一性
-    4，命令 wait 2 0  小心
-    5，34点就有点违背redis的初衷了
-    ```
++ volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰
 
-12. 描述一下redis持久化原理？
++ allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰
 
-    ```
-    当前线程阻塞服务 不聊
-    异步后台进程完成持久
-    fork  +  cow
-    ```
++ allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰
 
-13. Redis有哪些持久化方式？
++ no-enviction（驱逐）：禁止驱逐数据
 
-    ```
-    1，RDB，AOF；主从同步也算持久化；
-    2，高版本：开启AOF，AOF是可以通过执行日志得到全部内存数据的方式，但是追求性能：
-    2.1，体积变大，重复无效指令  重写，后台用线程把内存的kv生成指令写个新的aof
-    2.2，4.x 新增更有性能模式：把重写方式换成直接RDB放到aof文件的头部，比2.1的方法快了，再追加日志
-    ```
+  使用策略规则：
 
-14. Redis也打不住了，万级流量会打到DB上，该怎么处理？
+  1. 如果数据呈现幂律分布，也就是一部分数据访问频率高，一部分数据访问频率低，则使用allkeys-lr
+  2. 如果数据呈现平等分布，也就是所有的数据访问频率都相同，则使用allkeys-random
 
-    ```
-    见456
-    ```
 
-15. redis中的事务三条指令式什么，第三条指令到达后执行失败了，怎么处理
 
-    ```
-    见图， 事务失败就失败，不处理，其他的指令继续执行
-    ```
+## 如何进行缓存预热
 
-16. redis实现分布式锁的指令
+1，提前把数据塞入redis，(你知道那些是热数据吗？肯定不知道，会造成上线很多数据没有缓存命中)
+2，开发逻辑上也要规避差集，会造成击穿，穿透，雪崩
 
-17. 为什么使用setnx？
+## 简述一下主从不一致的问题？
 
-    ```
-    1，好东西，原子（不存在的情况下完成创建）
-    2，如果要做分布式锁，就要用set k v nx ex  (不存在，过期时间，避免死锁)
-    ```
++ redis的确默认是弱一致性，异步的同步
++ 锁不能用主从、(可用单实例/分片集群/redlock)==>redisson
++ 在配置中提供了必须有多少个Client连接能同步，可以配置同步因子，趋向于强制一性
 
-18. 分布式锁实现，理论：
+
+
+## 数据库与缓存不一致如何解决？
+
++ 分布式事务（意义不大，顶多读多，写稀有情况下）
++ 摆烂，不强求一致
+  + redis是缓存，更倾向于稍微的有时差，默认是弱一致性，异步的同步
+  + 减少DB的操作
++ 完全异步化，使用`MQ`
++ 真的要落地，就使用`canal binlog`
+
+
+
+## 描述一下redis持久化原理？
+
+当前线程阻塞服务
+异步后台进程完成持久，fork  +  cow
+
+## redis实现分布式锁的指令
+
+`set k v nx ex`
 
 
 
@@ -1206,45 +1187,121 @@ Redis 内存数据集大小上升到一定大小的时候，就会施行数据�
 
 ## 缓存雪崩
 
-缓存雪崩是由于原有缓存失效(过期)，新缓存未到期间。所有请求都去查询数据库，而对数据库CPU和内存造成巨大压力，严重的会造成数据库宕机。从而形成一系列连锁反应，造成整个系统崩溃。
+缓存雪崩是由于原有缓存失效(过期)，新缓存未到期间。所有请求都去查询数据库，而对数据库CPU和内存造成巨大压力，严重的会造成数据库宕机。从而形成一系列连锁反应，造成整个系统崩溃
+
+
 
 解决方法：
 
-1. 一般并发量不是特别多的时候，使用最多的解决方案是加锁排队。
-2. 给每一个缓存数据增加相应的缓存标记，记录缓存的是否失效，如果缓存标记失效，则更新数据缓存。
-   - 缓存标记：记录缓存数据是否过期，如果过期会触发通知另外的线程在后台去更新实际key的缓存。
-   - 缓存数据：它的过期时间比缓存标记的时间延长1倍，例：标记缓存时间30分钟，数据缓存设置为60分钟。 这样，当缓存标记key过期后，实际缓存还能把旧数据返回给调用端，直到另外的线程在后台更新完成后，才会返回新缓存。
+1. 一般并发量不是特别多的时候，使用最多的解决方案是加锁排队
+2. 给每一个缓存数据增加相应的缓存标记，记录缓存的是否失效，如果缓存标记失效，则更新数据缓存
+   - 缓存标记：记录缓存数据是否过期，如果过期会触发通知另外的线程在后台去更新实际key的缓存
+   - 缓存数据：它的过期时间比缓存标记的时间延长1倍，例：标记缓存时间30分钟，数据缓存设置为60分钟。 这样，当缓存标记key过期后，实际缓存还能把旧数据返回给调用端，直到另外的线程在后台更新完成后，才会返回新缓存
+
+
 
 加锁排队方案伪代码：
 
+```java
+public object GetProductListNew() {
+    int cacheTime = 30;
+    String cacheKey = "product_list";
+    String lockKey = cacheKey;
+    String cacheValue = CacheHelper.get(cacheKey);
+    
+    if (cacheValue != null) {
+        return cacheValue;    
+    } else {
+        synchronized(lockKey) {
+            cacheValue = CacheHelper.get(cacheKey);
+            if (cacheValue != null) {
+                return cacheValue;
+            } else {                
+                //这里一般是sql查询数据
+                cacheValue = GetProductListFromDB();
+                CacheHelper.Add(cacheKey, cacheValue, cacheTime);
+            }        
+        }        
+        return cacheValue;
+    }
+}
 ```
-//伪代码public object GetProductListNew() {    int cacheTime = 30;    String cacheKey = "product_list";    String lockKey = cacheKey;    String cacheValue = CacheHelper.get(cacheKey);    if (cacheValue != null) {        return cacheValue;    } else {        synchronized(lockKey) {            cacheValue = CacheHelper.get(cacheKey);            if (cacheValue != null) {                return cacheValue;            } else {                //这里一般是sql查询数据                cacheValue = GetProductListFromDB();                CacheHelper.Add(cacheKey, cacheValue, cacheTime);            }        }        return cacheValue;    }}
-```
+
+
 
 缓存标记方案伪代码：
 
+```java
+//伪代码
+public object GetProductListNew() {
+    int cacheTime = 30;
+    String cacheKey = "product_list";    
+    //缓存标记
+    String cacheSign = cacheKey + "_sign";    
+    String sign = CacheHelper.Get(cacheSign);
+    //获取缓存值
+    String cacheValue = CacheHelper.Get(cacheKey);
+    if (sign != null) {
+        return cacheValue; //未过期，直接返回
+    } else {
+        CacheHelper.Add(cacheSign, "1", cacheTime);       
+        ThreadPool.QueueUserWorkItem((arg) -> {
+            //这里一般是 sql查询数据
+            cacheValue = GetProductListFromDB();
+            //日期设缓存时间的2倍，用于脏读
+            CacheHelper.Add(cacheKey, cacheValue, cacheTime * 2);
+        });
+        return cacheValue;
+    }
+}
 ```
-//伪代码public object GetProductListNew() {    int cacheTime = 30;    String cacheKey = "product_list";    //缓存标记    String cacheSign = cacheKey + "_sign";    String sign = CacheHelper.Get(cacheSign);    //获取缓存值    String cacheValue = CacheHelper.Get(cacheKey);    if (sign != null) {        return cacheValue; //未过期，直接返回    } else {        CacheHelper.Add(cacheSign, "1", cacheTime);        ThreadPool.QueueUserWorkItem((arg) -> {            //这里一般是 sql查询数据            cacheValue = GetProductListFromDB();            //日期设缓存时间的2倍，用于脏读            CacheHelper.Add(cacheKey, cacheValue, cacheTime * 2);        });        return cacheValue;    }}
-```
+
+
 
 ## 缓存穿透
 
 缓存穿透是指用户查询数据，在数据库没有，自然在缓存中也不会有。这样就导致用户查询的时候，在缓存中找不到，每次都要去数据库再查询一遍，然后返回空（相当于进行了两次无用的查询）。这样请求就绕过缓存直接查数据库，这也是经常提的缓存命中率问题。
 
+
+
 解决方案：
 
 1. 布隆过滤器，将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被这个bitmap拦截掉，从而避免了对底层存储系统的查询压力。
-2. 如果一个查询返回的数据为空（不管是数据不存在，还是系统故障），我们仍然把这个空结果进行缓存，但它的过期时间会很短，最长不超过五分钟。通过这个直接设置的默认值存放到缓存，这样第二次到缓冲中获取就有值了，而不会继续访问数据库，这种办法最简单粗暴！
+2. 如果一个查询返回的数据为空（不管是数据不存在，还是系统故障），仍然把这个空结果进行缓存，但它的过期时间会很短，最长不超过五分钟。通过这个直接设置的默认值存放到缓存，这样第二次到缓冲中获取就有值了，而不会继续访问数据库，这种办法最简单粗暴！
 
 方案二伪代码：
 
+```java
+//伪代码
+public object GetProductListNew() {
+    int cacheTime = 30;
+    String cacheKey = "product_list";
+    String cacheValue = CacheHelper.Get(cacheKey);
+    if (cacheValue != null) {
+        return cacheValue;    
+    }
+    
+    cacheValue = CacheHelper.Get(cacheKey);
+    if (cacheValue != null) {
+        return cacheValue;
+    } else {
+        //数据库查询不到，为空
+        cacheValue = GetProductListFromDB();
+        if (cacheValue == null) {
+            //如果发现为空，设置个默认值，也缓存起来
+            cacheValue = string.Empty;
+        }
+        CacheHelper.Add(cacheKey, cacheValue, cacheTime);
+        return cacheValue;
+    }
+}
 ```
-//伪代码public object GetProductListNew() {    int cacheTime = 30;    String cacheKey = "product_list";    String cacheValue = CacheHelper.Get(cacheKey);    if (cacheValue != null) {        return cacheValue;    }    cacheValue = CacheHelper.Get(cacheKey);    if (cacheValue != null) {        return cacheValue;    } else {        //数据库查询不到，为空        cacheValue = GetProductListFromDB();        if (cacheValue == null) {            //如果发现为空，设置个默认值，也缓存起来            cacheValue = string.Empty;        }        CacheHelper.Add(cacheKey, cacheValue, cacheTime);        return cacheValue;    }}
-```
+
+
 
 ## 缓存预热
 
-缓存预热这个应该是一个比较常见的概念，相信很多小伙伴都应该可以很容易的理解，缓存预热就是系统上线后，将相关的缓存数据直接加载到缓存系统。这样就可以避免在用户请求的时候，先查询数据库，然后再将数据缓存的问题！用户直接查询事先被预热的缓存数据！
+缓存预热就是系统上线后，将相关的缓存数据直接加载到缓存系统。这样就可以避免在用户请求的时候，先查询数据库，然后再将数据缓存的问题！用户直接查询事先被预热的缓存数据！
 
 解决思路：
 
@@ -1252,18 +1309,26 @@ Redis 内存数据集大小上升到一定大小的时候，就会施行数据�
 2. 数据量不大，可以在项目启动的时候自动进行加载；
 3. 定时刷新缓存；
 
+
+
 ## 缓存更新
 
-除了缓存服务器自带的缓存失效策略之外，我们还可以根据具体的业务需求进行自定义的缓存淘汰，常见的策略有两种：
+除了缓存服务器自带的缓存失效策略之外，还可以根据具体的业务需求进行自定义的缓存淘汰，常见的策略有两种：
 
 1. 定时去清理过期的缓存。
 2. 当有用户请求过来时，再判断这个请求所用到的缓存是否过期，过期的话就去底层系统得到新数据并更新缓存。
 
+
+
 ## 缓存降级
 
-当访问量剧增、服务出现问题（如响应时间慢或不响应）或非核心服务影响到核心流程的性能时，仍然需要保证服务还是可用的，即使是有损服务。系统可以根据一些关键数据进行自动降级，也可以配置开关实现人工降级。
+当访问量剧增、服务出现问题（如响应时间慢或不响应）或非核心服务影响到核心流程的性能时，仍然需要保证服务还是可用的，即使是有损服务
 
-降级的最终目的是保证核心服务可用，即使是有损的。而且有些服务是无法降级的。
+系统可以根据一些关键数据进行自动降级，也可以配置开关实现人工降级
+
+降级的最终目的是保证核心服务可用，即使是有损的。而且有些服务是无法降级的
+
+
 
 在进行降级之前要对系统进行梳理，看看系统是不是可以丢卒保帅；从而梳理出哪些必须誓死保护，哪些可降级；比如可以参考日志级别设置预案：
 
@@ -1275,7 +1340,7 @@ Redis 内存数据集大小上升到一定大小的时候，就会施行数据�
 
 （4）严重错误：比如因为特殊原因数据错误了，此时需要紧急人工降级。
 
-------
+
 
 参考文章：
 
