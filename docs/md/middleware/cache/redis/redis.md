@@ -11,6 +11,8 @@ title: Redis
 + 社交网络
 + 实时系统
 
+
+
 # 安装及启动
 
 ## 安装
@@ -21,14 +23,18 @@ title: Redis
 + `cd redis`
 + `make && make install`
 
+
+
 ## 可执行文件说明
 
-+ redis-server：Redis 服务器
-+ redis-cli：Redis 命令行客户端
-+ redis-benchmark：基准测试工具
-+ redis-check-aof：AOF 文件修复工具
-+ redis-check-dump：RDB 文件修复工具
-+ redis-sentinel：Sentinel 服务器
++ `redis-server`：Redis 服务器
++ `redis-cli`：Redis 命令行客户端
++ `redis-benchmark`：基准测试工具
++ `redis-check-aof`：AOF 文件修复工具
++ `redis-check-dump`：RDB 文件修复工具
++ `redis-sentinel`：Sentinel 服务器
+
+
 
 ## 启动方式
 
@@ -46,26 +52,34 @@ title: Redis
 
   `redis-server configPath`
 
+
+
 ## 常用启动配置
 
-+ daemonize：是否是守护进程（no | yes）
-+ port：对外端口
-+ logfile：日志
-+ dir：工作目录
++ `daemonize`：是否是守护进程（no | yes）
++ `port`：对外端口
++ `logfile`：日志
++ `dir`：工作目录
+
+
 
 # 数据结构和内部编码
 
 ## 数据结构
 
-string、hash、list、set、zset
+`string`、`hash`、`list`、`set`、`zset`
+
+
 
 ## 内部编码
 
-+ string：raw、int、embstr
-+ hash：hashtable、ziplist
-+ list：linkedlist、ziplist
-+ set：hashtable、intset
-+ zset：skiplist、ziplist
++ `string`：`raw`、`int`、`embstr`
++ `hash`：`hashtable`、`ziplist`
++ `list`：`linkedlist`、`ziplist`
++ `set`：`hashtable`、`intset`
++ `zset`：`skiplist`、`ziplist`
+
+
 
 # API
 
@@ -79,11 +93,15 @@ string、hash、list、set、zset
 
 阻塞，时间复杂度 O(n)；建议在从节点中使用，或更换为 scan 命令
 
+
+
 ### dbsize
 
 计算 key 总数，redis 有单独的计数器统计 key 的数量
 
 时间复杂度 O(1)
+
+
 
 ### exists key
 
@@ -91,19 +109,25 @@ string、hash、list、set、zset
 
 时间复杂度 O(1)
 
+
+
 ### del key [key ...]
 
 删除一个或多个 key-value
 
 时间复杂度 O(1)
 
+
+
 ### expire、ttl、persist
 
-+ expire key seconds：key 在 seconds 秒后过期
-+ ttl key：key 还有多少秒过期
-+ persist key：去掉 key 的过去时间
++ `expire key seconds`：key 在 seconds 秒后过期
++ `ttl key`：key 还有多少秒过期
++ `persist key`：去掉 key 的过去时间
 
 时间复杂度 O(1)
+
+
 
 ### type key
 
@@ -119,79 +143,115 @@ key 的 value 的类型
 
 string，int，二进制，值上限 512MB
 
+
+
 ### 使用场景
 
 缓存（基础信息）、计数器（视频访问量）、分布式锁
+
+
 
 ### 命令
 
 #### get
 
-get key，O(1)
+`get key`，O(1)
+
+
 
 #### mget
 
-mget key1 key2 key3 ....，获取多个，O(1)
+`mget key1 key2 key3 ....`，获取多个，O(1)
+
+
 
 #### set
 
-set key value，不管 key 是否存在，都 set，O(1)
+`set key value`，不管 key 是否存在，都 set，O(1)
+
+
 
 #### setnx
 
-setnx key value，key 不存在，O(1)
+`setnx key value`，key 不存在，O(1)
+
+
 
 #### setxx
 
-setxx key value，key 存在，O(1)
+`setxx key value`，key 存在，O(1)
+
+
 
 #### mset
 
-mset key1 value1 key2 valu2 key3 valu3 ....，设置多个，O(n)
+`mset key1 value1 key2 valu2 key3 valu3 ....`，设置多个，O(n)
+
+
 
 #### getset
 
-getset key newValue，设置新值返回旧值，O(n)
+`getset key newValue`，设置新值返回旧值，O(n)
+
+
 
 #### getrange
 
-getrange key start end，获取字符串指定下标的所有值，O(1)
+`getrange key start end`，获取字符串指定下标的所有值，O(1)
+
+
 
 #### setrange
 
-setrange key start end，设置字符串指定下标的所有值，O(1)
+`setrange key start end`，设置字符串指定下标的所有值，O(1)
+
+
 
 #### append
 
-append key value，追加到旧值后，O(1)
+`append key value`，追加到旧值后，O(1)
+
+
 
 #### strlen
 
-strlen key，返回字符串长度（中文是两个字节），O(1)
+`strlen key`，返回字符串长度（中文是两个字节），O(1)
+
+
 
 #### del
 
-del key，O(1)
+`del key`，O(1)
+
+
 
 #### incr
 
-incr key，key 自增 1，key 不存在时，自增后为 1，O(1)，单线程，无竞争
+`incr key`，key 自增 1，key 不存在时，自增后为 1，O(1)，单线程，无竞争
+
+
 
 #### decr
 
-decr key，key 自减 1，key 不存在时，自减后为 -1，O(1)，单线程，无竞争
+`decr key`，key 自减 1，key 不存在时，自减后为 -1，O(1)，单线程，无竞争
+
+
 
 #### incrby
 
-incrby key k，key 自增 k，key 不存在时，自增后为 k，O(1)，单线程，无竞争
+`incrby key k`，key 自增 k，key 不存在时，自增后为 k，O(1)，单线程，无竞争
+
+
 
 #### decrby
 
-decrby key k，key 自减 k，key 不存在时，自减后为 -k，O(1)，单线程，无竞争
+`decrby key k`，key 自减 k，key 不存在时，自减后为 -k，O(1)，单线程，无竞争
+
+
 
 #### incrbyfloat
 
-incrbyfloat key float，增加对应浮点数，O(1）
+`incrbyfloat key float`，增加对应浮点数，O(1）
 
 
 
@@ -205,51 +265,75 @@ key 对应`field -> value 的键值对值`，每个 field 不能相同，value �
 
 #### hget
 
-hget key field，获取 hash key 对应的 field 的 value，O(1)
+`hget key field`，获取 hash key 对应的 field 的 value，O(1)
+
+
 
 #### hset
 
-hset key field value，设置 hash key 对应的 field 的 value，O(1)
+`hset key field value`，设置 hash key 对应的 field 的 value，O(1)
+
+
 
 #### hsetnx
 
+
+
 #### hdel
 
-hdel key field，删除 hash key 对应的 field 的 value，O(1)
+`hdel key field`，删除 hash key 对应的 field 的 value，O(1)
+
+
 
 #### hexists
 
-hexists key field，判断 hash key 是否有 field，O(1)
+`hexists key field`，判断 hash key 是否有 field，O(1)
+
+
 
 #### hlen
 
-hlen key，获取 hash key field 的数量，O(1)
+`hlen key`，获取 hash key field 的数量，O(1)
+
+
 
 #### hmget
 
-hmget key field1 field2 ....，获取 hash key 的一批 field 对应的值，O(n)
+`hmget key field1 field2 ....`，获取 hash key 的一批 field 对应的值，O(n)
+
+
 
 #### hmset
 
-hmget key field1 value1 field2 value2 ....，设置 hash key 的一批 field value，O(n)
+`hmget key field1 value1 field2 value2 ....`，设置 hash key 的一批 field value，O(n)
+
+
 
 #### hincrby
 
-incrby key field k，key field 自增 k，O(1)，单线程，无竞争
+`incrby key field k`，key field 自增 k，O(1)，单线程，无竞争
+
+
 
 #### hincrbyfloat
 
 #### hgetall
 
-hgetall key，返回 hash key 对应所有的 field 和 value，O(n)
+`hgetall key`，返回 hash key 对应所有的 field 和 value，O(n)
+
+
 
 #### hvals
 
-hvals key，返回 key 所有的 filed 的 value
+`hvals key`，返回 key 所有的 filed 的 value
+
+
 
 #### hkeys
 
-hkeys key，返回 key 所有的 filed
+`hkeys key`，返回 key 所有的 filed
+
+
 
 ## 列表
 
@@ -259,46 +343,64 @@ hkeys key，返回 key 所有的 filed
 
 #### rpush、lpush
 
-rpush(lpush) key val1 val2 val3，从列表右（左）端插入值，O(1~n)
+`rpush(lpush) key val1 val2 val3`，从列表右（左）端插入值，O(1~n)
+
+
 
 #### linsert
 
-linsert key before|after val newVal、在 list 指定的值前|后插入 newVal，O(n)
+`linsert key before|after val newVal`、在 list 指定的值前|后插入 newVal，O(n)
+
+
 
 #### lpop、rpop
 
-lpop(rpop) key、从左（右）删除key、O(1)
+`lpop(rpop) key`、从左（右）删除key、O(1)
+
+
 
 #### lrem
 
-lrem key n val、根据 n 值，从列表中删除所有 val 相等的项，O(1)
+`lrem key n val`、根据 n 值，从列表中删除所有 val 相等的项，O(1)
 
 + n > 0：从左到右，删除最多 n 个 val 相等的项
 + n < 0：从右到左，删除最多 -n 个 val 相等的项
 + n = 0：删除所有 val 相等的项
 
+
+
 #### ltrim
 
-ltrim key start end、按索引范围修建列表，O(1)
+`ltrim key start end`、按索引范围修建列表，O(1)
+
+
 
 #### lrange
 
-lrange key start end、获取列表指定索引范围所有 item，O(n)
+`lrange key start end`、获取列表指定索引范围所有 item，O(n)
+
+
 
 #### lset
 
-lset key index newVal、设置列表指定索引的值为 newVal，O(n)
+`lset key index newVal`、设置列表指定索引的值为 newVal，O(n)
+
+
 
 #### blpop、brpop
 
-blpop(brpop) key timeout、lpop 阻塞版，阻塞 timeout 时间，timeout = 0 永不阻塞，O(1)
+`blpop(brpop) key timeout`、lpop 阻塞版，阻塞 timeout 时间，timeout = 0 永不阻塞，O(1)
+
+
 
 ### Tips
 
-+ lrpush + lpop = Stack
-+ lpush + rpop = Queue
-+ lpush + ltrim = Capped Collection
-+ lpush + brpop = Message Queue
++ `lrpush + lpop = Stack`
++ `lpush + rpop = Queue`
++ `lpush + ltrim = Capped Collection`
++ `lpush + brpop = Message Queue`
+
+
 
 ## Set
 
@@ -306,21 +408,27 @@ blpop(brpop) key timeout、lpop 阻塞版，阻塞 timeout 时间，timeout = 0 
 
 #### sadd、srem
 
-sadd（srem）key vals、向集合 key 添加（删除）vals，（vals 已存在添加失败），O(1)
+`sadd（srem）key vals`、向集合 key 添加（删除）vals，（vals 已存在添加失败），O(1)
+
+
 
 #### scard、sismember、srandmember、smembers
 
-scard key、计算集合大小
+`scard key`、计算集合大小
 
-sismember key val、判断 val 是否在集合中
+`sismember key val`、判断 val 是否在集合中
 
-srandmember key n、随机获取 n 个元素
+`srandmember key n`、随机获取 n 个元素
 
-smembers key、获取所有元素、无序的
+`smembers key`、获取所有元素、无序的
+
+
 
 #### spop
 
-spop key、随机弹出一个元素
+`spop key`、随机弹出一个元素
+
+
 
 ### set间命令
 
@@ -328,13 +436,13 @@ spop key、随机弹出一个元素
 
 差、交、并集
 
-sdiff key1 key2、差集
+`sdiff key1 key2`、差集
 
-sinter key1 key2、交集
+`sinter key1 key2`、交集
 
-sunion key1 key2、并集
+`sunion key1 key2`、并集
 
-sdiff | sinter | sunion + store key、将差集、交集、并集结果保持到 key 中
+`sdiff | sinter | sunion + store key`、将差集、交集、并集结果保持到 key 中
 
 
 
@@ -344,35 +452,51 @@ key val 结构、val 由 score 和 value 组成、通过 score 来排序
 
 #### zadd
 
-zadd key score vals、添加 score 和 vals、O(logN)
+`zadd key score vals`、添加 score 和 vals、O(logN)
+
+
 
 #### zrem
 
-zrem key vals、删除单个或多个元素
+`zrem key vals`、删除单个或多个元素
+
+
 
 #### zscore
 
-zscore key val、返回元素的分数、O(1)
+`zscore key val`、返回元素的分数、O(1)
+
+
 
 #### zincrby
 
-zincrby key increScore val、增加或减少元素的分数、O(1)
+`zincrby key increScore val`、增加或减少元素的分数、O(1)
+
+
 
 #### zcard
 
-zcard key、返回元素的个数、O(1)
+`zcard key`、返回元素的个数、O(1)
+
+
 
 #### zrange、zrangebyscore
 
-zrange(zrangebyscore) key start end [withscores]、返回指定索引（分数）范围内的升序元素[分值]、O(logN + m)
+`zrange(zrangebyscore) key start end [withscores]`、返回指定索引（分数）范围内的升序元素[分值]、O(logN + m)
+
+
 
 #### zcount
 
-zcount key minScore maxScore、返回有序集合内在指定分数范围内的个数、O(logN + m)
+`zcount key minScore maxScore`、返回有序集合内在指定分数范围内的个数、O(logN + m)
+
+
 
 #### zremrangebyrank、zremrangebyscore
 
-zremrangebyrank key start end、删除指定排名内的升序元素、O(logN + m)
+`zremrangebyrank key start end`、删除指定排名内的升序元素、O(logN + m)
+
+
 
 #### zrevrank、zrevrange、zrevrangebyscore、zinterstore、zunionstore
 
@@ -395,7 +519,7 @@ zremrangebyrank key start end、删除指定排名内的升序元素、O(logN + 
 
 + 两个配置
 
-  + slowlog-max-len
+  + `slowlog-max-len`
 
     1、先进先出队列
 
@@ -403,35 +527,37 @@ zremrangebyrank key start end、删除指定排名内的升序元素、O(logN + 
 
     3、保存在内存中
 
-  + slowlog-log-slower-than
+  + `slowlog-log-slower-than`
 
     1、慢查询阈值（微秒）
 
-    2、slowlog-log-slower-than = 0，记录所有命令
+    2、`slowlog-log-slower-than = 0`，记录所有命令
 
-    3、slowlog-log-slower-than < 0，不记录命令
+    3、`slowlog-log-slower-than < 0`，不记录命令
 
   
 
 + 三个命令
 
-  1、slowlog get [n]、获取慢查询队列
+  1、`slowlog get [n]`、获取慢查询队列
 
-  2、slowlog len、获取慢查询队列长度
+  2、`slowlog len`、获取慢查询队列长度
 
-  3、slowlog reset、清空慢查询队列
+  3、`slowlog reset`、清空慢查询队列
 
   
 
 + 运维经验
 
-  1、slowlog-max-len、不要设置过大，默认 10 ms，通常设置 1ms
+  1、`slowlog-max-len`、不要设置过大，默认 10 ms，通常设置 1ms
 
-  2、slowlog-log-slower-than、不要设置过小，通常 1000
+  2、`slowlog-log-slower-than`、不要设置过小，通常 1000
 
   3、理解命令生命周期
 
   4、定期持久化慢查询
+
+
 
 # pipeline
 
@@ -453,6 +579,8 @@ pipeline.syncAndReturnAll();
 + pipeline 每次只能作用在一个 redis 节点
 + M 操作与 pipeline 区别
 
+
+
 # 发布订阅
 
 # bitmap
@@ -469,8 +597,10 @@ pipeline.syncAndReturnAll();
 
 将数据的更新异步保存在磁盘中，可将磁盘中的数据恢复到内存中
 
-+ 快照：MySQL Dump、Redis RDB
-+ 日志：MySQL Binlog、Hbase HLog、Redis AOF
++ 快照：`MySQL Dump`、`Redis RDB`
++ 日志：`MySQL Binlog`、`Hbase HLog`、`Redis AOF`
+
+
 
 ## RDB
 
@@ -498,11 +628,15 @@ pipeline.syncAndReturnAll();
   + rdbcompression yes：是否压缩
   + rdbchecksum yes：是否做校验和检测
 
+
+
 ### 触发机制 - 不容忽视方式
 
 1. 全量复制：主从复制时，主数据库会生存 rdb 文件
-2. debug reload：不清空内存的 debug 模式重启
-3. shutdown：shutdown save
+2. `debug reload`：不清空内存的 debug 模式重启
+3. `shutdown`：`shutdown save`
+
+
 
 ### RDB 的问题
 
@@ -514,41 +648,47 @@ pipeline.syncAndReturnAll();
 
 根据日志操作，记录数据，可通过 AOF 对 RDB 丢失的数据进行修复
 
+
+
 ### 3种策略
 
-+ always：每一次操作都记录，不会丢失数据，IO 开销大
-+ everysec：每一秒记录一次，可能丢失一秒的数据，
-+ no：操作系统决定记录操作，不可控
++ `always`：每一次操作都记录，不会丢失数据，IO 开销大
++ `everysec`：每一秒记录一次，可能丢失一秒的数据，
++ `no`：操作系统决定记录操作，不可控
+
+
 
 ### AOF重写
 
 去掉无用的命令，减少磁盘占用量，加速恢复速度
 
-+ bgrewriteaof：fork() 出子进程，重写 aof
++ `bgrewriteaof`：fork() 出子进程，重写 aof
 
 + AOF 重写配置：
 
-  + auto-aof-rewrite-min-size：AOF 文件重写需要的尺寸
+  + `auto-aof-rewrite-min-size`：AOF 文件重写需要的尺寸
 
-  + auto-aof-rewrite-percentage：AOF 文件增长率
+  + `auto-aof-rewrite-percentage`：AOF 文件增长率
 
-  + aof_current_size：AOF 当前尺寸
+  + `aof_current_size`：AOF 当前尺寸
 
-  + aof_base_size：AOF 上次启动和重写的尺寸
+  + `aof_base_size`：AOF 上次启动和重写的尺寸
 
   + 触发时机
 
-    aof_current_size > auto-aof-rewrite-min-size
+    `aof_current_size > auto-aof-rewrite-min-size`
 
-    (aof_current_size - aof_base_size) / aof_base_size > auto-aof-rewrite-percentage
+    `(aof_current_size - aof_base_size) / aof_base_size > auto-aof-rewrite-percentage`
 
-  + appendonly yes
+  + `appendonly yes`
 
-  + appendfilename "appendonly-${port}.aof"
+  + `appendfilename "appendonly-${port}.aof"`
 
-  + appendfsync everysec
+  + `appendfsync everysec`
 
-  + no-appendfsync-on-rewrite yes
+  + `no-appendfsync-on-rewrite yes`
+
+
 
 ### 阻塞
 
@@ -570,9 +710,13 @@ pipeline.syncAndReturnAll();
 
 主从都 "关" 了，集中管理定时备份，从节点开
 
+
+
 ### AOF 最佳策略
 
-"开" 缓存和存储，AOF 重写集中管理，everysec
+"开" 缓存和存储，AOF 重写集中管理，`everysec`
+
+
 
 # fork
 
@@ -585,6 +729,8 @@ pipeline.syncAndReturnAll();
 + 一个 master 可有多个 slave
 + 一个 slave 只能有一个 master
 + 数据流向是单向的，master 到 slave
+
+
 
 ## 配置
 
@@ -600,11 +746,17 @@ pipeline.syncAndReturnAll();
 
   slave-read-only yes：从节点不可写操作
 
+
+
 ## runid
 
 每个节点的标识
 
+
+
 ## 偏移量 offset
+
+
 
 # 全量复制
 
@@ -617,6 +769,8 @@ pysnc {offset} {runid}
 + 从节点清空数据时间
 + 从节点加载 RDB 的时间
 + 可能的 AOF 重写时间
+
+
 
 # sentinel
 
@@ -678,25 +832,35 @@ jedis.get("hello");
 + jedis.get(key)
 + jedis.incr(key)
 
+
+
 ## hash
 
 + jedis.hset(key，vkey，val)
 + jedis.hgetAll(key)
+
+
 
 ## list
 
 + jedis.rpush(key，value)
 + jedis.lrange(key，start，end)
 
+
+
 ## set
 
 + jedis.sadd(key，val)
 + jedis.smembers(key)
 
+
+
 ## zset
 
 + jedis.zadd(key，score，val)
 + jedis.zrangeWithScores(key，start，end)
+
+
 
 ## Jedis 连接池
 
@@ -743,10 +907,12 @@ try {
 
 ### 1、资源数控制
 
-+ maxTotal：最大连接数，默认 8，建议 命令平均执行时间 * 业务量
-+ maxIdle：最大空闲数，默认 8，建议 maxIdle = maxTotal
-+ minIdle：最小空闲数，默认 0
-+ jmxEnabled：是否开启 jmx 监控，默认 true
++ `maxTotal`：最大连接数，默认 8，建议 命令平均执行时间 * 业务量
++ `maxIdle`：最大空闲数，默认 8，建议 maxIdle = maxTotal
++ `minIdle`：最小空闲数，默认 0
++ `jmxEnabled`：是否开启 jmx 监控，默认 true
+
+
 
 ### 2、借还
 
@@ -771,6 +937,8 @@ java.util.NoSuchElementException:Pool exhausted
 2. 资源池参数不合理：QPS高、池子小
 3. 连接泄露（没有 close）：client list、netstat 查连接情况
 4. DNS 异常
+
+
 
 ## Java 客户端优化
 
@@ -800,23 +968,98 @@ public RedisTemplate redisTemplate(){
 
 # 面试
 
-## redis的应用场景
+## 使用redis有哪些好处？
 
-```
-1，5大value类型
-2，基本上就是缓存~！
-3，为的是服务无状态，延申思考，看你的项目有哪些数据结构或对象，在单机里需要单机锁，在多机需要分布式锁，抽出来放入redis中；
-4，无锁化
-```
+1. **速度快**，因为数据存在内存中，类似于HashMap，HashMap的优势就是查找和操作的时间复杂度都是O(1)
+2. **支持丰富数据类型**，支持string，list，set，sorted set，hash
+3. **支持事务**，操作都是原子性，所谓的原子性就是对数据的更改要么全部执行，要么全部不执行
+4. **丰富的特性**：可用于缓存，消息，按key设置过期时间，过期后将会自动删除
+
+
+
+## redis相比memcached有哪些优势？
+
+1. memcached所有的值均是简单的字符串，redis作为其替代者，支持更为丰富的数据类型
+2. redis的速度比memcached快很多
+3. redis可以持久化其数据
+
+
+
+## redis常见性能问题和解决方案：
+
+1. Master最好不要做任何持久化工作，如RDB内存快照和AOF日志文件
+2. 如果数据比较重要，某个Slave开启AOF备份数据，策略设置为每秒同步一次
+3. 为了主从复制的速度和连接的稳定性，Master和Slave最好在**同一个局域网内**
+4. 尽量避免在压力很大的主库上增加从库
+5. 主从复制不要用图状结构，用**单向链表结构**更为稳定，即：`Master <- Slave1 <- Slave2 <- Slave3…`
+
+
+
+## redis 最适合的场景
+
++ 会话缓存（Session Cache）
++ 全页缓存（FPC）
++ 队列
++ 排行榜/计数器
++ 发布/订阅
+
+
 
 ## redis是单线程还是多线程
 
-```
-1，无论什么版本，工作线程就是一个
-2，6.x高版本出现了IO多线程
-3，单线程，满足redis的串行原子，只不过IO多线程后，把输入/输出放到更多的线程里去并行，好处如下：1，执行时间缩短，更快；2，更好的压榨系统及硬件的资源(网卡能够高效的使用)；
-*，客户端被读取的顺序不能被保障
-```
++ 无论什么版本，工作线程就是一个
++ 6.x高版本出现了IO多线程
++ 单线程，满足redis的串行原子，只不过IO多线程后，把输入/输出放到更多的线程里去并行，好处如下：1，执行时间缩短，更快；2，更好的压榨系统及硬件的资源(网卡能够高效的使用)；
+
+
+
+## redis的一些其他特点
+
++ Redis是单进程单线程的，利用队列技术将并发访问变为串行访问
+
++ 读写分离模型，整个集群的读和写的可用性都非常高
+
++ 数据分片模型，可以将每个节点看成都是独立的master，然后通过业务实现数据分片
+
++ Redis的回收策略
+
+  + volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰
+
+  + volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰
+
+  + volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰
+
+  + allkeys-lru：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰
+
+  + allkeys-random：从数据集（server.db[i].dict）中任意选择数据淘汰
+
+  + no-enviction（驱逐）：禁止驱逐数据
+
+    使用策略规则：
+
+    1. 如果数据呈现幂律分布，也就是一部分数据访问频率高，一部分数据访问频率低，则使用allkeys-lr
+    2. 如果数据呈现平等分布，也就是所有的数据访问频率都相同，则使用allkeys-random
+
+
+
+## MySQL里有2000w数据，Redis中只存20w的数据，如何保证Redis中的数据都是热点数据
+
+Redis 内存数据集大小上升到一定大小的时候，就会施行数据淘汰策略，可以通过淘汰策略保证热点数据
+
+
+
+## 假如Redis里面有1亿个key，其中有10w个key是以某个固定的已知的前缀开头的，如果将它们全部找出来？
+
+使用`scan`指令，`keys`指令会阻塞
+
+
+
+## Redis 常见的性能问题都有哪些？如何解决？
+
+1. Master 写内存快照，save命令调度rdbSave函数，**会阻塞主线程的工作**，当快照比较大时对性能影响是非常大的，会间断性暂停服务，所以Master最好不要写内存快照。
+2. Master AOF持久化，如果不重写AOF文件，这个持久化方式对性能的影响是最小的，但是AOF文件会不断增大，**AOF文件过大**会影响Master重启的恢复速度。**Master最好不要做任何持久化工作**，包括内存快照和AOF日志文件，特别是不要启用内存快照做持久化，如果数据比较关键，某个Slave开启AOF备份数据，策略为每秒同步一次。
+3. Master调用`BGREWRITEAOF`重写AOF文件，AOF在重写的时候会占大量的CPU和内存资源，导致服务load过高，出现短暂服务暂停现象。
+4. Redis主从复制的性能问题，为了主从复制的速度和连接的稳定性，Slave和Master最好在`同一个局域网`内
 
 
 
@@ -1042,4 +1285,51 @@ public RedisTemplate redisTemplate(){
 
 
 
-## 
+## 使用过Redis分布式锁么，它是什么回事？
+
+`setnx + expire`的原子操作枪锁，也可以防止锁一直占用
+
+
+
+## 使用过Redis做异步队列么，你是怎么用的？
+
++ 一般使用list结构作为队列，`rpush`生产消息，`blpop`消费消息，`blpop`没有消息的时候，它会阻塞住直到消息到来
++ 使用pub/sub主题订阅者模式，可以实现1:N的消息队列，在消费者下线的情况下，生产的消息会丢失，得使用专业的消息队列如rabbitmq等
+
+
+
+## 如果有大量的key需要设置同一时间过期，一般需要注意什么？
+
+如果大量的key过期时间设置的过于集中，到过期的那个时间点，redis可能会出现短暂的**卡顿现象**。一般需要在时间上加一个随机值，使得**过期时间分散**一些。
+
+
+
+
+
+## 为什么Redis需要把所有数据放到内存中？
+
+Redis为了达到最快的读写速度将数据都读到内存中，并通过异步的方式将数据写入磁盘。所以redis具有快速和数据持久化的特征
+如果设置了最大使用的内存，则数据已有记录数达到内存限值后不能继续插入新值
+
+
+
+
+
+## Pipeline有什么好处，为什么要用pipeline？
+
+可以将多次IO往返的时间缩减为一次，前提是pipeline执行的指令之间没有因果相关性
+
+
+
+## Redis 集群方案与实现
+
+Redis Sentinal着眼于高可用，在master宕机时会自动将slave提升为master，继续提供服务
+
+Redis Cluster着眼于扩展性，在单个redis内存不足时，使用Cluster进行分片存储
+
+
+
+## Redis持久化数据和缓存怎么做扩容？
+
+- 如果Redis被当做缓存使用，使用一致性哈希实现动态扩容缩容。
+- 如果Redis被当做一个持久化存储使用，必须使用固定的keys-to-nodes映射关系，节点的数量一旦确定不能变化。否则的话(即Redis节点需要动态变化的情况），必须使用可以在运行时进行数据再平衡的一套系统，而当前只有Redis集群可以做到这样。
