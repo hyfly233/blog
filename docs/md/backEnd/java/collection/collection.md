@@ -276,9 +276,70 @@ public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
 
 
+## 扩容机制
+
+`ArrayList`的扩容：
+
++ 当`ArrayList`的容量为0时，此时添加元素的话，三种构造方法创建的`ArrayList`在扩容时略有不同
+  + 无参构造，创建`ArrayList`后容量为**0**，添加第一个元素后，容量变为**10**，此后若需要扩容，则正常扩容
+  + 传容量构造，当参数为**0**时，创建`ArrayList`后容量为**0**，添加第一个元素后，容量为**1**，此时`ArrayList`是满的，下次添加元素时需正常扩容
+  + 传列表构造，**当列表为空时**，创建`ArrayList`后容量为**0**，添加第一个元素后，容量为**1**，此时ArrayList是满的，下次添加元素时需正常扩容。
++ 当`ArrayList`的容量**大于0**，并且`ArrayList`是满的时，此时添加元素的话，进行正常扩容，每次扩容到原来的**1.5倍**
+
+
+
+`ArrayList`的`add`方法
+
+```java
+public boolean add(E e) {
+    modCount++;
+    add(e, elementData, size);
+    return true;
+}
+```
+
+增加元素时，`moCount`是记录`ArrayList`被修改次数的，然后调用另一个`add`方法
+
+
+
+```java
+private void add(E e, Object[] elementData, int s) {
+    // 判断元素个数是否等于当前容量
+    if (s == elementData.length)
+        elementData = grow();
+    elementData[s] = e;
+    size = s + 1;
+}
+```
+
+首先，判断元素个数是否等于当前数组的容量，如果当前空间是满的，使用`grow`函数扩容，扩容后再将被加元素加到数组中
+
+```java
+private Object[] grow() {
+    return grow(size + 1);
+}
+
+private Object[] grow(int minCapacity) {
+    // 获取老容量，也就是当前容量
+    int oldCapacity = elementData.length;
+    // 如果当前容量大于0 或者 数组不是DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+    if (oldCapacity > 0 || elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+		// minimum growth, preferred growth
+        int newCapacity = ArraysSupport.newLength(oldCapacity, minCapacity - oldCapacity, oldCapacity >> 1);
+        return elementData = Arrays.copyOf(elementData, newCapacity);
+    } else {
+        return elementData = new Object[Math.max(DEFAULT_CAPACITY, minCapacity)];
+    }
+}
+```
+
+调用了带参的`grow`函数，参数是当前`元素个数+1`，也就是`当前容量+1`
+
 
 
 # LinkedList
+
+**没有扩容机制**
 
 `LinkedList`通过“链表”也实现了List接口。在`LinkedList`中，它的内部每个元素都指向下一个元素：
 
@@ -516,6 +577,12 @@ public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, Ser
     }
 }
 ```
+
+
+
+### 扩容机制
+
+底层是 HashMap，实际扩容是 HashMap 的扩容
 
 
 
@@ -975,6 +1042,143 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
     }
 }
 ```
+
+
+
+### 扩容机制
+
+扩容时会调用HashMap类中的**resize(int newCapacity)**方法，参数是新的table长度
+
+在JDK1.7和JDK1.8的扩容机制有很大不同
+
+
+
+#### JDK1.7
+
+```java
+void resize(int newCapacity) {
+    Entry[] oldTable = table;
+    int oldCapacity = oldTable.length;
+    
+    if (oldCapacity == MAXIMUM_CAPACITY) {
+        threshold = Integer.MAX_VALUE;
+        return;
+    }
+
+    Entry[] newTable = new Entry[newCapacity];
+    transfer(newTable, initHashSeedAsNeeded(newCapacity));
+    table = newTable;
+    threshold = (int) Math.min(newCapacity * loadFactor, MAXIMUM_CAPACITY + 1);
+}
+
+/**
+* 把原table的Node放到新的table中，使用的是头插法
+* 新table中链表的顺序和旧列表中是相反的、
+* 线程不安全的情况下，头插法可能会导致环状节点
+*/
+void transfer(Entry[] newTable, boolean rehash) {
+    int newCapacity = newTable.length;
+    for (Entry<K,V> e : table) {
+        while(null != e) {
+            Entry<K,V> next = e.next;
+            if (rehash) {
+                e.hash = null == e.key ? 0 : hash(e.key);
+            }
+            // 计算e在newTable中的节点
+            int i = indexFor(e.hash, newCapacity);
+            e.next = newTable[i];
+            newTable[i] = e;
+            e = next;
+        }
+    }
+}
+
+static int indexFor(int h, int length) {
+    return h & (length-1);
+}
+```
+
+
+
+#### JDK1.8
+
+```java
+final Node<K,V>[] resize() {
+    Node<K,V>[] oldTab = table;
+    int oldCap = (oldTab == null) ? 0 : oldTab.length;
+    int oldThr = threshold;
+    int newCap, newThr = 0;
+    if (oldCap > 0) {
+        if (oldCap >= MAXIMUM_CAPACITY) {
+            threshold = Integer.MAX_VALUE;
+            return oldTab;
+        }
+        else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                 oldCap >= DEFAULT_INITIAL_CAPACITY)
+            newThr = oldThr << 1;
+    }
+    else if (oldThr > 0)
+        newCap = oldThr;
+    else {
+        newCap = DEFAULT_INITIAL_CAPACITY;
+        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+    }
+    if (newThr == 0) {
+        float ft = (float)newCap * loadFactor;
+        newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                  (int)ft : Integer.MAX_VALUE);
+    }
+    threshold = newThr;
+    @SuppressWarnings({"rawtypes","unchecked"})
+    Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+    table = newTab;
+    if (oldTab != null) {
+        for (int j = 0; j < oldCap; ++j) {
+            Node<K,V> e;
+            if ((e = oldTab[j]) != null) {
+                oldTab[j] = null;
+                if (e.next == null)
+                    newTab[e.hash & (newCap - 1)] = e;
+                else if (e instanceof TreeNode)
+                    ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                else { // preserve order
+                    Node<K,V> loHead = null, loTail = null;
+                    Node<K,V> hiHead = null, hiTail = null;
+                    Node<K,V> next;
+                    do {
+                        next = e.next;
+                        if ((e.hash & oldCap) == 0) {
+                            if (loTail == null)
+                                loHead = e;
+                            else
+                                loTail.next = e;
+                            loTail = e;
+                        }
+                        else {
+                            if (hiTail == null)
+                                hiHead = e;
+                            else
+                                hiTail.next = e;
+                            hiTail = e;
+                        }
+                    } while ((e = next) != null);
+                    if (loTail != null) {
+                        loTail.next = null;
+                        newTab[j] = loHead;
+                    }
+                    if (hiTail != null) {
+                        hiTail.next = null;
+                        newTab[j + oldCap] = hiHead;
+                    }
+                }
+            }
+        }
+    }
+    return newTab;
+}
+```
+
+在resize()方法中，定义了oldCap参数，记录了原table的长度，定义了newCap参数，记录新table长度，newCap是oldCap长度的2倍，同时扩展点也乘2 
 
 
 
