@@ -58,17 +58,9 @@ Java对于eqauls方法和hashCode方法是这样规定的：
 5. 重写equals时总是要重写hashCode；
 6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉[@Override](https://github.com/Override)注解。
 
-## 当一个对象被当作参数传递到一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递？
 
-是值传递。Java语言的方法调用只支持参数的值传递。当一个对象实例作为一个参数被传递到方法中时，参数的值就是对该对象的引用。对象的属性可以在被调用过程中被改变，但对对象引用的改变是不会影响到调用者的。C++和C#中可以通过传引用或传输出参数来改变传入的参数的值。
 
-## String和StringBuilder、StringBuffer的区别？
 
-Java平台提供了两种类型的字符串：String和StringBuffer/StringBuilder，它们可以储存和操作字符串。其中String是只读字符串，也就意味着String引用的字符串内容是不能被改变的。而StringBuffer/StringBuilder类表示的字符串对象可以直接进行修改。StringBuilder是Java 5中引入的，它和StringBuffer的方法完全相同，区别在于它是在单线程环境下使用的，因为它的所有方面都没有被synchronized修饰，因此它的效率也比StringBuffer要高。
-
-## 抽象的（abstract）方法是否可同时是静态的（static）,是否可同时是本地方法（native），是否可同时被synchronized修饰？
-
-都不能。抽象方法需要子类重写，而静态的方法是无法被重写的，因此二者是矛盾的。本地方法是由本地代码（如C代码）实现的方法，而抽象方法是没有实现的，也是矛盾的。synchronized和方法的实现细节有关，抽象方法不涉及实现细节，因此也是相互矛盾的。
 
 ## 阐述静态变量和实例变量的区别。
 
@@ -84,9 +76,7 @@ Java平台提供了两种类型的字符串：String和StringBuffer/StringBuilde
 - notify(),notifyAll(),wait()
 - toString()
 
-## 是否可以从一个静态（static）方法内部发出对非静态（non-static）方法的调用？
 
-不可以，静态方法只能访问静态成员，因为非静态方法的调用要先创建对象，在调用静态方法时可能对象并没有被初始化。
 
 ## 深拷贝和浅拷贝的区别是什么？
 
