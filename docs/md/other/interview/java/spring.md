@@ -421,12 +421,10 @@ AOP 代理包含了目标对象的全部方法，但AOP代理中的方法与目�
 
 ### Spring容器启动流程
 
-1. 在创建Spring容器，也就是启动Spring时，首先会进行扫描，扫描得到所有的`BeanDefinition`对象，并存在一个Map中
-2. 然后筛选出`非懒加载的单例BeanDefinition`进行创建Bean；对于多例Bean不需要在启动过程中去进行创建，对于多例Bean会在每次获取Bean时利用`BeanDefinition`去创建
-3. 利用`BeanDefinition`创建Bean就是Bean的创建生命周期，这期间包括了合并`BeanDefinition`、推断构造方法、实例化、属性填充、初始化前、初始化、初始化后等步骤，其中AOP就是发生在初始化后这一步骤中
+1. 在创建Spring容器，也就是启动Spring时，首先会进行扫描，扫描得到所有的**BeanDefinition**对象，并存在一个Map中
+2. 然后筛选出**非懒加载的单例BeanDefinition**进行创建Bean；对于多例Bean不需要在启动过程中去进行创建，对于多例Bean会在每次获取Bean时利用**BeanDefinition**去通过new创建
+3. 利用**BeanDefinition**创建Bean就是Bean的创建生命周期，这期间包括了合并**BeanDefinition**、推断构造方法、实例化、属性填充、初始化前、初始化、初始化后等步骤，其中AOP就是发生在初始化后这一步骤中
 4. 单例Bean创建完了之后， Spring会发布一个容器启动事件，Spring启动结束
-5. 在源码中会更复杂，比如源码中会提供一些模板方法，让子类来实现，比如源码中还涉及到一些`BeanFactoryPostProcessor`和`BeanPostProcessor`的注册， Spring的扫描就是通过`BenaFactoryPostProcessor`来实现的，依赖注入就是通过`BeanPostProcessor`来实现的
-6. 在Spring启动过程中还会去处理`@lmport`等注解
 
 
 
@@ -434,29 +432,29 @@ AOP 代理包含了目标对象的全部方法，但AOP代理中的方法与目�
 
 ### Spring 事务实现方式
 
-- 编程式事务管理：这意味着你可以通过编程的方式管理事务，这种方式带来了很大的灵活性，但很难维护
-- 声明式事务管理：这种方式意味着你可以将事务管理和业务代码分离。你只需要通过注解或者XML配置管理事务
+- 编程式事务管理：通过编程的方式管理事务，这种方式带来了很大的灵活性，但很难维护
+- 声明式事务管理：将事务管理和业务代码分离。只需要通过**注解或者XML配置**管理事务
 
 
 
 ### Spring框架的事务管理有哪些优点
 
-- 它为不同的事务API(如JTA, JDBC, Hibernate, JPA, 和JDO)提供了统一的编程模型。
-- 它为编程式事务管理提供了一个简单的API而非一系列复杂的事务API(如JTA).
-- 它支持声明式事务管理。
-- 它可以和Spring 的多种数据访问技术很好的融合
+- 为不同的事务API（如JTA, JDBC, Hibernate, JPA, 和JDO）提供了统一的编程模型
+- 为编程式事务管理提供了一个简单的API
+- 支持声明式事务管理
+- 可以和Spring 的多种数据访问技术很好的兼容
 
 
 
 ### spring事务定义的传播规则
 
-- PROPAGATION_REQUIRED: 支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择
-- PROPAGATION_SUPPORTS: 支持当前事务，如果当前没有事务，就以非事务方式执行
-- PROPAGATION_MANDATORY: 支持当前事务，如果当前没有事务，就抛出异常
-- PROPAGATION_REQUIRES_NEW: 新建事务，如果当前存在事务，把当前事务挂起
-- PROPAGATION_NOT_SUPPORTED: 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
-- PROPAGATION_NEVER: 以非事务方式执行，如果当前存在事务，则抛出异常
-- PROPAGATION_NESTED: 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则进行与PROPAGATION_REQUIRED类似的操作
+- PROPAGATION_REQUIRED：支持当前事务，如果当前没有事务，就新建一个事务
+- PROPAGATION_SUPPORTS：支持当前事务，如果当前没有事务，就以非事务方式执行
+- PROPAGATION_MANDATORY：支持当前事务，如果当前没有事务，就抛出异常
+- PROPAGATION_REQUIRES_NEW：新建事务，如果当前存在事务，把当前事务挂起
+- PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起
+- PROPAGATION_NEVER：以非事务方式执行，如果当前存在事务，则抛出异常
+- PROPAGATION_NESTED：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，就新建一个事务
 
 
 
@@ -464,70 +462,64 @@ AOP 代理包含了目标对象的全部方法，但AOP代理中的方法与目�
 
 - 划分处理单元——IoC
 
-由于spring解决的问题是对单个数据库进行局部事务处理的，具体的实现首先用spring中的IoC划分了事务处理单元。并且将对事务的各种配置放到了ioc容器中（设置事务管理器，设置事务的传播特性及隔离机制）。
+  由于spring解决的问题是**对单个数据库进行局部事务处理**的
+
+  首先用spring中的IoC划分了**事务处理单元**，并且将对事务的各种配置放到了ioc容器中（设置事务管理器，设置事务的传播特性及隔离机制）
 
 - AOP拦截需要进行事务处理的类
 
-Spring事务处理模块是通过AOP功能来实现声明式事务处理的，具体操作（比如事务实行的配置和读取，事务对象的抽象），用TransactionProxyFactoryBean接口来使用AOP功能，生成proxy代理对象，通过TransactionInterceptor完成对代理方法的拦截，将事务处理的功能编织到拦截的方法中。读取ioc容器事务配置属性，转化为spring事务处理需要的内部数据结构（TransactionAttributeSourceAdvisor），转化为TransactionAttribute表示的数据对象。
+  Spring事务处理模块是通过AOP功能来实现声明式事务处理的
+
+  具体操作（比如事务实行的配置和读取，事务对象的抽象），用**TransactionProxyFactoryBean**接口来使用AOP功能，生成**Proxy代理对象**，通过**TransactionInterceptor**完成对代理方法的拦截，将事务处理的功能编织到拦截的方法中。读取IoC容器事务配置属性，转化为Spring事务处理需要的内部数据结构（TransactionAttributeSourceAdvisor），转化为**TransactionAttribute**表示的数据对象
 
 - 对事务处理实现（事务的生成、提交、回滚、挂起）
 
-spring委托给具体的事务处理器实现。实现了一个抽象和适配。适配的具体事务处理器：DataSource数据源支持、hibernate数据源事务处理支持、JDO数据源事务处理支持，JPA、JTA数据源事务处理支持。这些支持都是通过设计PlatformTransactionManager、AbstractPlatforTransaction一系列事务处理的支持。 为常用数据源支持提供了一系列的TransactionManager。
+  Spring委托给具体的事务处理器实现，实现了一个抽象和适配。
+
+  适配的具体事务处理器：DataSource数据源支持、hibernate数据源事务处理支持、JDO数据源事务处理支持、JPA、JTA数据源事务处理支持。
+
+  这些支持都是通过设计**PlatformTransactionManager、AbstractPlatforTransaction**一系列事务处理的支持，为常用数据源支持提供了一系列的TransactionManager
 
 - 结合
 
-PlatformTransactionManager实现了TransactionInterception接口，让其与TransactionProxyFactoryBean结合起来，形成一个Spring声明式事务处理的设计体系。
+  **PlatformTransactionManager**实现了**TransactionInterception接口**，让其与**TransactionProxyFactoryBean**结合起来，形成一个Spring声明式事务处理的设计体系
 
 
 
+大致步骤：
 
+Spring事务底层是基于**数据库事务**和**AOP机制**的
 
-1. Spring事务底层是基于**数据库事务**和**AOP机制**的
-2. 首先对于使用了@Transactional注解的Bean， Spring会创建一个代理对象作为Bean
-3. 当调用代理对象的方法时，会先判断该方法上是否加了@Transactional注解
-4. 如果加了，那么则利用事务管理器创建一个数据库连接
-5. 并且**修改数据库**连接的`autocommit属性`为false，禁止此连接的自动提交，这是实现Spring事务非常重要的一步
-6. 然后执行当前方法，方法中会执行sql
+2. 首先对于使用了**@Transactional**注解的Bean， Spring会创建一个代理对象作为Bean
+3. 当调用**代理对象的方法**时，会先判断该方法上是否加了@Transactional注解
+4. 如果加了，那么则利用**事务管理器**创建一个数据库连接
+5. 并且**修改数据库**连接的**autocommit**属性为**false**，禁止此连接的自动提交
+6. 然后执行当前方法，方法中会执行SQL
 7. 执行完当前方法后，如果没有出现异常就直接提交事务
 8. 如果出现了异常，并且这个异常是需要回滚的就会回滚事务，否则仍然提交事务
-9. Spring事务的隔离级别**默认**对应的就是数据库的隔离级别
-10. Spring事务的传播机制是Spring事务自己实现的，也是Spring事务中最复杂的
-11. Spring事务的传播机制是基于数据库连接来做的，一个数据库连接一个事务，如果传播机制配置为需要新开一个事务，那么实际上就是先建立一个数据库连接，在此新数据库连接上执行sql
+9. Spring事务的**隔离级别默认**对应的就是**数据库的隔离级别**
+11. Spring事务的传播机制是**基于数据库连接**来做的，一个数据库连接一个事务，如果传播机制配置为需要新开一个事务，那么实际上就是先建立一个数据库连接，在此新数据库连接上执行sql
+
+
+
+### Spring 事务隔离级别
+
++ **DEFAULT**：默认对应
++ **READ_UNCOMMITTED**：读未提交
++ **READ_COMMITTED**：读已提交
++ **REPEATABLE_READ**：可重复读
++ **SERIALIZABLE**：串行化
 
 
 
 ### Spring事务失效的情况
 
 1. 普通对象调方法，事务是不生效的。只有代理对象调用才行
-2. 因为`cglib动态代理`是基于父子类来实现的，子类是不能重载父类的`private`方法，所以类中的方法是`private`的则代理类不能重载及`@Transaction`会失效
-
-
-
-### 谈一下spring事务传播？
-
-​			传播特性有几种？7种
-
-​			Required,Requires_new,nested,Support,Not_Support,Never,Mandatory
-
-​			某一个事务嵌套另一个事务的时候怎么办？
-
-​			A方法调用B方法，AB方法都有事务，并且传播特性不同，那么A如果有异常，B怎么办，B如果有异常，A怎么办？
-
---------
-
-​			总：事务的传播特性指的是不同方法的嵌套调用过程中，事务应该如何进行处理，是用同一个事务还是不同的事务，当出现异常的时候会回滚还是提交，两个方法之间的相关影响，在日常工作中，使用比较多的是required，Requires_new,nested
-
-​			分：1、先说事务的不同分类，可以分为三类：支持当前事务，不支持当前事务，嵌套事务
-
-​					2、如果外层方法是required，内层方法是，required,requires_new,nested
-
-​					3、如果外层方法是requires_new，内层方法是，required,requires_new,nested
-
-​					4、如果外层方法是nested，内层方法是，required,requires_new,nested
+2. 因为**Cglib动态代理**是基于父子类来实现的，子类是不能重载父类的**private**方法，所以类中的方法是**private**的则代理类不能重载，及**@Transaction**会失效
 
 ​	
 
-### 8.Spring的事务是如何回滚的?
+### todo Spring的事务是如何回滚的?
 
 ​		spring的事务管理是如何实现的？
 
