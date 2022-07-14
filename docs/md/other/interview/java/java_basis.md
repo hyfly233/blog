@@ -1,3 +1,5 @@
+## 基础相关
+
 ### Java 语言具有哪些特点？
 
 - Java 为纯面向对象的语言。它能够直接反应现实生活中的对象。
@@ -212,22 +214,7 @@ static 的主要作用有两个：
 
   采用无 final 修饰的字符数组进行保存，线程安全
 
-
-
-### 判等运算符==与 equals 的区别？
-
-== 比较的是引用，equals 比较的是内容。
-
-如果变量是基础数据类型，== 用于比较其对应值是否相等。如果变量指向的是对象，== 用于比较两个对象是否指向同一块存储空间。
-
-equals 是 Object 类提供的方法之一，每个 Java 类都继承自 Object 类，所以每个对象都具有 equals 这个方法。Object 类中定义的 equals 方法内部是直接调用 == 比较对象的。但通过覆盖的方法可以让它不是比较引用而是比较数据内容。
-
-### 简述 Object 类常用方法
-
-- hashCode：通过对象计算出的散列码。用于 map 型或 equals 方法。需要保证同一个对象多次调用该方法，总返回相同的整型值。
-- equals：判断两个对象是否一致。需保证 equals 方法相同对应的对象 hashCode 也相同。
-- toString: 用字符串表示该对象
-- clone:深拷贝一个对象
+- 
 
 ### Java 中一维数组和二维数组的声明方式？
 
@@ -556,13 +543,7 @@ try{
 - 不符合面向对象思维
 - 包装类提供很多方法，方便使用，如 Integer 类 toHexString(int i)、parseInt(String s) 方法等等
 
-## 18.Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
 
-Integer a = 1000，Integer b = 1000，a==b 结果为**false**
-
-Integer a = 1，Integer b = 1，a==b 结果为**true**
-
-这道题主要考察 Integer 包装类缓存的范围,**在-128~127之间会缓存起来**,比较的是直接缓存的数据,在此之外比较的是对象
 
 ## 19.JMM 是什么？
 
@@ -654,50 +635,7 @@ public class Singleton {
 
 [关于双检锁可以参考open in new window](https://blog.csdn.net/fly910905/article/details/79286680)
 
-## 22.volatile 有什么作用
 
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-09.png)
-
-- 1.
-
-  保证内存可见性
-
-  - 当一个被volatile关键字修饰的变量被一个线程修改的时候，其他线程可以立刻得到修改之后的结果。当一个线程向被volatile关键字修饰的变量**写入数据**的时候，虚拟机会**强制它被值刷新到主内存中**。当一个线程**读取**被volatile关键字修饰的值的时候，虚拟机会**强制要求它从主内存中读取**。
-
-- 2.
-
-  禁止指令重排序
-
-  - 指令重排序是编译器和处理器为了高效对程序进行优化的手段，cpu 是与内存交互的，而 cpu 的效率想比内存高很多，所以 cpu 会在不影响最终结果的情况下，不等待返回结果直接进行后续的指令操作，而 volatile 就是给相应代码加了**内存屏障**，在屏障内的代码禁止指令重排序。
-
-## 23.怎么保证线程安全？
-
-- 1.synchronized关键字
-  - 可以用于代码块，方法（静态方法，同步锁是当前字节码对象；实例方法，同步锁是实例对象）
-- 2.lock锁机制
-
-
-
-```text
-Lock lock = new ReentrantLock();
-lock. lock();
-try {
-    System. out. println("获得锁");
-} catch (Exception e) {
-   
-} finally {
-    System. out. println("释放锁");
-    lock. unlock();
-}
-```
-
-## 24.synchronized 锁升级的过程
-
-在 Java1.6 之前的版本中，synchronized 属于重量级锁，效率低下，**锁是** cpu 一个**总量级的资源**，每次获取锁都要和 cpu 申请，非常消耗性能。
-
-在 **jdk1.6 之后** Java 官方对从 JVM 层面对 synchronized 较大优化，所以现在的 synchronized 锁效率也优化得很不错了，Jdk1.6 之后，为了减少获得锁和释放锁所带来的性能消耗，引入了偏向锁和轻量级锁，**增加了锁升级的过程**，由无锁->偏向锁->自旋锁->重量级锁 ![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-10.png)
-
-增加锁升级的过程主要是**减少用户态到核心态的切换，提高锁的效率，从 jvm 层面优化锁**
 
 ## 25.cas 是什么？
 
@@ -717,191 +655,11 @@ cas 叫做 CompareAndSwap，**比较并交换**，很多地方使用到了它，
 - **ABA 问题**：比如线程 A 去修改 1 这个值，修改成功了，但是中间 线程 B 也修改了这个值，但是修改后的结果还是 1，所以不影响 A 的操作，这就会有问题。可以用**版本号**来解决这个问题。
 - **只能保证一个共享变量的原子性**
 
-## 26.聊聊 ReentrantLock 吧
-
-ReentrantLock 意为**可重入锁**，说起 ReentrantLock 就不得不说 AQS ，因为其底层就是**使用 AQS 去实现**的。
-
-ReentrantLock有两种模式，一种是公平锁，一种是非公平锁。
-
-- 公平模式下等待线程入队列后会严格按照队列顺序去执行
-- 非公平模式下等待线程入队列后有可能会出现插队情况
-
-**公平锁**
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-12.png)
-
-- 第一步：
-
-  获取状态的 state 的值
-
-  - 如果 state=0 即代表锁没有被其它线程占用，执行第二步。
-  - 如果 state!=0 则代表锁正在被其它线程占用，执行第三步。
-
-- 第二步：
-
-  判断队列中是否有线程在排队等待
-
-  - 如果不存在则直接将锁的所有者设置成当前线程，且更新状态 state 。
-  - 如果存在就入队。
-
-- 第三步：
-
-  判断锁的所有者是不是当前线程
-
-  - 如果是则更新状态 state 的值。
-  - 如果不是，线程进入队列排队等待。
-
-**非公平锁**
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-13.png)
-
-- 获取状态的 state 的值
-
-  - 如果 state=0 即代表锁没有被其它线程占用，则设置当前锁的持有者为当前线程，该操作用 CAS 完成。
-  - 如果不为0或者设置失败，代表锁被占用进行下一步。
-
-- 此时
-
-  获取 state 的值
-
-  - 如果是，则给state+1，获取锁
-  - 如果不是，则进入队列等待
-  - 如果是0，代表刚好线程释放了锁，此时将锁的持有者设为自己
-  - 如果不是0，则查看线程持有者是不是自己
-
-## 27.多线程的创建方式有哪些？
-
-- 1、**继承Thread类**，重写run()方法
 
 
 
-```text
-public class Demo extends Thread{
-    //重写父类Thread的run()
-    public void run() {
-    }
-    public static void main(String[] args) {
-        Demo d1 = new Demo();
-        Demo d2 = new Demo();
-        d1.start();
-        d2.start();
-    }
-}
-```
-
-- 2.**实现Runnable接口**，重写run()
 
 
-
-```text
-public class Demo2 implements Runnable{
-
-    //重写Runnable接口的run()
-    public void run() {
-    }
-    
-    public static void main(String[] args) {
-        Thread t1 = new Thread(new Demo2());
-        Thread t2 = new Thread(new Demo2());
-        t1.start();
-        t2.start();
-    }
-
-}
-```
-
-- 3.**实现 Callable 接口**
-
-
-
-```text
-public class Demo implements Callable<String>{
-
-    public String call() throws Exception {
-        System.out.println("正在执行新建线程任务");
-        Thread.sleep(2000);
-        return "结果";
-    }
-
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
-        Demo d = new Demo();
-        FutureTask<String> task = new FutureTask<>(d);
-        Thread t = new Thread(task);
-        t.start();
-        //获取任务执行后返回的结果
-        String result = task.get();
-    }
-    
-}
-```
-
-- 4.**使用线程池创建**
-
-
-
-```text
-public class Demo {
-    public static void main(String[] args) {
-        Executor threadPool = Executors.newFixedThreadPool(5);
-        for(int i = 0 ;i < 10 ; i++) {
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    //todo
-                }
-            });
-        }
-        
-    }
-}
-```
-
-## 28.线程池有哪些参数？
-
-- **1.corePoolSize**：**核心线程数**，线程池中始终存活的线程数。
-- **2.maximumPoolSize**: **最大线程数**，线程池中允许的最大线程数。
-- **3.keepAliveTime**: **存活时间**，线程没有任务执行时最多保持多久时间会终止。
-- **4.unit**: **单位**，参数keepAliveTime的时间单位，7种可选。
-- **5.workQueue**: 一个**阻塞队列**，用来存储等待执行的任务，均为线程安全，7种可选。
-- **6.threadFactory**: **线程工厂**，主要用来创建线程，默及正常优先级、非守护线程。
-- **7.handler**：**拒绝策略**，拒绝处理任务时的策略，4种可选，默认为AbortPolicy。
-
-## 29.线程池的执行流程？
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-14.png)
-
-- 判断线程池中的线程数
-
-  是否大于设置的核心线程数
-
-  - 如果**小于**，就**创建**一个核心线程来执行任务
-
-  - 如果
-
-    大于
-
-    ，就会
-
-    判断缓冲队列是否满了
-
-    - 如果**没有满**，则**放入队列**，等待线程空闲时执行任务
-
-    - 如果队列已经
-
-      满了
-
-      ，则判断
-
-      是否达到了线程池设置的最大线程数
-
-      - 如果**没有达到**，就**创建新线程**来执行任务
-      - 如果已经**达到了**最大线程数，则**执行指定的拒绝策略**
-
-## 30.线程池的拒绝策略有哪些？
-
-- **AbortPolicy**：直接丢弃任务，抛出异常，这是默认策略
-- **CallerRunsPolicy**：只用调用者所在的线程来处理任务
-- **DiscardOldestPolicy**：丢弃等待队列中最旧的任务，并执行当前任务
-- **DiscardPolicy**：直接丢弃任务，也不抛出异常
 
 ## 31.介绍一下四种引用类型?
 
@@ -933,11 +691,11 @@ Object obj = new Object();
 - 浅拷贝并不是真的拷贝，只是**复制指向某个对象的指针**，而不复制对象本身，新旧对象还是共享同一块内存。
 - 深拷贝会另外**创造一个一模一样的对象**，新对象跟原对象不共享内存，修改新对象不会改到原对象。
 
-## 33.聊聊 ThreadLocal 吧
 
-- ThreadLocal其实就是**线程本地变量**，他会在每个线程都创建一个副本，那么在线程之间访问内部副本变量就行了，做到了线程之间互相隔离。 ![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-15.png)
-- ThreadLocal 有一个**静态内部类 ThreadLocalMap**，ThreadLocalMap 又包含了一个 Entry 数组，**Entry 本身是一个弱引用**，他的 key 是指向 ThreadLocal 的弱引用，**弱引用的目的是为了防止内存泄露**,如果是强引用那么除非线程结束,否则无法终止,可能会有内存泄漏的风险。
-- 但是这样还是会存在内存泄露的问题，假如 key 和 ThreadLocal 对象被回收之后，entry 中就存在 key 为 null ，但是 value 有值的 entry 对象，但是永远没办法被访问到，同样除非线程结束运行。**解决方法就是调用 remove 方法删除 entry 对象**。
+
+
+
+
 
 ## 34.一个对象的内存布局是怎么样的?
 
@@ -980,13 +738,7 @@ Object obj = new Object();
 
 
 
-### 07、JDK 8 为什么要 hashcode 异或其右移十六位的值？
 
-因为在JDK 7 中扰动了 4 次，计算 hash 值的性能会稍差一点点。
-
-从速度、功效、质量来考虑，JDK 8 优化了高位运算的算法，通过hashCode()的高16位异或低16位实现：`(h = k.hashCode()) ^ (h >>> 16)`。
-
-这么做可以在数组 table 的 length 比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。
 
 ### 08、为什么 hash 值要与length-1相与？
 
@@ -1009,10 +761,6 @@ Object obj = new Object();
 
 
 
-## short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗？
-
-对于short s1 = 1; s1 = s1 + 1;由于1是int类型，因此s1+1运算结果也是int 型，需要强制转换类型才能赋值给short型。而short s1 = 1; s1 += 1;可以正确编译，因为s1+= 1;相当于s1 = (short)(s1 + 1);其中有隐含的强制类型转换。
-
 
 
 ## int和Integer有什么区别？
@@ -1026,38 +774,13 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-## &和&&的区别？
 
-&运算符有两种用法：(1)按位与；(2)逻辑与。&&运算符是短路与运算。逻辑与跟短路与的差别是非常巨大的，虽然二者都要求运算符左右两端的布尔值都是true整个表达式的值才是true。&&之所以称为短路运算是因为，如果&&左边的表达式的值是false，右边的表达式会被直接短路掉，不会进行运算。很多时候我们可能都需要用&&而不是&，例如在验证用户登录时判定用户名不是null而且不是空字符串，应当写为：username != null &&!username.equals(“”)，二者的顺序不能交换，更不能用&运算符，因为第一个条件如果不成立，根本不能进行字符串的equals比较，否则会产生NullPointerException异常。注意：逻辑或运算符（|）和短路或运算符（||）的差别也是如此。
 
-## Math.round(11.5) 等于多少？Math.round(-11.5)等于多少？
 
-Math.round(11.5)的返回值是12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加0.5然后进行下取整。
 
 ## switch 是否能作用在byte 上，是否能作用在long,float 上，是否能作用在String上？
 
 在Java 5以前，switch(expr)中，expr只能是byte、short、char、int。从Java 5开始，Java中引入了枚举类型，expr也可以是enum类型，从Java 7开始，expr还可以是字符串（String），但是长整型（long）,浮点数（float）在目前所有的版本中都是不可以的。
-
-## 两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，这句话对不对？
-
-不对，如果两个对象x和y满足x.equals(y) == true，它们的哈希码（hash code）应当相同。
-
-Java对于eqauls方法和hashCode方法是这样规定的：
-
-(1)如果两个对象相同（equals方法返回true），那么它们的hashCode值一定要相同；
-
-(2)如果两个对象的hashCode相同，它们并不一定相同。当然，你未必要按照要求去做，但是如果你违背了上述原则就会发现在使用容器时，相同的对象可以出现在Set集合中，同时增加新元素的效率会大大下降（对于使用哈希存储的系统，如果哈希码频繁的冲突将会造成存取性能急剧下降）。
-
-补充：关于equals和hashCode方法，很多Java程序都知道，但很多人也就是仅仅知道而已，在Joshua Bloch的大作《Effective Java》（很多软件公司，《Effective Java》、《Java编程思想》以及《重构：改善既有代码质量》是Java程序员必看书籍，如果你还没看过，那就赶紧去亚马逊买一本吧）中是这样介绍equals方法的：首先equals方法必须满足自反性（x.equals(x)必须返回true）、对称性（x.equals(y)返回true时，y.equals(x)也必须返回true）、传递性（x.equals(y)和y.equals(z)都返回true时，x.equals(z)也必须返回true）和一致性（当x和y引用的对象信息没有被修改时，多次调用x.equals(y)应该得到同样的返回值），而且对于任何非null值的引用x，x.equals(null)必须返回false。
-
-实现高质量的equals方法的诀窍包括：
-
-1. 使用==操作符检查”参数是否为这个对象的引用”；
-2. 使用instanceof操作符检查”参数是否为正确的类型”；
-3. 对于类中的关键属性，检查参数传入对象的属性是否与之相匹配；
-4. 编写完equals方法后，问自己它是否满足对称性、传递性、一致性；
-5. 重写equals时总是要重写hashCode；
-6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉[@Override](https://github.com/Override)注解。
 
 
 
@@ -1110,25 +833,15 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## java中==和eqauls()的区别,equals()和`hashcode的区别
 
-==是运算符,用于比较两个变量是否相等,而equals是Object类的方法,用于比较两个对象是否相等.默认Object类的equals方法是比较两个对象的地址,此时和==的结果一样.换句话说:基本类型比较用==,比较的是他们的值.默认下,对象用==比较时,比较的是内存地址,如果需要比较对象内容,需要重写equal方法
 
-## a==b与a.equals(b)有什么区别
 
-如果a 和b 都是对象，则 a==b 是比较两个对象的引用，只有当 a 和 b 指向的是堆中的同一个对象才会返回 true，而 a.equals(b) 是进行逻辑比较，所以通常需要重写该方法来提供逻辑一致性的比较。例如，String 类重写 equals() 方法，所以可以用于两个不同对象，但是包含的字母相同的比较。
 
 ## 接口是否可继承（extends）接口？抽象类是否可实现（implements）接口？抽象类是否可继承具体类（concrete class）？
 
 接口可以继承接口，而且支持多重继承。抽象类可以实现(implements)接口，抽象类可继承具体类也可以继承抽象类。
 
-## Java 中的final关键字有哪些用法？
 
-(1)修饰类：表示该类不能被继承；
-
-(2)修饰方法：表示方法不能被重写；
-
-(3)修饰变量：表示变量只能一次赋值以后值不能被修改（常量）。
 
 
 
@@ -1161,11 +874,9 @@ class CloneTest {    public static void main(String[] args) {        try {      
 - NullPointerException （空指针异常）
 - SecurityException （安全异常）
 
-## 阐述final、finally、finalize的区别
+- 
 
-- final：修饰符（关键字）有三种用法：如果一个类被声明为final，意味着它不能再派生出新的子类，即不能被继承，因此它和abstract是反义词。将变量声明为final，可以保证它们在使用中不被改变，被声明为final的变量必须在声明时给定初值，而在以后的引用中只能读取不可修改。被声明为final的方法也同样只能使用，不能在子类中被重写。
-- finally：通常放在try…catch…的后面构造总是执行代码块，这就意味着程序无论正常执行还是发生异常，这里的代码只要JVM不关闭都能执行，可以将释放外部资源的代码写在finally块中。
-- finalize：Object类中定义的方法，Java中允许使用finalize()方法在垃圾收集器将对象从内存中清除出去之前做必要的清理工作。这个方法是由垃圾收集器在销毁对象时调用的，通过重写finalize()方法可以整理系统资源或者执行其他清理工作。
+
 
 
 
@@ -1191,13 +902,131 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## 什么要重写hashcode()和equals()以及他们之间的区别与关系？
 
-可以参考：
 
-- [为什么要重写hashCode()方法和equals()方法以及如何进行重写](https://blog.csdn.net/xlgen157387/article/details/63683882)
-- [Java hashCode() 和 equals()的若干问题解答](https://www.cnblogs.com/skywang12345/p/3324958.html)
-- [Java中equals()与hashCode()方法详解](http://bijian1013.iteye.com/blog/1972404)
+## 关键字相关
+
+### 阐述final、finally、finalize的区别
+
+- final：修饰符（关键字）有三种用法：如果一个类被声明为final，意味着它不能再派生出新的子类，即不能被继承，因此它和abstract是反义词。将变量声明为final，可以保证它们在使用中不被改变，被声明为final的变量必须在声明时给定初值，而在以后的引用中只能读取不可修改。被声明为final的方法也同样只能使用，不能在子类中被重写。
+- finally：通常放在try…catch…的后面构造总是执行代码块，这就意味着程序无论正常执行还是发生异常，这里的代码只要JVM不关闭都能执行，可以将释放外部资源的代码写在finally块中。
+- finalize：Object类中定义的方法，Java中允许使用finalize()方法在垃圾收集器将对象从内存中清除出去之前做必要的清理工作。这个方法是由垃圾收集器在销毁对象时调用的，通过重写finalize()方法可以整理系统资源或者执行其他清理工作。
+
+
+
+## Java 中的final关键字有哪些用法？
+
+(1)修饰类：表示该类不能被继承；
+
+(2)修饰方法：表示方法不能被重写；
+
+(3)修饰变量：表示变量只能一次赋值以后值不能被修改（常量）。
+
+
+
+## 操作符相关
+
+### short s1 = 1; s1 = s1 + 1; 与 short s1 = 1; s1 += 1;有错吗
+
+对于short s1 = 1; s1 = s1 + 1;由于1是int类型，因此s1+1运算结果也是int 型，需要强制转换类型才能赋值给short型。而short s1 = 1; s1 += 1;可以正确编译，因为s1+= 1;相当于s1 = (short)(s1 + 1);其中有隐含的强制类型转换。
+
+
+
+### &和&&的区别
+
+&运算符有两种用法：(1)按位与；(2)逻辑与
+
+&&运算符是短路与运算。逻辑与跟短路与的差别是非常巨大的，虽然二者都要求运算符左右两端的布尔值都是true整个表达式的值才是true。&&之所以称为短路运算是因为，如果&&左边的表达式的值是false，右边的表达式会被直接短路掉，不会进行运算。很多时候我们可能都需要用&&而不是&，例如在验证用户登录时判定用户名不是null而且不是空字符串，应当写为：username != null &&!username.equals(“”)，二者的顺序不能交换，更不能用&运算符，因为第一个条件如果不成立，根本不能进行字符串的equals比较，否则会产生NullPointerException异常。注意：逻辑或运算符（|）和短路或运算符（||）的差别也是如此。
+
+
+
+
+
+## 常见函数相关
+
+### JDK 8 为什么要 hashcode 异或其右移十六位的值
+
+因为在JDK 7 中扰动了 4 次，计算 hash 值的性能会稍差一点点。
+
+从速度、功效、质量来考虑，JDK 8 优化了高位运算的算法，通过hashCode()的高16位异或低16位实现：`(h = k.hashCode()) ^ (h >>> 16)`。
+
+这么做可以在数组 table 的 length 比较小的时候，也能保证考虑到高低Bit都参与到Hash的计算中，同时不会有太大的开销。
+
+
+
+### Math.round(11.5) 等于多少？Math.round(-11.5)等于多少？
+
+Math.round(11.5)的返回值是12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加0.5然后进行下取整。
+
+
+
+### 两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，这句话对不对？
+
+不对，如果两个对象x和y满足x.equals(y) == true，它们的哈希码（hash code）应当相同。
+
+Java对于eqauls方法和hashCode方法是这样规定的：
+
+(1)如果两个对象相同（equals方法返回true），那么它们的hashCode值一定要相同；
+
+(2)如果两个对象的hashCode相同，它们并不一定相同。当然，你未必要按照要求去做，但是如果你违背了上述原则就会发现在使用容器时，相同的对象可以出现在Set集合中，同时增加新元素的效率会大大下降（对于使用哈希存储的系统，如果哈希码频繁的冲突将会造成存取性能急剧下降）。
+
+补充：关于equals和hashCode方法，很多Java程序都知道，但很多人也就是仅仅知道而已，在Joshua Bloch的大作《Effective Java》（很多软件公司，《Effective Java》、《Java编程思想》以及《重构：改善既有代码质量》是Java程序员必看书籍，如果你还没看过，那就赶紧去亚马逊买一本吧）中是这样介绍equals方法的：首先equals方法必须满足自反性（x.equals(x)必须返回true）、对称性（x.equals(y)返回true时，y.equals(x)也必须返回true）、传递性（x.equals(y)和y.equals(z)都返回true时，x.equals(z)也必须返回true）和一致性（当x和y引用的对象信息没有被修改时，多次调用x.equals(y)应该得到同样的返回值），而且对于任何非null值的引用x，x.equals(null)必须返回false。
+
+实现高质量的equals方法的诀窍包括：
+
+1. 使用==操作符检查”参数是否为这个对象的引用”；
+2. 使用instanceof操作符检查”参数是否为正确的类型”；
+3. 对于类中的关键属性，检查参数传入对象的属性是否与之相匹配；
+4. 编写完equals方法后，问自己它是否满足对称性、传递性、一致性；
+5. 重写equals时总是要重写hashCode；
+6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉[@Override](https://github.com/Override)注解。
+
+
+
+### java中==和eqauls()的区别,equals()和 hashcode的区别
+
+==是运算符,用于比较两个变量是否相等,而equals是Object类的方法,用于比较两个对象是否相等.默认Object类的equals方法是比较两个对象的地址,此时和==的结果一样.换句话说:基本类型比较用==,比较的是他们的值.默认下,对象用==比较时,比较的是内存地址,如果需要比较对象内容,需要重写equal方法
+
+
+
+
+
+### 判等运算符==与 equals 的区别？
+
+== 比较的是引用，equals 比较的是内容。
+
+如果变量是基础数据类型，== 用于比较其对应值是否相等。如果变量指向的是对象，== 用于比较两个对象是否指向同一块存储空间。
+
+equals 是 Object 类提供的方法之一，每个 Java 类都继承自 Object 类，所以每个对象都具有 equals 这个方法。Object 类中定义的 equals 方法内部是直接调用 == 比较对象的。但通过覆盖的方法可以让它不是比较引用而是比较数据内容。
+
+### 简述 Object 类常用方法
+
+- hashCode：通过对象计算出的散列码。用于 map 型或 equals 方法。需要保证同一个对象多次调用该方法，总返回相同的整型值。
+- equals：判断两个对象是否一致。需保证 equals 方法相同对应的对象 hashCode 也相同。
+- toString: 用字符串表示该对象
+- clone:深拷贝一个对象
+
+
+
+
+
+
+
+
+
+### 18.Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
+
+Integer a = 1000，Integer b = 1000，a==b 结果为**false**
+
+Integer a = 1，Integer b = 1，a==b 结果为**true**
+
+这道题主要考察 Integer 包装类缓存的范围,**在-128~127之间会缓存起来**,比较的是直接缓存的数据,在此之外比较的是对象
+
+
+
+
+
+
 
 
 
