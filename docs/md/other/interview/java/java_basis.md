@@ -347,85 +347,15 @@ Java 反射机制是指在程序的运行过程中可以构造任意一个类的
 
 具体实现：实现 Serializable 接口，或实现 Externalizable 接口中的 writeExternal()与 readExternal()方法。
 
-### 简述 Java 的 List
 
-List 是一个有序队列，在 Java 中有两种实现方式:
 
-ArrayList 使用数组实现，是容量可变的非线程安全列表，随机访问快，集合扩容时会创建更大的数组，把原有数组复制到新数组。
 
-LinkedList 本质是双向链表，与 ArrayList 相比插入和删除速度更快，但随机访问元素很慢。
 
-### Java 中线程安全的基本数据结构有哪些
 
-- HashTable: 哈希表的线程安全版，效率低
-- ConcurrentHashMap：哈希表的线程安全版，效率高，用于替代 HashTable
-- Vector：线程安全版 Arraylist
-- Stack：线程安全版栈
-- BlockingQueue 及其子类：线程安全版队列
 
-### 简述 Java 的 Set
 
-Set 即集合，该数据结构不允许元素重复且无序。Java 对 Set 有三种实现方式：
 
-HashSet 通过 HashMap 实现，HashMap 的 Key 即 HashSet 存储的元素，Value 系统自定义一个名为 PRESENT 的 Object 类型常量。判断元素是否相同时，先比较 hashCode，相同后再利用 equals 比较，查询 O(1)
 
-LinkedHashSet 继承自 HashSet，通过 LinkedHashMap 实现，使用双向链表维护元素插入顺序。
-
-TreeSet 通过 TreeMap 实现的，底层数据结构是红黑树，添加元素到集合时按照比较规则将其插入合适的位置，保证插入后的集合仍然有序。查询 O(logn)
-
-### 简述 Java 的 HashMap
-
-JDK8 之前底层实现是数组 + 链表，JDK8 改为数组 + 链表/红黑树。主要成员变量包括存储数据的 table 数组、元素数量 size、加载因子 loadFactor。HashMap 中数据以键值对的形式存在，键对应的 hash 值用来计算数组下标，如果两个元素 key 的 hash 值一样，就会发生哈希冲突，被放到同一个链表上。
-
-table 数组记录 HashMap 的数据，每个下标对应一条链表，所有哈希冲突的数据都会被存放到同一条链表，Node/Entry 节点包含四个成员变量：key、value、next 指针和 hash 值。在 JDK8 后链表超过 8 会转化为红黑树。
-
-若当前数据/总数据容量>负载因子，Hashmap 将执行扩容操作。默认初始化容量为 16，扩容容量必须是 2 的幂次方、最大容量为 1<< 30 、默认加载因子为 0.75。
-
-### 为何 HashMap 线程不安全
-
-在 JDK1.7 中，HashMap 采用头插法插入元素，因此并发情况下会导致环形链表，产生死循环。
-
-虽然 JDK1.8 采用了尾插法解决了这个问题，但是并发下的 put 操作也会使前一个 key 被后一个 key 覆盖。
-
-由于 HashMap 有扩容机制存在，也存在 A 线程进行扩容后，B 线程执行 get 方法出现失误的情况。
-
-### 简述 Java 的 TreeMap
-
-TreeMap 是底层利用红黑树实现的 Map 结构，底层实现是一棵平衡的排序二叉树，由于红黑树的插入、删除、遍历时间复杂度都为 O(logN)，所以性能上低于哈希表。但是哈希表无法提供键值对的有序输出，红黑树可以按照键的值的大小有序输出。
-
-### ArrayList、Vector 和 LinkedList 有什么共同点与区别？
-
-- ArrayList、Vector 和 LinkedList 都是可伸缩的数组，即可以动态改变长度的数组。
-- ArrayList 和 Vector 都是基于存储元素的 Object[] array 来实现的，它们会在内存中开辟一块连续的空间来存储，支持下标、索引访问。但在涉及插入元素时可能需要移动容器中的元素，插入效率较低。当存储元素超过容器的初始化容量大小，ArrayList 与 Vector 均会进行扩容。
-- Vector 是线程安全的，其大部分方法是直接或间接同步的。ArrayList 不是线程安全的，其方法不具有同步性质。LinkedList 也不是线程安全的。
-- LinkedList 采用双向列表实现，对数据索引需要从头开始遍历，因此随机访问效率较低，但在插入元素的时候不需要对数据进行移动，插入效率较高。
-
-### HashMap 和 Hashtable 有什么区别？
-
-- HashMap 是 Hashtable 的轻量级实现，HashMap 允许 key 和 value 为 null，但最多允许一条记录的 key 为 null.而 HashTable 不允许。
-- HashTable 中的方法是线程安全的，而 HashMap 不是。在多线程访问 HashMap 需要提供额外的同步机制。
-- Hashtable 使用 Enumeration 进行遍历，HashMap 使用 Iterator 进行遍历。
-
-### 如何决定使用 HashMap 还是 TreeMap?
-
-如果对 Map 进行插入、删除或定位一个元素的操作更频繁，HashMap 是更好的选择。如果需要对 key 集合进行有序的遍历，TreeMap 是更好的选择。
-
-### HashSet 中，equals 与 hashCode 之间的关系？
-
-equals 和 hashCode 这两个方法都是从 object 类中继承过来的，equals 主要用于判断对象的内存地址引用是否是同一个地址；hashCode 根据定义的哈希规则将对象的内存地址转换为一个哈希码。HashSet 中存储的元素是不能重复的，主要通过 hashCode 与 equals 两个方法来判断存储的对象是否相同：
-
-- 如果两个对象的 hashCode 值不同，说明两个对象不相同。
-- 如果两个对象的 hashCode 值相同，接着会调用对象的 equals 方法，如果 equlas 方法的返回结果为 true，那么说明两个对象相同，否则不相同。
-
-### fail-fast 和 fail-safe 迭代器的区别是什么？
-
-- fail-fast 直接在容器上进行，在遍历过程中，一旦发现容器中的数据被修改，就会立刻抛出 ConcurrentModificationException 异常从而导致遍历失败。常见的使用 fail-fast 方式的容器有 HashMap 和 ArrayList 等。
-- fail-safe 这种遍历基于容器的一个克隆。因此对容器中的内容修改不影响遍历。常见的使用 fail-safe 方式遍历的容器有 ConcurrentHashMap 和 CopyOnWriteArrayList。
-
-### Collection 和 Collections 有什么区别？
-
-- Collection 是一个集合接口，它提供了对集合对象进行基本操作的通用接口方法，所有集合都是它的子类，比如 List、Set 等。
-- Collections 是一个包装类，包含了很多静态方法、不能被实例化，而是作为工具类使用，比如提供的排序方法：Collections.sort(list);提供的反转方法：Collections.reverse(list)。
 
 
 
@@ -580,61 +510,9 @@ try{
 
   - 定义一个方法的时候可以使用 throws 关键字声明。使用 throws 关键字声明的方法表示此方法不处理异常，而交给方法调用处进行处理。
 
-## 7.arrayList 和 linkedList 的区别？
 
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-04.png)
 
-- 1.ArrayList 是实现了基于**数组**的，存储空间是连续的。LinkedList 基于**链表**的，存储空间是不连续的。（LinkedList 是双向链表）
-- 2.对于**随机访问** get 和 set ，ArrayList 觉得优于 LinkedList，因为 LinkedList 要移动指针。
-- 3.对于**新增和删除**操作 add 和 remove ，LinedList 比较占优势，因为 ArrayList 要移动数据。
-- 4.同样的数据量 LinkedList 所占用空间可能会更小，因为 ArrayList 需要**预留空间**便于后续数据增加，而 LinkedList 增加数据只需要**增加一个节点**
 
-## 8.hashMap 1.7 和 hashMap 1.8 的区别？
-
-只记录**重点**
-
-| 不同点          |          hashMap 1.7           |                    hashMap 1.8 |
-| :-------------- | :----------------------------: | -----------------------------: |
-| 数据结构        |           数组+链表            |               数组+链表+红黑树 |
-| 插入数据的方式  |             头插法             |                         尾插法 |
-| hash 值计算方式 | 9次扰动处理(4次位运算+5次异或) | 2次扰动处理(1次位运算+1次异或) |
-| 扩容策略        |           插入前扩容           |                     插入后扩容 |
-
-## 9.hashMap 线程不安全体现在哪里？
-
-在 **hashMap1.7 中扩容**的时候，因为采用的是头插法，所以会可能会有循环链表产生，导致数据有问题，在 1.8 版本已修复，改为了尾插法
-
-在任意版本的 hashMap 中，如果在**插入数据时多个线程命中了同一个槽**，可能会有数据覆盖的情况发生，导致线程不安全。
-
-## 10.那么 hashMap 线程不安全怎么解决？
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-05.png)
-
-- 一.给 hashMap **直接加锁**,来保证线程安全
-- 二.使用 **hashTable**,比方法一效率高,其实就是在其方法上加了 synchronized 锁
-- 三.使用 **concurrentHashMap** , 不管是其 1.7 还是 1.8 版本,本质都是**减小了锁的粒度,减少线程竞争**来保证高效.
-
-## 11.concurrentHashMap 1.7 和 1.8 有什么区别
-
-只记录**重点**
-
-| 不同点   |    concurrentHashMap 1.7     |              concurrentHashMap 1.8 |
-| :------- | :--------------------------: | ---------------------------------: |
-| 锁粒度   |         基于segment          |                      基于entry节点 |
-| 锁       |        reentrantLock         |                       synchronized |
-| 底层结构 | Segment + HashEntry + Unsafe | Synchronized + CAS + Node + Unsafe |
-
-## 12.介绍一下 hashset 吧
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-06.png)
-
-上图是 set 家族整体的结构，
-
-set 继承于 Collection 接口，是一个**不允许出现重复元素，并且无序的集合**.
-
-HashSet 是**基于 HashMap 实现**的，底层**采用 HashMap 来保存元素**
-
-元素的哈希值是通过元素的 hashcode 方法 来获取的, HashSet 首先判断两个元素的哈希值，如果哈希值一样，接着会比较 equals 方法 如果 equls 结果为 true ，HashSet 就视为同一个元素。如果 equals 为 false 就不是同一个元素。
 
 ## 13.什么是泛型？
 
@@ -1098,94 +976,7 @@ Object obj = new Object();
 
 
 
-### 01、HashMap的底层数据结构是什么？
-
-JDK 7 中，HashMap 由“数组+链表”组成，数组是 HashMap 的主体，链表则是主要为了解决哈希冲突而存在的。
-
-在 JDK 8 中，HashMap 由“数组+链表+红黑树”组成。链表过长，会严重影响 HashMap 的性能，而红黑树搜索的时间复杂度是 O(logn)，而链表是糟糕的 O(n)。因此，JDK 8 对数据结构做了进一步的优化，引入了红黑树，链表和红黑树在达到一定条件会进行转换：
-
-- 当链表超过 8 且数据总量超过 64 时会转红黑树。
-- 将链表转换成红黑树前会判断，如果当前数组的长度小于 64，那么会选择先进行数组扩容，而不是转换为红黑树，以减少搜索时间。
-
-链表长度超过 8 体现在 putVal 方法中的这段代码：
-
-
-
-```java
-//链表长度大于8转换为红黑树进行处理
-if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
-    treeifyBin(tab, hash);
-```
-
-table 长度为 64 体现在 treeifyBin 方法中的这段代码：：
-
-
-
-```java
-final void treeifyBin(Node<K,V>[] tab, int hash) {
-    int n, index; Node<K,V> e;
-    if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
-        resize();
-}
-```
-
-MIN_TREEIFY_CAPACITY 的值正好为 64。
-
-
-
-```java
-static final int MIN_TREEIFY_CAPACITY = 64;
-```
-
-JDK 8 中 HashMap 的结构示意图：
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/collection/hashmap-interview-01.png)
-
-### 02、为什么链表改为红黑树的阈值是 8?
-
-因为泊松分布，我们来看作者在源码中的注释：
-
-> Because TreeNodes are about twice the size of regular nodes, we use them only when bins contain enough nodes to warrant use (see TREEIFY_THRESHOLD). And when they become too small (due to removal or resizing) they are converted back to plain bins. In usages with well-distributed user hashCodes, tree bins are rarely used. Ideally, under random hashCodes, the frequency of nodes in bins follows a Poisson distribution (http://en.wikipedia.org/wiki/Poisson_distribution) with a parameter of about 0.5 on average for the default resizing threshold of 0.75, although with a large variance because of resizing granularity. Ignoring variance, the expected occurrences of list size k are (exp(-0.5) pow(0.5, k) / factorial(k)). The first values are: 0: 0.60653066
-> 1: 0.30326533
-> 2: 0.07581633
-> 3: 0.01263606
-> 4: 0.00157952
-> 5: 0.00015795
-> 6: 0.00001316
-> 7: 0.00000094
-> 8: 0.00000006
-> more: less than 1 in ten million
-
-翻译过来大概的意思是：理想情况下使用随机的哈希码，容器中节点分布在 hash 桶中的频率遵循泊松分布，按照泊松分布的计算公式计算出了桶中元素个数和概率的对照表，可以看到链表中元素个数为 8 时的概率已经非常小，再多的就更少了，所以原作者在选择链表元素个数时选择了 8，是根据概率统计而选择的。
-
-### 03、解决hash冲突的办法有哪些？HashMap用的哪种？
-
-解决Hash冲突方法有：
-
-- 开放定址法：也称为再散列法，基本思想就是，如果p=H(key)出现冲突时，则以p为基础，再次hash，p1=H(p),如果p1再次出现冲突，则以p1为基础，以此类推，直到找到一个不冲突的哈希地址pi。因此开放定址法所需要的hash表的长度要大于等于所需要存放的元素，而且因为存在再次hash，所以只能在删除的节点上做标记，而不能真正删除节点。
-- 再哈希法：双重散列，多重散列，提供多个不同的hash函数，当R1=H1(key1)发生冲突时，再计算R2=H2(key1)，直到没有冲突为止。这样做虽然不易产生堆集，但增加了计算的时间。
-- 链地址法：拉链法，将哈希值相同的元素构成一个同义词的单链表，并将单链表的头指针存放在哈希表的第i个单元中，查找、插入和删除主要在同义词链表中进行。链表法适用于经常进行插入和删除的情况。
-- 建立公共溢出区：将哈希表分为公共表和溢出表，当溢出发生时，将所有溢出数据统一放到溢出区。
-
-HashMap中采用的是链地址法 。
-
-### 04、为什么在解决 hash 冲突的时候，不直接用红黑树？而选择先用链表，再转红黑树?
-
-因为红黑树需要进行左旋，右旋，变色这些操作来保持平衡，而单链表不需要。
-
-当元素小于 8 个的时候，此时做查询操作，链表结构已经能保证查询性能。当元素大于 8 个的时候， 红黑树搜索时间复杂度是 O(logn)，而链表是 O(n)，此时需要红黑树来加快查询速度，但是新增节点的效率变慢了。
-
-因此，如果一开始就用红黑树结构，元素太少，新增效率又比较慢，无疑这是浪费性能的。
-
-### 05、HashMap默认加载因子是多少？为什么是 0.75，不是 0.6 或者 0.8 ？
-
-作为一般规则，默认负载因子（0.75）在时间和空间成本上提供了很好的折衷。
-
-
-
-### 06、HashMap 中 key 的存储索引是怎么计算的？
-
-首先根据key的值计算出hashcode的值，然后根据hashcode计算出hash值，最后通过hash&（length-1）计算得到存储的位置。
+### 
 
 
 
@@ -1202,154 +993,211 @@ HashMap中采用的是链地址法 。
 - 把 hash 值对数组长度取模运算，模运算的消耗很大，没有位运算快。
 - 当 length 总是 2 的n次方时，`h& (length-1) `运算等价于对length取模，也就是 h%length，但是 & 比 % 具有更高的效率。
 
-### 09、HashMap数组的长度为什么是 2 的幂次方？
-
-2 的 N 次幂有助于减少碰撞的几率。如果 length 为2的幂次方，则 length-1 转化为二进制必定是11111……的形式，在与h的二进制与操作效率会非常的快，而且空间不浪费。我们来举个例子，看下图：
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/collection/hashmap-interview-02.png)
-
-当 length =15时，6 和 7 的结果一样，这样表示他们在 table 存储的位置是相同的，也就是产生了碰撞，6、7就会在一个位置形成链表，4和5的结果也是一样，这样就会导致查询速度降低。
-
-如果我们进一步分析，还会发现空间浪费非常大，以 length=15 为例，在 1、3、5、7、9、11、13、15 这八处没有存放数据。因为hash值在与14（即 1110）进行&运算时，得到的结果最后一位永远都是0，即 0001、0011、0101、0111、1001、1011、1101、1111位置处是不可能存储数据的。
-
-**再补充数组容量计算的小奥秘。**
-
-HashMap 构造函数允许用户传入的容量不是 2 的 n 次方，因为它可以自动地将传入的容量转换为 2 的 n 次方。会取大于或等于这个数的 且最近的2次幂作为 table 数组的初始容量，使用tableSizeFor(int)方法，如 tableSizeFor(10) = 16（2 的 4 次幂），tableSizeFor(20) = 32（2 的 5 次幂），也就是说 table 数组的长度总是 2 的次幂。JDK 8 源码如下：
 
 
 
-```java
-static final int tableSizeFor(int cap) {
-        int n = cap - 1;
-        n |= n >>> 1;
-        n |= n >>> 2;
-        n |= n >>> 4;
-        n |= n >>> 8;
-        n |= n >>> 16;
-        return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
-    }
+
+
+
+
+
+
+
+## float f=3.4;是否正确？
+
+不正确。3.4是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4; 或者写成float f =3.4F;。
+
+
+
+## short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗？
+
+对于short s1 = 1; s1 = s1 + 1;由于1是int类型，因此s1+1运算结果也是int 型，需要强制转换类型才能赋值给short型。而short s1 = 1; s1 += 1;可以正确编译，因为s1+= 1;相当于s1 = (short)(s1 + 1);其中有隐含的强制类型转换。
+
+
+
+## int和Integer有什么区别？
+
+Java是一个近乎纯洁的面向对象编程语言，但是为了编程的方便还是引入了基本数据类型，但是为了能够将这些基本数据类型当成对象操作，Java为每一个基本数据类型都引入了对应的包装类型（wrapper class），int的包装类就是Integer，从Java 5开始引入了自动装箱/拆箱机制，使得二者可以相互转换。
+
+Java 为每个原始类型提供了包装类型：
+
+- 原始类型: boolean，char，byte，short，int，long，float，double
+- 包装类型：Boolean，Character，Byte，Short，Integer，Long，Float，Double
+
+
+
+## &和&&的区别？
+
+&运算符有两种用法：(1)按位与；(2)逻辑与。&&运算符是短路与运算。逻辑与跟短路与的差别是非常巨大的，虽然二者都要求运算符左右两端的布尔值都是true整个表达式的值才是true。&&之所以称为短路运算是因为，如果&&左边的表达式的值是false，右边的表达式会被直接短路掉，不会进行运算。很多时候我们可能都需要用&&而不是&，例如在验证用户登录时判定用户名不是null而且不是空字符串，应当写为：username != null &&!username.equals(“”)，二者的顺序不能交换，更不能用&运算符，因为第一个条件如果不成立，根本不能进行字符串的equals比较，否则会产生NullPointerException异常。注意：逻辑或运算符（|）和短路或运算符（||）的差别也是如此。
+
+## Math.round(11.5) 等于多少？Math.round(-11.5)等于多少？
+
+Math.round(11.5)的返回值是12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加0.5然后进行下取整。
+
+## switch 是否能作用在byte 上，是否能作用在long,float 上，是否能作用在String上？
+
+在Java 5以前，switch(expr)中，expr只能是byte、short、char、int。从Java 5开始，Java中引入了枚举类型，expr也可以是enum类型，从Java 7开始，expr还可以是字符串（String），但是长整型（long）,浮点数（float）在目前所有的版本中都是不可以的。
+
+## 两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，这句话对不对？
+
+不对，如果两个对象x和y满足x.equals(y) == true，它们的哈希码（hash code）应当相同。
+
+Java对于eqauls方法和hashCode方法是这样规定的：
+
+(1)如果两个对象相同（equals方法返回true），那么它们的hashCode值一定要相同；
+
+(2)如果两个对象的hashCode相同，它们并不一定相同。当然，你未必要按照要求去做，但是如果你违背了上述原则就会发现在使用容器时，相同的对象可以出现在Set集合中，同时增加新元素的效率会大大下降（对于使用哈希存储的系统，如果哈希码频繁的冲突将会造成存取性能急剧下降）。
+
+补充：关于equals和hashCode方法，很多Java程序都知道，但很多人也就是仅仅知道而已，在Joshua Bloch的大作《Effective Java》（很多软件公司，《Effective Java》、《Java编程思想》以及《重构：改善既有代码质量》是Java程序员必看书籍，如果你还没看过，那就赶紧去亚马逊买一本吧）中是这样介绍equals方法的：首先equals方法必须满足自反性（x.equals(x)必须返回true）、对称性（x.equals(y)返回true时，y.equals(x)也必须返回true）、传递性（x.equals(y)和y.equals(z)都返回true时，x.equals(z)也必须返回true）和一致性（当x和y引用的对象信息没有被修改时，多次调用x.equals(y)应该得到同样的返回值），而且对于任何非null值的引用x，x.equals(null)必须返回false。
+
+实现高质量的equals方法的诀窍包括：
+
+1. 使用==操作符检查”参数是否为这个对象的引用”；
+2. 使用instanceof操作符检查”参数是否为正确的类型”；
+3. 对于类中的关键属性，检查参数传入对象的属性是否与之相匹配；
+4. 编写完equals方法后，问自己它是否满足对称性、传递性、一致性；
+5. 重写equals时总是要重写hashCode；
+6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉[@Override](https://github.com/Override)注解。
+
+
+
+
+
+## 阐述静态变量和实例变量的区别。
+
+静态变量是被static修饰符修饰的变量，也称为类变量，它属于类，不属于类的任何一个对象，一个类不管创建多少个对象，静态变量在内存中有且仅有一个拷贝；实例变量必须依存于某一实例，需要先创建对象然后通过对象才能访问到它。静态变量可以实现让多个对象共享内存。
+
+补充：在Java开发中，上下文类和工具类中通常会有大量的静态成员。
+
+## Object中有哪些公共方法？
+
+- equals()
+- clone()
+- getClass()
+- notify(),notifyAll(),wait()
+- toString()
+
+
+
+## 深拷贝和浅拷贝的区别是什么？
+
+浅拷贝：被复制对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用仍然指向原来的对象。换言之，浅拷贝仅仅复制所考虑的对象，而不复制它所引用的对象。
+
+深拷贝：被复制对象的所有变量都含有与原来的对象相同的值，而那些引用其他对象的变量将指向被复制过的新对象，而不再是原有的那些被引用的对象。换言之，深拷贝把要复制的对象所引用的对象都复制了一遍。
+
+## 如何实现对象克隆？
+
+有两种方式：
+
+1. 实现Cloneable接口并重写Object类中的clone()方法；
+2. 实现Serializable接口，通过对象的序列化和反序列化实现克隆，可以实现真正的深度克隆。
+
+代码如下：
+
+```
+import java.io.ByteArrayInputStream;import java.io.ByteArrayOutputStream;import java.io.ObjectInputStream;import java.io.ObjectOutputStream;public class MyUtil {    private MyUtil() {        throw new AssertionError();    }    public static <T> T clone(T obj) throws Exception {        ByteArrayOutputStream bout = new ByteArrayOutputStream();        ObjectOutputStream oos = new ObjectOutputStream(bout);        oos.writeObject(obj);        ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());        ObjectInputStream ois = new ObjectInputStream(bin);        return (T) ois.readObject();        // 说明：调用ByteArrayInputStream或ByteArrayOutputStream对象的close方法没有任何意义        // 这两个基于内存的流只要垃圾回收器清理对象就能够释放资源，这一点不同于对外部资源（如文件流）的释放    }}
 ```
 
-让cap-1再赋值给n的目的是另找到的目标值大于或等于原值。例如二进制1000，十进制数值为8。如果不对它减1而直接操作，将得到答案10000，即16。显然不是结果。减1后二进制为111，再进行操作则会得到原来的数值1000，即8。
+下面是测试代码：
 
-### 10、HashMap 的put方法流程？
-
-以JDK 8为例，简要流程如下：
-
-1、首先根据 key 的值计算 hash 值，找到该元素在数组中存储的下标；
-
-2、如果数组是空的，则调用 resize 进行初始化；
-
-3、如果没有哈希冲突直接放在对应的数组下标里；
-
-4、如果冲突了，且 key 已经存在，就覆盖掉 value；
-
-5、如果冲突后，发现该节点是红黑树，就将这个节点挂在树上；
-
-6、如果冲突后是链表，判断该链表是否大于 8 ，如果大于 8 并且数组容量小于 64，就进行扩容；如果链表节点大于 8 并且数组的容量大于 64，则将这个结构转换为红黑树；否则，链表插入键值对，若 key 存在，就覆盖掉 value。
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/collection/hashmap-interview-03.png)
-
-### 11、HashMap 的扩容方式？
-
-HashMap 在容量超过负载因子所定义的容量之后，就会扩容。
-
-
-
-### 12、一般用什么作为HashMap的key?
-
-一般用Integer、String 这种不可变类当作 HashMap 的 key，String 最为常见。
-
-- 因为字符串是不可变的，所以在它创建的时候 hashcode 就被缓存了，不需要重新计算。
-- 因为获取对象的时候要用到 equals() 和 hashCode() 方法，那么键对象正确的重写这两个方法是非常重要的。Integer、String 这些类已经很规范的重写了 hashCode() 以及 equals() 方法。
-
-### 13、HashMap为什么线程不安全？
-
-- JDK 7 时多线程下扩容会造成死循环。
-- 多线程的put可能导致元素的丢失。
-- put和get并发时，可能导致get为null。
-
-
-
-
-
-
-
-
-
-
-
-## 请用Iterable实现一个随机序列产生器?
-
-```java
-public class RandomStringGenerator<T> implements Iterable<T> {
-
-    private final List<T> list;
-    
-    private void swap(int[] a, int i, int i1) {
-    }
-
-    public RandomStringGenerator(List<T> list) {
-        this.list = list;
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-
-        return new Iterator<T>() {
-            @Override
-            public boolean hasNext() {
-                return true;
-            }
-
-            @Override
-            public T next() {
-                return list.get((int) (list.size() * Math.random()));
-            }
-        };
-    }
-    
-    public static void main(String[] argv) {
-        var list = Arrays.asList("List", "Tree", "Array");
-        var gen = new RandomStringGenerator<String>(list);
-
-//        for(var s: gen) {
-//            System.out.println(s);
-//        }
-
-//        var it = gen.iterator();
-//        for(int i = 0; i < 100; i++) {
-//            System.out.println(it.next());
-//        }
-    }
-}
+```
+import java.io.Serializable;/** * 人类 * @author 骆昊 * */class Person implements Serializable {    private static final long serialVersionUID = -9102017020286042305L;    private String name;    // 姓名    private int age;        // 年龄    private Car car;        // 座驾    public Person(String name, int age, Car car) {        this.name = name;        this.age = age;        this.car = car;    }    public String getName() {        return name;    }    public void setName(String name) {        this.name = name;    }    public int getAge() {        return age;    }    public void setAge(int age) {        this.age = age;    }    public Car getCar() {        return car;    }    public void setCar(Car car) {        this.car = car;    }    @Override    public String toString() {        return "Person [name=" + name + ", age=" + age + ", car=" + car + "]";    }}
+/** * 小汽车类 * @author 骆昊 * */class Car implements Serializable {    private static final long serialVersionUID = -5713945027627603702L;    private String brand;       // 品牌    private int maxSpeed;       // 最高时速    public Car(String brand, int maxSpeed) {        this.brand = brand;        this.maxSpeed = maxSpeed;    }    public String getBrand() {        return brand;    }    public void setBrand(String brand) {        this.brand = brand;    }    public int getMaxSpeed() {        return maxSpeed;    }    public void setMaxSpeed(int maxSpeed) {        this.maxSpeed = maxSpeed;    }    @Override    public String toString() {        return "Car [brand=" + brand + ", maxSpeed=" + maxSpeed + "]";    }}
+class CloneTest {    public static void main(String[] args) {        try {            Person p1 = new Person("Hao LUO", 33, new Car("Benz", 300));            Person p2 = MyUtil.clone(p1);   // 深度克隆            p2.getCar().setBrand("BYD");            // 修改克隆的Person对象p2关联的汽车对象的品牌属性            // 原来的Person对象p1关联的汽车不会受到任何影响            // 因为在克隆Person对象时其关联的汽车对象也被克隆了            System.out.println(p1);        } catch (Exception e) {            e.printStackTrace();        }    }}
 ```
 
+注意：基于序列化和反序列化实现的克隆不仅仅是深度克隆，更重要的是通过泛型限定，可以检查出要克隆的对象是否支持序列化，这项检查是编译器完成的，不是在运行时抛出异常，这种是方案明显优于使用Object类的clone方法克隆对象。让问题在编译的时候暴露出来总是优于把问题留到运行时。
+
+
+
+## java中==和eqauls()的区别,equals()和`hashcode的区别
+
+==是运算符,用于比较两个变量是否相等,而equals是Object类的方法,用于比较两个对象是否相等.默认Object类的equals方法是比较两个对象的地址,此时和==的结果一样.换句话说:基本类型比较用==,比较的是他们的值.默认下,对象用==比较时,比较的是内存地址,如果需要比较对象内容,需要重写equal方法
+
+## a==b与a.equals(b)有什么区别
+
+如果a 和b 都是对象，则 a==b 是比较两个对象的引用，只有当 a 和 b 指向的是堆中的同一个对象才会返回 true，而 a.equals(b) 是进行逻辑比较，所以通常需要重写该方法来提供逻辑一致性的比较。例如，String 类重写 equals() 方法，所以可以用于两个不同对象，但是包含的字母相同的比较。
+
+## 接口是否可继承（extends）接口？抽象类是否可实现（implements）接口？抽象类是否可继承具体类（concrete class）？
+
+接口可以继承接口，而且支持多重继承。抽象类可以实现(implements)接口，抽象类可继承具体类也可以继承抽象类。
+
+## Java 中的final关键字有哪些用法？
+
+(1)修饰类：表示该类不能被继承；
+
+(2)修饰方法：表示方法不能被重写；
+
+(3)修饰变量：表示变量只能一次赋值以后值不能被修改（常量）。
 
 
 
 
-## Collection和Set的区别？
 
 
 
 
 
-## Map是不是Collection?
+## 运行时异常与受检异常有何异同？
+
+异常表示程序运行过程中可能出现的非正常状态，运行时异常表示虚拟机的通常操作中可能遇到的异常，是一种常见运行错误，只要程序设计得没有问题通常就不会发生。受检异常跟程序运行的上下文环境有关，即使程序设计无误，仍然可能因使用的问题而引发。Java编译器要求方法必须声明抛出可能发生的受检异常，但是并不要求必须声明抛出未被捕获的运行时异常。
+
+异常和继承一样，是面向对象程序设计中经常被滥用的东西，在Effective Java中对异常的使用给出了以下指导原则：
+
+- 不要将异常处理用于正常的控制流（设计良好的API不应该强迫它的调用者为了正常的控制流而使用异常）
+- 对可以恢复的情况使用受检异常，对编程错误使用运行时异常
+- 避免不必要的使用受检异常（可以通过一些状态检测手段来避免异常的发生）
+- 优先使用标准的异常
+- 每个方法抛出的异常都要有文档
+- 保持异常的原子性
+- 不要在catch中忽略掉捕获到的异常
+
+## 列出一些你常见的运行时异常？
+
+- ArithmeticException（算术异常）
+- ClassCastException （类转换异常）
+- IllegalArgumentException （非法参数异常）
+- IndexOutOfBoundsException （下标越界异常）
+- NullPointerException （空指针异常）
+- SecurityException （安全异常）
+
+## 阐述final、finally、finalize的区别
+
+- final：修饰符（关键字）有三种用法：如果一个类被声明为final，意味着它不能再派生出新的子类，即不能被继承，因此它和abstract是反义词。将变量声明为final，可以保证它们在使用中不被改变，被声明为final的变量必须在声明时给定初值，而在以后的引用中只能读取不可修改。被声明为final的方法也同样只能使用，不能在子类中被重写。
+- finally：通常放在try…catch…的后面构造总是执行代码块，这就意味着程序无论正常执行还是发生异常，这里的代码只要JVM不关闭都能执行，可以将释放外部资源的代码写在finally块中。
+- finalize：Object类中定义的方法，Java中允许使用finalize()方法在垃圾收集器将对象从内存中清除出去之前做必要的清理工作。这个方法是由垃圾收集器在销毁对象时调用的，通过重写finalize()方法可以整理系统资源或者执行其他清理工作。
 
 
 
 
 
-## TreeMap和HashMap的区别？
+
+
+## 内部类的作用
+
+内部类可以有多个实例,每个实例都有自己的状态信息,并且与其他外围对象的信息相互独立.在单个外围类当中,可以让多个内部类以不同的方式实现同一接口,或者继承同一个类.创建内部类对象的时刻不依赖于外部类对象的创建.内部类并没有令人疑惑的”is-a”关系,它就像是一个独立的实体.
+
+内部类提供了更好的封装,除了该外围类,其他类都不能访问
 
 
 
-## HashMap vs Hashtable
+## 说出几条 Java 中方法重载的最佳实践？
 
-## 实现Key-Value的LRU缓存
+下面有几条可以遵循的方法重载的最佳实践来避免造成自动装箱的混乱。
+
+- 不要重载这样的方法：一个方法接收 int 参数，而另个方法接收 Integer 参数。
+- 不要重载参数数量一致，而只是参数顺序不同的方法。
+- 如果重载的方法参数个数多于 5 个，采用可变参数。
 
 
+
+## 什么要重写hashcode()和equals()以及他们之间的区别与关系？
+
+可以参考：
+
+- [为什么要重写hashCode()方法和equals()方法以及如何进行重写](https://blog.csdn.net/xlgen157387/article/details/63683882)
+- [Java hashCode() 和 equals()的若干问题解答](https://www.cnblogs.com/skywang12345/p/3324958.html)
+- [Java中equals()与hashCode()方法详解](http://bijian1013.iteye.com/blog/1972404)
 
 
 
