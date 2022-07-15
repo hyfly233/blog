@@ -341,3 +341,30 @@ association,在一对多的时候引入了 collection 节点,不过都是在 res
  
 
 4）原来的 queryForObject queryForList 变成了 selectOne selectList5）原来的别名设置在映射文件里面放在了核心配置文件里
+
+
+
+
+
+## 什么是MyBatis中的缓存
+
+**MyBatis 中的缓存就是说 MyBatis 在执行一次SQL查询或者SQL更新之后，这条SQL语句并不会消失，而是被MyBatis 缓存起来，当再次执行相同SQL语句的时候，就会直接从缓存中进行提取，而不是再次执行SQL命令。**
+
+
+
+一级缓存缓存的是 SQL 语句，二级缓存缓存的是结果对象
+
+
+
+## 一级缓存
+
+一级缓存是基于 PerpetualCache（MyBatis自带）的 HashMap 本地缓存，作用范围为 session 域内。当 session flush（刷新）或者 close（关闭）之后，该 session 中所有的 cache（缓存）就会被清空。
+
+
+
+## 二级缓存
+
+二级缓存是全局缓存，作用域超出 session 范围之外，可以被所有 SqlSession 共享。
+
+
+
