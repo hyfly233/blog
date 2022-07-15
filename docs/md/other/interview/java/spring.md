@@ -428,6 +428,14 @@ AOP 代理包含了目标对象的全部方法，但AOP代理中的方法与目�
 
 
 
+可以归纳为三个步骤：
+
+- 1、初始化 Spring 容器，注册内置的 **BeanPostProcessor** 的 **BeanDefinition** 到容器中
+- 2、将配置类的 **BeanDefinition** 注册到容器中
+- 3、调用 **refresh()** 方法刷新容器
+
+
+
 ## 事务相关
 
 ### Spring 事务实现方式
@@ -1429,19 +1437,36 @@ Spring Boot 的 jar 无法被其他项目依赖，主要还是他和普通 jar �
 
 ## 启动相关
 
-### SpringBoot 启动过程
+### Spring Boot 启动过程
 
-1. 创建 **SpringApplication** 类
-2. 初始化构造器 **Initializer** 和 **listener**
-3. 调用 **run** 方法
-4. 开启定时器 **StopWatch**
-5. 根据`SpringApplicationRunListeners`以及参数来启动环境
-6. 准备环境配置，注意`ConfigFileApplicationListener`是用来加载`properties`文件的
-7. 打印`banner`
-8. 创建容器上下文
-9. `prepare`准备容器上下文， 执行之前的`Initializer`初始化，并`load`主`bean`
-10. `refresh`容器上下文，  里面`onRresh`可以启动`webserver`
-11. `afterRefresh`执行初始化完成后要做的操作
-12. listener启动完成
-13. 关闭计时器
-14. 打印启动时间
+1. 首先创建 一个 **SpringApplication** 对象
+
+   在创建的过程中对资源进行获取：判断该应用应该是什么类型，使用 **SpringFactoriesLoader** 查找并加载注册所有有用的 **ApplicationContextInitializer** 和 **ApplicationListener** 到容器中
+
+2. 然后由创建出来的对象 **SpringApplication** 执行 **run** 方法
+
+3. **run** 方法的开始会启动一个时间监视器 **StopWatch**，统计项目启动所用的时间
+
+4. 初始化 **ConfigurableApplicationContext** 上下文和 **Spring Boot 启动异常收集类集合**
+
+5. 通过 **SpringFactoriesLoader** 从 **META-INF/Spring.factories** 中获取并实例化**SpringApplicationRunListener类** 和调用他们的 **starting() 方法**，用于通知他们 “Spring Boot开始启动了”  
+
+   （**SpringApplicationRunListener** 是只在 Spring Boot 启动过程中接受不同时间点的事件的监听者，用于在Spring Boot 的 **run** 方法执行不同过程中监听执行不同的方法）
+
+6. 创建并配置 Spring Boot 的环境配置 （这里会重新执行一次 run 方法，如果是debug的时候，需要留意这次run 方法不同于第一次的run）
+
+7. 打印 **Banner**
+
+8. 创建 Spring 的 **ApplicationContent** 上下文类
+
+9. 创建 **SpringBootExceptionReporter** 类，用于存放启动的时候错误信息
+
+10. 遍历调用 **SpringApplicationRunListener** 的 **contextLoaded()** 通知所有**SpringApplicationRunListener**，告诉它们 **SpringContext** 加载完成。并加载**ConfigurableEnvironment** 和 **Configuration** 类到 **Springcontext** 上下文中
+
+11. 调用 **ApplicationContext** 的 **refresh()** 方法，进行**自动配置模块的加载**，启动Tomcat容器，加载并初始化数据源，消息队列等中间件组件，执行 **@Scheduled** 注解等
+
+12. 计时器停止计时，通知 **SpringApplicationRunListener** Spring Boot 的上下文刷新完成了
+
+13. 查找实现了 **ApplicationRunner** 或 **CommandLineRunner** 接口的类，并执行它们的 **run** 方法
+
+14. 最后再遍历执行 **SpringApplicationRunListener** 的 **finished()** 方法，通知 Spring Boot 启动完成
