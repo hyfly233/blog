@@ -164,7 +164,7 @@ static 的主要作用有两个：
 
 
 
-## 是否可以从一个静态（static）方法内部发出对非静态（non-static）方法的调用？
+### 是否可以从一个静态（static）方法内部发出对非静态（non-static）方法的调用？
 
 不可以
 
@@ -174,7 +174,7 @@ static 的主要作用有两个：
 
 
 
-## 抽象的（abstract）方法是否可同时是静态的（static）,是否可同时是本地方法（native），是否可同时被synchronized修饰
+### 抽象的（abstract）方法是否可同时是静态的（static）,是否可同时是本地方法（native），是否可同时被synchronized修饰
 
 都不能
 
@@ -340,103 +340,14 @@ Java 反射机制是指在程序的运行过程中可以构造任意一个类的
 
 
 
-
-
-
-
-
-
-
-
-## 1.介绍一下 java 吧
-
-java 是一门**开源的跨平台的面向对象的**计算机语言.
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-01.png)
-
-跨平台是因为 java 的 class 文件是运行在虚拟机上的,其实跨平台的,而**虚拟机是不同平台有不同版本**,所以说 java 是跨平台的.
-
-面向对象有几个特点:
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-02.png)
-
-- 1.
-
-  封装
-
-  - 两层含义：一层含义是把对象的属性和行为看成一个密不可分的整体，将这两者'封装'在一个不可分割的**独立单元**(即对象)中
-  - 另一层含义指'信息隐藏，把不需要让外界知道的信息隐藏起来，有些对象的属性及行为允许外界用户知道或使用，但不允许更改，而另一些属性或行为，则不允许外界知晓，或只允许使用对象的功能，而尽可能**隐藏对象的功能实现细节**。
-
-**优点**:
-
-> 1.良好的封装能够**减少耦合**，符合程序设计追求'高内聚，低耦合'。
-> 2.**类内部的结构可以自由修改**。
-> 3.可以对成员变量进行更**精确的控制**。
-> 4.**隐藏信息**实现细节。
-
-- 2.
-
-  继承
-
-  - 继承就是子类继承父类的特征和行为，使得子类对象（实例）具有父类的实例域和方法，或子类从父类继承方法，使得子类具有父类相同的行为。
-
-**优点**:
-
-> 1.提高类代码的**复用性**
-> 2.提高了代码的**维护性**
-
-- 3.
-
-  多态
-
-  - 多态是同一个行为具有多个不同表现形式或形态的能力。Java语言中含有方法重载与对象多态两种形式的多态：
-    - 1.**方法重载**：在一个类中，允许多个方法使用同一个名字，但方法的参数不同，完成的功能也不同。
-    - 2.**对象多态**：子类对象可以与父类对象进行转换，而且根据其使用的子类不同完成的功能也不同（重写父类的方法）。
-
-**优点**
-
-> 1. **消除类型之间的耦合关系**
-> 2. **可替换性**
-> 3. **可扩充性**
-> 4. **接口性**
-> 5. **灵活性**
-> 6. **简化性**
-
-## 2.java 有哪些数据类型？
-
-![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-03.png)
-
-java 主要有两种数据类型
-
-- 1.
-
-  基本数据类型
-
-  - 基本数据有
-
-    八个
-
-    ,
-
-    - byte,short,int,long属于数值型中的整数型
-    - float,double属于数值型中的浮点型
-    - char属于字符型
-    - boolean属于布尔型
-
-- 2.
-
-  引用数据类型
-
-  - 引用数据类型有**三个**,分别是类,接口和数组
-
-## 3.接口和抽象类有什么区别？
+### 3.接口和抽象类有什么区别？
 
 - 1.接口是抽象类的变体，**接口中所有的方法都是抽象的**。而抽象类是声明方法的存在而不去实现它的类。
 - 2.接口可以多继承，抽象类不行。
 - 3.接口定义方法，不能实现，默认是 **public abstract**，而抽象类可以实现部分方法。
 - 4.接口中基本数据类型为 **public static final** 并且需要给出初始值，而抽类象不是的。
 
-## 4.重载和重写什么区别？
+### 4.重载和重写什么区别？
 
 重写：
 
@@ -452,7 +363,7 @@ java 主要有两种数据类型
 - 3.可以有**不同的访问修饰符**；
 - 4.可以抛出**不同的异常**；
 
-## 5.常见的异常有哪些？
+### 5.常见的异常有哪些？
 
 - NullPointerException 空指针异常
 - ArrayIndexOutOfBoundsException 索引越界异常
@@ -461,7 +372,7 @@ java 主要有两种数据类型
 - IllegalArgumentException 非法参数
 - NumberFormatException 类型转换异常 等等....
 
-## 6.异常要怎么解决？
+### 6.异常要怎么解决？
 
 Java标准库内建了一些通用的异常，这些类以Throwable为顶层父类。
 
@@ -501,21 +412,21 @@ try{
 
 
 
-## 13.什么是泛型？
+### 13.什么是泛型？
 
 泛型:**把类型明确的工作推迟到创建对象或调用方法的时候才去明确的特殊的类型**
 
-## 14.泛型擦除是什么？
+### 14.泛型擦除是什么？
 
 因为泛型其实只是在编译器中实现的而虚拟机并不认识泛型类项，所以要在虚拟机中将泛型类型进行擦除。也就是说，**在编译阶段使用泛型，运行阶段取消泛型，即擦除**。 擦除是将泛型类型以其父类代替，如String 变成了Object等。其实在使用的时候还是进行带强制类型的转化，只不过这是比较安全的转换，因为在编译阶段已经确保了数据的一致性。
 
-## 15.说说进程和线程的区别？
+### 15.说说进程和线程的区别？
 
 **进程是系统资源分配和调度的基本单位**，它能并发执行较高系统资源的利用率.
 
 **线程**是**比进程更小**的能独立运行的基本单位,创建、销毁、切换成本要小于进程,可以减少程序并发执行时的时间和空间开销，使得操作系统具有更好的并发性。
 
-## 16.volatile 有什么作用？
+### 16.volatile 有什么作用？
 
 ![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-07.png)
 
@@ -524,7 +435,7 @@ try{
 - 2.禁止指令重排序
   - cpu 是和缓存做交互的，但是由于 cpu 运行效率太高，所以会不等待当前命令返回结果从而继续执行下一个命令，就会有乱序执行的情况发生
 
-## 17.什么是包装类？为什么需要包装类？
+### 17.什么是包装类？为什么需要包装类？
 
 **Java 中有 8 个基本类型，分别对应的 8 个包装类**
 
@@ -545,7 +456,7 @@ try{
 
 
 
-## 19.JMM 是什么？
+### 19.JMM 是什么？
 
 ![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-08.png)
 
@@ -555,7 +466,7 @@ Java内存模型规定所有的变量都存储在主内存中，包括实例变�
 
 每个线程的工作内存都是独立的，**线程操作数据只能在工作内存中进行，然后刷回到主存**。这是 Java 内存模型定义的线程基本工作方式。
 
-## 20.创建对象有哪些方式
+### 20.创建对象有哪些方式
 
 有**五种创建对象的方式**
 
@@ -603,7 +514,7 @@ byte[] bytes = SerializationUtils.serialize(p1);
 Person p2 = (Person)SerializationUtils.deserialize(bytes);
 ```
 
-## 21.讲讲单例模式懒汉式吧
+### 21.讲讲单例模式懒汉式吧
 
 直接贴代码
 
@@ -637,7 +548,7 @@ public class Singleton {
 
 
 
-## 25.cas 是什么？
+### 25.cas 是什么？
 
 cas 叫做 CompareAndSwap，**比较并交换**，很多地方使用到了它，比如锁升级中自旋锁就有用到，主要是**通过处理器的指令来保证操作的原子性**，它主要包含三个变量：
 
@@ -661,7 +572,7 @@ cas 叫做 CompareAndSwap，**比较并交换**，很多地方使用到了它，
 
 
 
-## 31.介绍一下四种引用类型?
+### 31.介绍一下四种引用类型?
 
 - **强引用 StrongReference**
 
@@ -686,7 +597,7 @@ Object obj = new Object();
 
 虚引用是最弱的一种引用关系，如果一个对象仅持有虚引用，那么它就和没有任何引用一样，它随时可能会被回收，在 JDK1.2 之后，用 PhantomReference 类来表示，通过查看这个类的源码，发现它只有一个构造函数和一个 get() 方法，而且它的 get() 方法仅仅是返回一个null，也就是说将永远无法通过虚引用来获取对象，虚引用必须要和 ReferenceQueue 引用队列一起使用，NIO 的堆外内存就是靠其管理。
 
-## 32.深拷贝、浅拷贝是什么？
+### 32.深拷贝、浅拷贝是什么？
 
 - 浅拷贝并不是真的拷贝，只是**复制指向某个对象的指针**，而不复制对象本身，新旧对象还是共享同一块内存。
 - 深拷贝会另外**创造一个一模一样的对象**，新对象跟原对象不共享内存，修改新对象不会改到原对象。
@@ -697,7 +608,7 @@ Object obj = new Object();
 
 
 
-## 34.一个对象的内存布局是怎么样的?
+### 34.一个对象的内存布局是怎么样的?
 
 ![img](http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/baguwen/basic-34-16.png)
 
@@ -755,7 +666,7 @@ Object obj = new Object();
 
 
 
-## float f=3.4;是否正确？
+### float f=3.4;是否正确？
 
 不正确。3.4是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4; 或者写成float f =3.4F;。
 
@@ -763,7 +674,7 @@ Object obj = new Object();
 
 
 
-## int和Integer有什么区别？
+### int和Integer有什么区别？
 
 Java是一个近乎纯洁的面向对象编程语言，但是为了编程的方便还是引入了基本数据类型，但是为了能够将这些基本数据类型当成对象操作，Java为每一个基本数据类型都引入了对应的包装类型（wrapper class），int的包装类就是Integer，从Java 5开始引入了自动装箱/拆箱机制，使得二者可以相互转换。
 
@@ -778,7 +689,7 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-## switch 是否能作用在byte 上，是否能作用在long,float 上，是否能作用在String上？
+### switch 是否能作用在byte 上，是否能作用在long,float 上，是否能作用在String上？
 
 在Java 5以前，switch(expr)中，expr只能是byte、short、char、int。从Java 5开始，Java中引入了枚举类型，expr也可以是enum类型，从Java 7开始，expr还可以是字符串（String），但是长整型（long）,浮点数（float）在目前所有的版本中都是不可以的。
 
@@ -786,13 +697,13 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-## 阐述静态变量和实例变量的区别。
+### 阐述静态变量和实例变量的区别。
 
 静态变量是被static修饰符修饰的变量，也称为类变量，它属于类，不属于类的任何一个对象，一个类不管创建多少个对象，静态变量在内存中有且仅有一个拷贝；实例变量必须依存于某一实例，需要先创建对象然后通过对象才能访问到它。静态变量可以实现让多个对象共享内存。
 
 补充：在Java开发中，上下文类和工具类中通常会有大量的静态成员。
 
-## Object中有哪些公共方法？
+### Object中有哪些公共方法？
 
 - equals()
 - clone()
@@ -802,34 +713,19 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-## 深拷贝和浅拷贝的区别是什么？
+### 深拷贝和浅拷贝的区别是什么？
 
 浅拷贝：被复制对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用仍然指向原来的对象。换言之，浅拷贝仅仅复制所考虑的对象，而不复制它所引用的对象。
 
 深拷贝：被复制对象的所有变量都含有与原来的对象相同的值，而那些引用其他对象的变量将指向被复制过的新对象，而不再是原有的那些被引用的对象。换言之，深拷贝把要复制的对象所引用的对象都复制了一遍。
 
-## 如何实现对象克隆？
+### 如何实现对象克隆？
 
 有两种方式：
 
 1. 实现Cloneable接口并重写Object类中的clone()方法；
 2. 实现Serializable接口，通过对象的序列化和反序列化实现克隆，可以实现真正的深度克隆。
 
-代码如下：
-
-```
-import java.io.ByteArrayInputStream;import java.io.ByteArrayOutputStream;import java.io.ObjectInputStream;import java.io.ObjectOutputStream;public class MyUtil {    private MyUtil() {        throw new AssertionError();    }    public static <T> T clone(T obj) throws Exception {        ByteArrayOutputStream bout = new ByteArrayOutputStream();        ObjectOutputStream oos = new ObjectOutputStream(bout);        oos.writeObject(obj);        ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());        ObjectInputStream ois = new ObjectInputStream(bin);        return (T) ois.readObject();        // 说明：调用ByteArrayInputStream或ByteArrayOutputStream对象的close方法没有任何意义        // 这两个基于内存的流只要垃圾回收器清理对象就能够释放资源，这一点不同于对外部资源（如文件流）的释放    }}
-```
-
-下面是测试代码：
-
-```
-import java.io.Serializable;/** * 人类 * @author 骆昊 * */class Person implements Serializable {    private static final long serialVersionUID = -9102017020286042305L;    private String name;    // 姓名    private int age;        // 年龄    private Car car;        // 座驾    public Person(String name, int age, Car car) {        this.name = name;        this.age = age;        this.car = car;    }    public String getName() {        return name;    }    public void setName(String name) {        this.name = name;    }    public int getAge() {        return age;    }    public void setAge(int age) {        this.age = age;    }    public Car getCar() {        return car;    }    public void setCar(Car car) {        this.car = car;    }    @Override    public String toString() {        return "Person [name=" + name + ", age=" + age + ", car=" + car + "]";    }}
-/** * 小汽车类 * @author 骆昊 * */class Car implements Serializable {    private static final long serialVersionUID = -5713945027627603702L;    private String brand;       // 品牌    private int maxSpeed;       // 最高时速    public Car(String brand, int maxSpeed) {        this.brand = brand;        this.maxSpeed = maxSpeed;    }    public String getBrand() {        return brand;    }    public void setBrand(String brand) {        this.brand = brand;    }    public int getMaxSpeed() {        return maxSpeed;    }    public void setMaxSpeed(int maxSpeed) {        this.maxSpeed = maxSpeed;    }    @Override    public String toString() {        return "Car [brand=" + brand + ", maxSpeed=" + maxSpeed + "]";    }}
-class CloneTest {    public static void main(String[] args) {        try {            Person p1 = new Person("Hao LUO", 33, new Car("Benz", 300));            Person p2 = MyUtil.clone(p1);   // 深度克隆            p2.getCar().setBrand("BYD");            // 修改克隆的Person对象p2关联的汽车对象的品牌属性            // 原来的Person对象p1关联的汽车不会受到任何影响            // 因为在克隆Person对象时其关联的汽车对象也被克隆了            System.out.println(p1);        } catch (Exception e) {            e.printStackTrace();        }    }}
-```
-
-注意：基于序列化和反序列化实现的克隆不仅仅是深度克隆，更重要的是通过泛型限定，可以检查出要克隆的对象是否支持序列化，这项检查是编译器完成的，不是在运行时抛出异常，这种是方案明显优于使用Object类的clone方法克隆对象。让问题在编译的时候暴露出来总是优于把问题留到运行时。
 
 
 
@@ -837,7 +733,8 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## 接口是否可继承（extends）接口？抽象类是否可实现（implements）接口？抽象类是否可继承具体类（concrete class）？
+
+### 接口是否可继承（extends）接口？抽象类是否可实现（implements）接口？抽象类是否可继承具体类（concrete class）？
 
 接口可以继承接口，而且支持多重继承。抽象类可以实现(implements)接口，抽象类可继承具体类也可以继承抽象类。
 
@@ -851,7 +748,7 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## 运行时异常与受检异常有何异同？
+### 运行时异常与受检异常有何异同？
 
 异常表示程序运行过程中可能出现的非正常状态，运行时异常表示虚拟机的通常操作中可能遇到的异常，是一种常见运行错误，只要程序设计得没有问题通常就不会发生。受检异常跟程序运行的上下文环境有关，即使程序设计无误，仍然可能因使用的问题而引发。Java编译器要求方法必须声明抛出可能发生的受检异常，但是并不要求必须声明抛出未被捕获的运行时异常。
 
@@ -865,16 +762,6 @@ class CloneTest {    public static void main(String[] args) {        try {      
 - 保持异常的原子性
 - 不要在catch中忽略掉捕获到的异常
 
-## 列出一些你常见的运行时异常？
-
-- ArithmeticException（算术异常）
-- ClassCastException （类转换异常）
-- IllegalArgumentException （非法参数异常）
-- IndexOutOfBoundsException （下标越界异常）
-- NullPointerException （空指针异常）
-- SecurityException （安全异常）
-
-- 
 
 
 
@@ -883,8 +770,7 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-
-## 内部类的作用
+### 内部类的作用
 
 内部类可以有多个实例,每个实例都有自己的状态信息,并且与其他外围对象的信息相互独立.在单个外围类当中,可以让多个内部类以不同的方式实现同一接口,或者继承同一个类.创建内部类对象的时刻不依赖于外部类对象的创建.内部类并没有令人疑惑的”is-a”关系,它就像是一个独立的实体.
 
@@ -892,7 +778,7 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## 说出几条 Java 中方法重载的最佳实践？
+### 说出几条 Java 中方法重载的最佳实践？
 
 下面有几条可以遵循的方法重载的最佳实践来避免造成自动装箱的混乱。
 
@@ -914,7 +800,7 @@ class CloneTest {    public static void main(String[] args) {        try {      
 
 
 
-## Java 中的final关键字有哪些用法？
+### Java 中的final关键字有哪些用法？
 
 (1)修饰类：表示该类不能被继承；
 
