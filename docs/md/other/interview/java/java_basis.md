@@ -766,10 +766,6 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-
-
-
-
 ### 内部类的作用
 
 内部类可以有多个实例,每个实例都有自己的状态信息,并且与其他外围对象的信息相互独立.在单个外围类当中,可以让多个内部类以不同的方式实现同一接口,或者继承同一个类.创建内部类对象的时刻不依赖于外部类对象的创建.内部类并没有令人疑惑的”is-a”关系,它就像是一个独立的实体.
@@ -840,10 +836,6 @@ Java 为每个原始类型提供了包装类型：
 
 
 
-### Math.round(11.5) 等于多少？Math.round(-11.5)等于多少？
-
-Math.round(11.5)的返回值是12，Math.round(-11.5)的返回值是-11。四舍五入的原理是在参数上加0.5然后进行下取整。
-
 
 
 ### 两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，这句话对不对？
@@ -856,7 +848,7 @@ Java对于eqauls方法和hashCode方法是这样规定的：
 
 (2)如果两个对象的hashCode相同，它们并不一定相同。当然，你未必要按照要求去做，但是如果你违背了上述原则就会发现在使用容器时，相同的对象可以出现在Set集合中，同时增加新元素的效率会大大下降（对于使用哈希存储的系统，如果哈希码频繁的冲突将会造成存取性能急剧下降）。
 
-补充：关于equals和hashCode方法，很多Java程序都知道，但很多人也就是仅仅知道而已，在Joshua Bloch的大作《Effective Java》（很多软件公司，《Effective Java》、《Java编程思想》以及《重构：改善既有代码质量》是Java程序员必看书籍，如果你还没看过，那就赶紧去亚马逊买一本吧）中是这样介绍equals方法的：首先equals方法必须满足自反性（x.equals(x)必须返回true）、对称性（x.equals(y)返回true时，y.equals(x)也必须返回true）、传递性（x.equals(y)和y.equals(z)都返回true时，x.equals(z)也必须返回true）和一致性（当x和y引用的对象信息没有被修改时，多次调用x.equals(y)应该得到同样的返回值），而且对于任何非null值的引用x，x.equals(null)必须返回false。
+首先equals方法必须满足自反性（x.equals(x)必须返回true）、对称性（x.equals(y)返回true时，y.equals(x)也必须返回true）、传递性（x.equals(y)和y.equals(z)都返回true时，x.equals(z)也必须返回true）和一致性（当x和y引用的对象信息没有被修改时，多次调用x.equals(y)应该得到同样的返回值），而且对于任何非null值的引用x，x.equals(null)必须返回false。
 
 实现高质量的equals方法的诀窍包括：
 
@@ -865,7 +857,7 @@ Java对于eqauls方法和hashCode方法是这样规定的：
 3. 对于类中的关键属性，检查参数传入对象的属性是否与之相匹配；
 4. 编写完equals方法后，问自己它是否满足对称性、传递性、一致性；
 5. 重写equals时总是要重写hashCode；
-6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉[@Override](https://github.com/Override)注解。
+6. 不要将equals方法参数中的Object对象替换为其他的类型，在重写时不要忘掉 @Override 注解。
 
 
 
@@ -885,12 +877,6 @@ Java对于eqauls方法和hashCode方法是这样规定的：
 
 equals 是 Object 类提供的方法之一，每个 Java 类都继承自 Object 类，所以每个对象都具有 equals 这个方法。Object 类中定义的 equals 方法内部是直接调用 == 比较对象的。但通过覆盖的方法可以让它不是比较引用而是比较数据内容。
 
-### 简述 Object 类常用方法
-
-- hashCode：通过对象计算出的散列码。用于 map 型或 equals 方法。需要保证同一个对象多次调用该方法，总返回相同的整型值。
-- equals：判断两个对象是否一致。需保证 equals 方法相同对应的对象 hashCode 也相同。
-- toString: 用字符串表示该对象
-- clone:深拷贝一个对象
 
 
 
@@ -899,14 +885,15 @@ equals 是 Object 类提供的方法之一，每个 Java 类都继承自 Object 
 
 
 
+# 包装类
 
-### 18.Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
+### Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
 
 Integer a = 1000，Integer b = 1000，a==b 结果为**false**
 
 Integer a = 1，Integer b = 1，a==b 结果为**true**
 
-这道题主要考察 Integer 包装类缓存的范围,**在-128~127之间会缓存起来**,比较的是直接缓存的数据,在此之外比较的是对象
+Integer 包装类缓存的范围，**在-128~127之间会缓存起来**，比较的是直接缓存的数据，在此之外比较的是对象
 
 
 
