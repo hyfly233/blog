@@ -110,3 +110,5 @@ dist
 /package-lock.json
 /docs/.vuepress/dist/
 .vscode/launch.json
+
+**/.DS_Store
