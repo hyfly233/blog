@@ -887,7 +887,7 @@ equals 是 Object 类提供的方法之一，每个 Java 类都继承自 Object 
 
 # 包装类
 
-### Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
+## Integer a = 1000，Integer b = 1000，a==b 的结果是什么？那如果 a，b 都为1，结果又是什么？
 
 Integer a = 1000，Integer b = 1000，a==b 结果为**false**
 
