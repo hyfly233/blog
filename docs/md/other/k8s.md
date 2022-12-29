@@ -18,7 +18,7 @@ touch /opt/mysql/my.cnf
 
 my.cnf添加如下内容：
 
-```
+```properties
 [mysqld]
 user=mysql
 character-set-server=utf8
@@ -48,13 +48,28 @@ default-character-set=utf8
     -d mysql:8.0.30 --default-authentication-plugin=mysql_native_password
    ```
 
+3. 登录 mysql server，设置 root 密码
+   mysql -u root -p
+   UPDATE mysql.user SET host='%' WHERE user='root';
+   flush privileges;
+
+4. 安装Mysql client
+
+   - 添加rpm源
+     rpm -ivh https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
+   - 安装x64位的 mysql客户端
+     yum install mysql-community-client.x86_64 -y 
+   - 登录 mysql server
+     mysql -h 127.0.0.1 -uroot -p
+     输入密码：password
+
    
 
-3. 创建数据库 blogDB
+5. 创建数据库 blogDB
    ```sql
    CREATE DATABASE IF NOT EXISTS blogDB DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
    ```
-   
+
    
 
 # 应用编译，打包，运行
@@ -478,26 +493,25 @@ PING 192.168.31.178 (192.168.31.178): 56 data bytes
 
 - 删除原有的yum源：
 
-```
+```sh
 rm -f /etc/yum.repos.d/*
 ```
 
 - 重新下载阿里云的yum源：
 
-```
+```sh
 wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-
 ```
 
 - 列出yum各软件包：
 
-```
+```sh
 yum list
 ```
 
 - 清除缓存：
 
-```
+```sh
 yum clean all
 ```
 
@@ -505,9 +519,8 @@ yum clean all
 
 - 安装基本软件包
 
-```
-[root@localhost ~]# yum install wget net‐tools vim bash‐comp* ‐y
-
+```sh
+yum install wget net‐tools vim bash‐comp* ‐y
 ```
 
 - 设置主机名，管理节点设置主机名为master
@@ -550,7 +563,7 @@ cat /etc/fstab_bak |grep -v swap > /etc/fstab
 
 - 配置Docker, K8S的阿里云yum源
 
-```
+```sh
 [root@master ~]# cat >>/etc/yum.repos.d/kubernetes.repo <<EOF
 [kubernetes]
 name=Kubernetes
@@ -567,7 +580,7 @@ EOF
 
 - 安装并启动 docker
 
-```
+```sh
 yum install -y docker-ce.x86_64 docker-ce-cli.x86_64 containerd.io.x86_64
 
 mkdir /etc/docker
@@ -582,11 +595,11 @@ EOF
 
 - 编辑/usr/lib/systemd/system/docker.service
 
-```
+```sh
 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --exec-opt native.cgroupdriver=systemd
 ```
 
-```
+```sh
 # Restart Docker
 systemctl daemon-reload
 systemctl enable docker
@@ -597,19 +610,19 @@ systemctl restart docker
 
 - 卸载旧版本
 
-```
+```sh
 yum remove -y kubelet kubeadm kubectl
 ```
 
 - 安装kubelet、kubeadm、kubectl
 
-```
+```sh
 yum install -y kubelet.x86_64 kubeadm.x86_64 kubectl.x86_64
 ```
 
 - 重启 docker，并启动 kubelet
 
-```
+```sh
 systemctl enable kubelet && systemctl start kubelet
 ```
 
@@ -617,7 +630,7 @@ systemctl enable kubelet && systemctl start kubelet
 
 - 将桥接的IPv4流量传递到iptables的链
 
-```
+```sh
 echo "1" >/proc/sys/net/bridge/bridge-nf-call-iptables
 vi /etc/sysctl.d/k8s.conf 
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -640,19 +653,19 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 - 安装网络插件 Flannel
 
-```
+```sh
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
 - 查看是否成功创建flannel网络
 
-```
+```sh
 ifconfig |grep flannel
 ```
 
 - 重置 kubeadm
 
-```
+```sh
 kubeadm reset
 ```
 
@@ -758,3 +771,356 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 kubectl get nodes
 ```
 
+
+
+
+
+# 5-8 为容器定义相互依赖的环境变量
+当创建一个 Pod 时，你可以为运行在 Pod 中的容器设置相互依赖的环境变量。 设置相互依赖的环境变量，你就可以在配置清单文件的  `env`  的  `value`  中使用 $(VAR_NAME)。
+
+在本练习中，你会创建一个单容器的 Pod。 此 Pod 的配置文件定义了一个已定义常用用法的相互依赖的环境变量。 下面是 Pod 的配置清单：
+
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dependent-envars-demo
+spec:
+  containers:
+    - name: dependent-envars-demo
+      args:
+        - while true; do echo -en '\n'; printf UNCHANGED_REFERENCE=$UNCHANGED_REFERENCE'\n'; printf SERVICE_ADDRESS=$SERVICE_ADDRESS'\n';printf ESCAPED_REFERENCE=$ESCAPED_REFERENCE'\n'; sleep 30; done;
+      command:
+        - sh
+        - -c
+      image: busybox
+      env:
+        - name: SERVICE_PORT
+          value: "80"
+        - name: SERVICE_IP
+          value: "172.17.0.1"
+        - name: UNCHANGED_REFERENCE
+          value: "$(PROTOCOL)://$(SERVICE_IP):$(SERVICE_PORT)"
+        - name: PROTOCOL
+          value: "https"
+        - name: SERVICE_ADDRESS
+          value: "$(PROTOCOL)://$(SERVICE_IP):$(SERVICE_PORT)"
+        - name: ESCAPED_REFERENCE
+          value: "$$(PROTOCOL)://$(SERVICE_IP):$(SERVICE_PORT)"
+
+```
+
+1.  依据清单创建 Pod：
+    
+    ```shell
+    kubectl apply -f https://k8s.io/examples/pods/inject/dependent-envars.yaml
+    
+    ```
+    
+    ```
+    pod/dependent-envars-demo created
+    
+    ```
+    
+2.  列出运行的 Pod：
+    
+    ```shell
+    kubectl get pods dependent-envars-demo
+    
+    ```
+    
+    ```
+    NAME                      READY     STATUS    RESTARTS   AGE
+    dependent-envars-demo     1/1       Running   0          9s
+    
+    ```
+    
+3.  检查 Pod 中运行容器的日志：
+    
+    ```shell
+    kubectl logs pod/dependent-envars-demo
+    
+    ```
+    
+    ```
+    
+    UNCHANGED_REFERENCE=$(PROTOCOL)://172.17.0.1:80
+    SERVICE_ADDRESS=https://172.17.0.1:80
+    ESCAPED_REFERENCE=$(PROTOCOL)://172.17.0.1:80
+    
+    ```
+    
+
+如上所示，你已经定义了  `SERVICE_ADDRESS`  的正确依赖引用，  `UNCHANGED_REFERENCE`  的错误依赖引用， 并跳过了  `ESCAPED_REFERENCE`  的依赖引用。
+
+如果环境变量被引用时已事先定义，则引用可以正确解析， 比如  `SERVICE_ADDRESS`  的例子。
+
+当环境变量未定义或仅包含部分变量时，未定义的变量会被当做普通字符串对待， 比如  `UNCHANGED_REFERENCE`  的例子。 注意，解析不正确的环境变量通常不会阻止容器启动。
+
+`$(VAR_NAME)`  这样的语法可以用两个  `$`  转义，既：`$$(VAR_NAME)`。 无论引用的变量是否定义，转义的引用永远不会展开。 这一点可以从上面  `ESCAPED_REFERENCE`  的例子得到印证。
+
+
+
+
+
+# 6-2 创建 Service 连接到应用
+
+## 在集群中暴露 Pod
+
+创建一个 Nginx Pod，声明它具有一个容器端口80：
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx
+spec:
+  selector:
+    matchLabels:
+      run: my-nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: my-nginx
+    spec:
+      containers:
+      - name: my-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+
+```
+
+这使得可以从集群中任何一个节点来访问它。检查节点，该 Pod 正在运行：
+
+```shell
+kubectl apply -f ./run-my-nginx.yaml
+kubectl get pods -l run=my-nginx -o wide
+
+```
+
+```
+NAME                        READY     STATUS    RESTARTS   AGE       IP            NODE
+my-nginx-3800858182-jr4a2   1/1       Running   0          13s       10.244.3.4    kubernetes-minion-905m
+my-nginx-3800858182-kna2y   1/1       Running   0          13s       10.244.2.5    kubernetes-minion-ljyd
+
+```
+
+检查 Pod 的 IP 地址：
+
+```shell
+kubectl get pods -l run=my-nginx -o yaml | grep podIP
+    podIP: 10.244.3.4
+    podIP: 10.244.2.5
+
+```
+
+此时能够通过 ssh 登录到集群中的任何一个节点上，使用 curl 也能调通所有 IP 地址。 需要注意的是，容器不会使用该节点上的 80 端口，也不会使用任何特定的 NAT 规则去路由流量到 Pod 上。 这意味着可以在同一个节点上运行多个 Pod，使用相同的容器端口，并且可以从集群中任何其他的 Pod 或节点上使用 IP 的方式访问到它们。
+
+## 创建 Service
+
+Kubernetes Service 从逻辑上定义了运行在集群中的一组 Pod，这些 Pod 提供了相同的功能。 当每个 Service 创建时，会被分配一个唯一的 IP 地址（也称为 clusterIP）。 这个 IP 地址与一个 Service 的生命周期绑定在一起，当 Service 存在的时候它也不会改变。 可以配置 Pod 使它与 Service 进行通信，Pod 知道与 Service 通信将被自动地负载均衡到该 Service 中的某些 Pod 上。
+
+可以使用  `kubectl expose`  命令为 2个 Nginx 副本创建一个 Service：
+
+```shell
+kubectl expose deployment/my-nginx
+service/my-nginx exposed
+
+```
+
+这等价于使用  `kubectl create -f`  命令创建，对应如下的 yaml 文件：
+nginx-svc.yaml
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx
+  labels:
+    run: my-nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: my-nginx
+
+```
+
+上述规约将创建一个 Service，对应具有标签  `run: my-nginx`  的 Pod，目标 TCP 端口 80， 并且在一个抽象的 Service 端口（`targetPort`：容器接收流量的端口；`port`：抽象的 Service 端口，可以使任何其它 Pod 访问该 Service 的端口）上暴露。 查看你的 Service 资源:
+
+```shell
+kubectl get svc my-nginx
+
+```
+
+```
+NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+my-nginx   ClusterIP   10.0.162.149   <none>        80/TCP    21s
+
+```
+
+正如前面所提到的，一个 Service 由一组 backend Pod 组成。这些 Pod 通过  `endpoints`  暴露出来。 Service Selector 将持续观察，结果被 POST 到一个名称为  `my-nginx`  的 Endpoint 对象上。 当 Pod 终止后，它会自动从 Endpoint 中移除，新的能够匹配上 Service Selector 的 Pod 将自动地被添加到 Endpoint 中。 检查该 Endpoint，注意到 IP 地址与在第一步创建的 Pod 是相同的。
+
+```shell
+kubectl describe svc my-nginx
+
+```
+
+```
+Name:                my-nginx
+Namespace:           default
+Labels:              run=my-nginx
+Annotations:         <none>
+Selector:            run=my-nginx
+Type:                ClusterIP
+IP:                  10.0.162.149
+Port:                <unset> 80/TCP
+Endpoints:           10.244.2.5:80,10.244.3.4:80
+Session Affinity:    None
+Events:              <none>
+
+```
+
+```shell
+kubectl get ep my-nginx
+
+```
+
+```
+NAME       ENDPOINTS                     AGE
+my-nginx   10.244.2.5:80,10.244.3.4:80   1m
+
+```
+
+现在，能够从集群中任意节点上使用 curl 命令请求 Nginx Service  `<CLUSTER-IP>:<PORT>`  。 注意 Service IP 完全是虚拟的，它从来没有走过网络。
+
+## 访问 Service
+
+Kubernetes支持两种查找服务的主要模式: 环境变量和DNS。 前者开箱即用，而后者则需要CoreDNS
+
+### 环境变量
+
+当 Pod 在 Node 上运行时，kubelet 会为每个活跃的 Service 添加一组环境变量。 这会有一个顺序的问题。想了解为何，检查正在运行的 Nginx Pod 的环境变量（Pod 名称将不会相同）：
+
+```shell
+kubectl exec my-nginx-3800858182-jr4a2 -- printenv | grep SERVICE
+
+```
+
+```
+KUBERNETES_SERVICE_HOST=10.0.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_SERVICE_PORT_HTTPS=443
+
+```
+
+
+
+
+
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-pod
+spec:
+  containers:
+
+  - name: test-container
+    image: nginx
+    volumeMounts:
+    - mountPath: /test-nginx
+      name: myhostpath
+      volumes:
+  - name: myhostpath
+    hostPath:
+      path: /tmp/nginx
+      type: DirectoryOrCreate
+
+
+
+
+
+# 4.1 深入理解容器镜像中心
+
+- Dockerhub
+  https://registry.hub.docker.com/
+- 配置国内 Docker 镜像源
+
+```
+vi  /etc/docker/daemon.json
+#修改后如下：
+{
+    "registry-mirrors": ["https://registry.docker-cn.com"],
+    "live-restore": true
+}
+```
+
+- 重启 docker 服务
+
+```
+systemctl restart docker
+```
+
+- 推送镜像到 dockerhub
+
+```
+docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: wangqingjiewa
+Password:
+
+Login Succeeded
+
+docker tag kubeblog:1.0 wangqingjiewa/kubeblog:1.0
+[root@localhost Final]# docker push wangqingjiewa/kubeblog:1.0
+```
+
+# 4.2 实践搭建私有镜像中心
+
+## 安装 JFrog Container Registry(JCR)
+
+```
+mkdir -p $JFROG_HOME/artifactory/var/etc/
+cd $JFROG_HOME/artifactory/var/etc/
+touch ./system.yaml
+chown -R 1030:1030 $JFROG_HOME/artifactory/var
+chmod -R 777 $JFROG_HOME/artifactory/var
+
+docker run --name artifactory-jcr -v $JFROG_HOME/artifactory/var/:/var/opt/jfrog/artifactory -d -p 8081:8081 -p 8082:8082 docker.bintray.io/jfrog/artifactory-jcr:latest
+```
+
+- 登录镜像中心JCR
+
+```
+localhost:8081
+admin/passw0rd
+```
+
+# 4.3 将博客应用镜像上传到私有容器镜像中心进行管理
+
+- 配置 JCR 本地域名
+
+```
+vi /etc/hosts
+127.0.0.1 art.local
+```
+
+- 登录镜像中心
+
+```
+docker login art.local:8081 admin/passw0rd
+
+docker build -t art.local:8081/docker-local/kubeblog:1.0 .
+
+docker push art.local:8081/docker-local/kubeblog:1.0
+
+```
+
+- 登录 JCR 查看推送的镜像
