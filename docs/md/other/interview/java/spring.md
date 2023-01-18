@@ -45,43 +45,39 @@ Spring的目标是使得Java EE应用程序的开发更加简捷
 
 ### BeanFactory和ApplicationContext的区别
 
-**ApplicationContext**
++ ApplicationContext
 
-Spring容器就是`ApplicationContext`，它是一个接口，有很多实现类
+  Spring容器就是`ApplicationContext`，它是一个接口，有很多实现类
 
-`ClassPathXmlApplicationContext`，表示它会自动从`classpath`中查找指定的XML配置文件的Spring容器
+  `ClassPathXmlApplicationContext`，表示它会自动从`classpath`中查找指定的XML配置文件的Spring容器
 
-获得了`ApplicationContext`的实例，就获得了`IoC容器的引用`
+  获得了`ApplicationContext`的实例，就获得了`IoC容器的引用`
 
-可以根据Bean的ID获取Bean，也可以根据Bean的类型获取Bean的引用
+  可以根据Bean的ID获取Bean，也可以根据Bean的类型获取Bean的引用
 
-```java
-ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-UserService userService = context.getBean(UserService.class);
-```
+  ```java
+  ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+  UserService userService = context.getBean(UserService.class);
+  ```
 
+  
 
++ BeanFactory
 
-**BeanFactory**
+  Spring还提供另一种`IoC容器`叫`BeanFactory`，使用方式和`ApplicationContext`类似
 
-Spring还提供另一种`IoC容器`叫`BeanFactory`，使用方式和`ApplicationContext`类似
+  ```java
+  BeanFactory factory = new XmlBeanFactory(new ClassPathResource("application.xml"));
+  MailService mailService = factory.getBean(MailService.class);
+  ```
 
-```java
-BeanFactory factory = new XmlBeanFactory(new ClassPathResource("application.xml"));
-MailService mailService = factory.getBean(MailService.class);
-```
+  
 
++ 区别
 
-
-**区别**
-
-`BeanFactory`和`ApplicationContext`的区别
-
-+ `BeanFactory`的实现是按需创建，即第一次获取Bean时才创建这个Bean
-
-+ `ApplicationContext`会一次性创建所有的Bean
-
-实际上，`ApplicationContext`接口是从`BeanFactory`接口继承而来的，并且，`ApplicationContext`提供了一些额外的功能，包括国际化支持、事件和通知机制等。通常情况下，使用`ApplicationContext`，很少会考虑使用`BeanFactory`。 
+  + `BeanFactory`的实现是按需创建，即第一次获取Bean时才创建这个Bean
+  + `ApplicationContext`会一次性创建所有的Bean
+  + 实际上，`ApplicationContext`接口是从`BeanFactory`接口继承而来的，并且，`ApplicationContext`提供了一些额外的功能，包括国际化支持、事件和通知机制等。通常情况下，使用`ApplicationContext`，很少会考虑使用`BeanFactory` 
 
 
 

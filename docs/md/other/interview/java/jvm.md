@@ -986,7 +986,7 @@ jstack [ option ] [server_id@]<remote server IP or hostname> 查看当前时间�
 
 **示例二**
  将指定进程的当前堆栈情况记录到某个⽂件中
- 
+
 
 ![img](https:////upload-images.jianshu.io/upload_images/9359211-b4b9b688e75940c8.png?imageMogr2/auto-orient/strip|imageView2/2/w/696/format/webp)
 
@@ -996,7 +996,7 @@ jstack [ option ] [server_id@]<remote server IP or hostname> 查看当前时间�
 
 **示例三**
  统计线程数
- 
+
 
 ![img](https:////upload-images.jianshu.io/upload_images/9359211-e2229a53c73a7c02.png?imageMogr2/auto-orient/strip|imageView2/2/w/1020/format/webp)
 
@@ -1006,7 +1006,7 @@ jstack [ option ] [server_id@]<remote server IP or hostname> 查看当前时间�
 
 **示例四**
  检测死锁
- 
+
 
 ![img](https:////upload-images.jianshu.io/upload_images/9359211-ea6d6a76796993f9.png?imageMogr2/auto-orient/strip|imageView2/2/w/1200/format/webp)
 
