@@ -52,21 +52,9 @@ Spring Boot 主要有如下优点：
 4. 没有代码生成，也不需要XML配置。
 5. 避免大量的 Maven 导入和各种版本冲突。
 
-### Spring Boot 的核心注解是哪个？它主要由哪几个注解组成的？
+### 
 
-启动类上面的注解是@SpringBootApplication，它也是 Spring Boot 的核心注解，主要组合包含了以下 3 个注解：
-
-- **@SpringBootConfiguration：**组合了 @Configuration 注解，实现配置文件的功能。
-- **@EnableAutoConfiguration：**打开自动配置的功能，也可以关闭某个自动配置的选项，如关闭数据源自动配置功能：@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-- **@ComponentScan：**Spring组件扫描
-
-### 运行 Spring Boot 有哪几种方式？
-
-1）打包用命令或者放到容器中运行
-
-2）用 Maven/ Gradle 插件运行
-
-3）直接执行 main 方法运行
+### 
 
 ### 开启 Spring Boot 特性有哪几种方式？
 
@@ -137,7 +125,7 @@ Spring Profiles 允许用户根据配置文件（dev，test，prod 等）来注�
 
 [https://www.php.cn/blog/detail/799137.html#:~:text=Spring%20Boot%20%E5%AE%98%E6%96%B9%E5%BB%BA%E8%AE%AE%E6%88%91%E4%BB%AC%E5%9C%A8%E8%87%AA%E5%AE%9A%E4%B9%89%20starter%20%E6%97%B6%EF%BC%8C%E5%88%9B%E5%BB%BA%E4%B8%A4%E4%B8%AA%20Module%20%EF%BC%9AautoConfigure%20Module,%E5%92%8C%20starter%20Module%EF%BC%8C%E5%85%B6%E4%B8%AD%20starter%20Module%20%E4%BE%9D%E8%B5%96%E4%BA%8E%20autoConfigure%20Module%E3%80%82](https://www.php.cn/blog/detail/799137.html#:~:text=Spring Boot 官方建议我们在自定义 starter 时，创建两个 Module ：autoConfigure Module,和 starter Module，其中 starter Module 依赖于 autoConfigure Module。)
 
-## 安全
+## 安全相关
 
 ### 如何实现 Spring Boot 应用程序的安全性？
 
@@ -212,7 +200,104 @@ Spring boot actuator 监视器可帮助访问生产环境中正在运行的应�
 
 Spring Boot 提供监视器端点以监控各个微服务的度量。这些端点对于获取有关应用程序的信息（如它们是否已启动）以及它们的组件（如数据库等）是否正常运行很有帮助。但是，使用监视器的一个主要缺点或困难是，必须单独打开应用程序的知识点以了解其状态或健康状况。想象一下涉及 50 个应用程序的微服务，管理员将不得不击中所有 50 个应用程序的执行终端。为了处理这种情况，可以使用 Spring-boot-admin。 它建立在 Spring Boot Actuator 之上，它提供了一个 Web UI，使我们能够可视化多个应用程序的度量。
 
+## 注解相关
 
+### SpringBoot中常用注解及其底层实现
+
+1. **＠SpringBootApplication注解：**这个注解标识了一个SpringBoot工程，它实际上是另外三个注解的组合，这三个注解是：
+
+1. 1. **＠SpringBootConfiguration：**这个注解实际就是一个＠Configuration，表示启动类也是一个配置类
+   2. **＠EnableAutoConfiguration：**向Spring容器中导入了一个Selector，用来加载ClassPath下SpringFactories中所定义的自动配置类，将这些自 动加载为配置Bean
+   3. **＠ComponentScan：**标识扫描路径，因为默认是没有配置实际扫描路径，所以SpringBoot扫描的路径是启动类所在的当前目录
+
+1. **＠Bean注解：**用来定义Bean，类似于XML中的＜bean＞标签，Spring在启动时，会对加了＠Bean注解的方法进行解析，将方法的名字做为beanName，并通过执行方法得到bean对象
+2. **＠Controller**、**＠Service**、**＠ResponseBody**、**＠Autowired**
+
+### Spring Boot 的核心注解是哪个？它主要由哪几个注解组成的？
+
+启动类上面的注解是@SpringBootApplication，它也是 Spring Boot 的核心注解，主要组合包含了以下 3 个注解：
+
+- **@SpringBootConfiguration：**组合了 @Configuration 注解，实现配置文件的功能。
+- **@EnableAutoConfiguration：**打开自动配置的功能，也可以关闭某个自动配置的选项，如关闭数据源自动配置功能：@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+- **@ComponentScan：**Spring组件扫描
+
+## 启动相关
+
+### 运行 Spring Boot 有哪几种方式？
+
+1. 打包用命令或者放到容器中运行
+2. 用 Maven/Gradle 插件运行
+3. 直接执行 main 方法运行
+
+### Spring Boot 启动过程
+
+1. 首先创建一个 **SpringApplication对象**，在创建的过程中对资源进行获取：判断该应用应该是什么类型，使用 **SpringFactoriesLoader** 查找并加载注册所有有用的 **ApplicationContextInitializer** 和 **ApplicationListener** 到容器中；
+2. 然后由创建出来的对象 **XxxSpringApplication** 执行 **run()** 方法；
+3. **run()** 方法的开始会启动一个**时间监视器 StopWatch**，统计项目启动所用的时间；
+4. 初始化 **ConfigurableApplicationContext 上下文** 和 **Spring Boot 启动异常收集类集合**；
+5. 通过 **SpringFactoriesLoader** 从 **META-INF/Spring.factories** 中获取并实例化**SpringApplicationRunListener 类**并且调用它们的 **starting() 方法**，用于通知所有的 **SpringApplicationRunListener 类**“Spring Boot开始启动了”（**SpringApplicationRunListener** 是只在 Spring Boot 启动过程中接受不同时间点的事件的监听者，用于在Spring Boot的 **run()** 方法执行不同过程中监听执行不同的方法）
+6. 创建并配置 Spring Boot 的环境配置 （这里会重新执行一次 run() 方法，如果是debug的时候，需要留意这次run() 方法不同于第一次的run() 方法）
+7. 打印 **Banner**
+8. 创建 Spring 的 **ApplicationContent 上下文类**
+9. 创建 **SpringBootExceptionReporter** 类，用于存放启动的时候错误信息
+10. 遍历调用 **SpringApplicationRunListener** 的 **contextLoaded()** 方法通知所有**SpringApplicationRunListener**，告诉它们 **SpringContext** 加载完成。并加载**ConfigurableEnvironment** 和 **Configuration** 类到 **Spring Context** 上下文中
+11. 调用 **ApplicationContext** 的 **refresh()** 方法，进行**自动配置模块的加载**，启动Tomcat容器，加载并初始化数据源，消息队列等中间件组件，执行 **@Scheduled** 注解等
+12. 计时器停止计时，通知所有的 **SpringApplicationRunListener**：Spring Boot 的上下文刷新完成了
+13. 查找实现了 **ApplicationRunner** 或 **CommandLineRunner** 接口的类，并执行它们的 **run()** 方法
+14. 最后再遍历执行 **SpringApplicationRunListener** 的 **finished()** 方法，通知 Spring Boot 启动完成
+
+### Spring Boot 启动过程简单概括
+
+1. **加载应用程序类路径中的配置文件和依赖项**
+   在应用程序启动时，Spring Boot 会加载应用程序类路径中的所有配置文件和依赖项。这些配置文件包括 application.properties、application.yml、bootstrap.properties、bootstrap.yml 等。Spring Boot 使用默认配置来加载这些配置文件，但是你也可以自定义配置文件的位置和名称。
+2. **创建 Spring 应用程序上下文**
+   Spring Boot 会创建一个 Spring 应用程序上下文（ApplicationContext），它是一个依赖注入容器，用于管理应用程序中的所有 bean。Spring Boot 会自动扫描应用程序中的所有 bean，并将它们注册到应用程序上下文中。
+3. **执行自动配置**
+   Spring Boot 的自动配置机制会根据应用程序中的类路径和配置文件来自动配置应用程序。例如，如果应用程序中包含了 Spring MVC 相关的类和配置文件，Spring Boot 会自动配置一个基于 Spring MVC 的 Web 应用程序。
+4. **启动 Web 服务器**
+   如果应用程序中包含 Web 组件，Spring Boot 会自动启动一个内嵌的 Web 服务器。默认情况下，Spring Boot 使用 Tomcat 作为默认的 Web 服务器，但是你也可以使用 Jetty 或 Undertow 等其他 Web 服务器。
+5. **运行应用程序** 
+   最后，Spring Boot 启动应用程序并运行它
+
+总之，Spring Boot 的启动过程主要包括加载配置文件和依赖项、创建应用程序上下文、执行自动配置、启动 Web 服务器以及运行应用程序。通过这个过程，Spring Boot 简化了应用程序的开发和部署，并提供了一种快速、简单、灵活的方式来构建 Spring 应用程序。
+
+### SpringBoot是如何启动Tomcat的
+
+1. 首先，SpringBoot在启动时会先创建一个Spring容器
+2. 在创建Spring容器过程中，会利用@ConditionalOnclass技术来判断当前classpath中是否存在Tomcat依赖，如果存在则会生成一个启动Tomcat的Bean
+3. Spring容器创建完之后，就会获取启动Tomcat的Bean，并创建Tomcat对象，并绑定端口等，然后启动Tomcat
+
+### SpringBoot中配置文件的加载顺序是怎样的？
+
+优先级从高到低，高优先级的配置赋值低优先级的配置，所有配置会形成互补配置
+
+1. 命令行参数。所有的配置都可以在命令行上进行指定
+2. Java系统属性（System.getProperties0）
+3. 操作系统环境变量；
+4. jar包外部的application-fprofile.properties或application.yml（带spring.profile）配置文件
+5. jar包内部的application-fprofile.properties或application.yml（带spring.profile）配置文件再来加载不带profile
+6. jar包外部的application.properties或application.yml（不带spring.profile）配置文件
+7. ja包内部的application.properties或application.yml（不带springprofile）配置文件
+8. @Configuration注解类上的@PropertySource
+
+### Spring Boot项目如何热部署？
+
+使用 DEV 工具来实现。通过这种依赖关系，任何更改都会使嵌入式tomcat 将重新启动。Spring Boot 有一个开发工具（DevTools）模块，它有助于提高开发人员的生产力。Java 开发人员面临的一个主要挑战是将文件更改自动部署到服务器并自动重启服务器。开发人员可以重新加载 Spring Boot 上的更改，而无需重新启动服务器。这将消除每次手动部署更改的需要。
+
+Spring Boot 在发布它的第一个版本时没有这个功能。这是开发人员需要的功能。DevTools 模块完全满足开发人员的需求。该模块将在生产环境中被禁用。
+
+它还提供 H2 数据库控制台以更好地测试应用程序。
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring‐boot‐devtools</artifactId>
+</dependency>
+```
+
+## 
+
+## 其他
 
 ### 什么是 Spring Data
 
@@ -236,72 +321,4 @@ Spring Data Jpa 致力于减少数据访问层 (DAO) 的开发量。开发者唯
 
 Spring Boot Batch 提供可重用的函数，这些函数在处理大量记录时非常重要，包括日志/跟踪，事务管理，作业处理统计信息，作业重新启动，跳过和资源管理。它还提供了更先进的技术服务和功能，通过优化和分区技术，可以实现极高批量和高性能批处理作业。简单以及复杂的大批量批处理作业可以高度可扩展的方式利用框架处理重要大量的信息。
 
-### 什么是 Swagger
-
-Swagger 广泛用于可视化 API，使用 Swagger UI 为前端开发人员提供在线沙箱。Swagger 是用于生成 RESTful Web 服务的可视化表示的工具，规范和完整框架实现。它使文档能够以与服务器相同的速度更新。当通过 Swagger 正确定义时，消费者可以使用 少量的实现逻辑来理解远程服务并与其进行交互。因此，Swagger消除了调用服务时的猜测。
-
-推荐 Knife4j
-
-## 如何重新加载 Spring Boot 上的更改，而无需重新启动服务器？Spring Boot项目如何热部署？
-
-使用 DEV 工具来实现。通过这种依赖关系，任何更改都会使嵌入式tomcat 将重新启动。Spring Boot 有一个开发工具（DevTools）模块，它有助于提高开发人员的生产力。Java 开发人员面临的一个主要挑战是将文件更改自动部署到服务器并自动重启服务器。开发人员可以重新加载 Spring Boot 上的更改，而无需重新启动服务器。这将消除每次手动部署更改的需要。
-
-Spring Boot 在发布它的第一个版本时没有这个功能。这是开发人员需要的功能。DevTools 模块完全满足开发人员的需求。该模块将在生产环境中被禁用。
-
-它还提供 H2 数据库控制台以更好地测试应用程序。
-
-```xml
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring‐boot‐devtools</artifactId>
-</dependency>
-```
-
-### SpringBoot中常用注解及其底层实现
-
-1. **＠SpringBootApplication注解：**这个注解标识了一个SpringBoot工程，它实际上是另外三个注解的组合，这三个注解是：
-
-1. 1. **＠SpringBootConfiguration：**这个注解实际就是一个＠Configuration，表示启动类也是一个配置类
-   2. **＠EnableAutoConfiguration：**向Spring容器中导入了一个Selector，用来加载ClassPath下SpringFactories中所定义的自动配置类，将这些自 动加载为配置Bean
-   3. **＠ComponentScan：**标识扫描路径，因为默认是没有配置实际扫描路径，所以SpringBoot扫描的路径是启动类所在的当前目录
-
-1. **＠Bean注解：**用来定义Bean，类似于XML中的＜bean＞标签，Spring在启动时，会对加了＠Bean注解的方法进行解析，将方法的名字做为beanName，并通过执行方法得到bean对象
-2. **＠Controller**、**＠Service**、**＠ResponseBody**、**＠Autowired**
-
-### SpringBoot是如何启动Tomcat的
-
-1. 首先，SpringBoot在启动时会先创建一个Spring容器
-2. 在创建Spring容器过程中，会利用@ConditionalOnclass技术来判断当前classpath中是否存在Tomcat依赖，如果存在则会生成一个启动Tomcat的Bean
-3. Spring容器创建完之后，就会获取启动Tomcat的Bean，并创建Tomcat对象，并绑定端口等，然后启动Tomcat
-
-### SpringBoot中配置文件的加载顺序是怎样的？
-
-优先级从高到低，高优先级的配置赋值低优先级的配置，所有配置会形成互补配置
-
-1. 命令行参数。所有的配置都可以在命令行上进行指定
-2. Java系统属性（System.getProperties0）
-3. 操作系统环境变量；
-4. jar包外部的application-fprofile.properties或application.yml（带spring.profile）配置文件
-5. jar包内部的application-fprofile.properties或application.yml（带spring.profile）配置文件再来加载不带profile
-6. jar包外部的application.properties或application.yml（不带spring.profile）配置文件
-7. ja包内部的application.properties或application.yml（不带springprofile）配置文件
-8. @Configuration注解类上的@PropertySource
-
-## 启动相关
-
-### Spring Boot 启动过程
-
-1. 首先创建一个 **SpringApplication对象**，在创建的过程中对资源进行获取：判断该应用应该是什么类型，使用 **SpringFactoriesLoader** 查找并加载注册所有有用的 **ApplicationContextInitializer** 和 **ApplicationListener** 到容器中；
-2. 然后由创建出来的对象 **XxxSpringApplication** 执行 **run()** 方法；
-3. **run()** 方法的开始会启动一个**时间监视器 StopWatch**，统计项目启动所用的时间；
-4. 初始化 **ConfigurableApplicationContext 上下文** 和 **Spring Boot 启动异常收集类集合**；
-5. 通过 **SpringFactoriesLoader** 从 **META-INF/Spring.factories** 中获取并实例化**SpringApplicationRunListener 类**并且调用它们的 **starting() 方法**，用于通知所有的 **SpringApplicationRunListener 类**“Spring Boot开始启动了”（**SpringApplicationRunListener** 是只在 Spring Boot 启动过程中接受不同时间点的事件的监听者，用于在Spring Boot的 **run()** 方法执行不同过程中监听执行不同的方法）
-6. 创建并配置 Spring Boot 的环境配置 （这里会重新执行一次 run() 方法，如果是debug的时候，需要留意这次run() 方法不同于第一次的run() 方法）
-7. 打印 **Banner**
-8. 创建 Spring 的 **ApplicationContent 上下文类**
-9. 创建 **SpringBootExceptionReporter** 类，用于存放启动的时候错误信息
-10. 遍历调用 **SpringApplicationRunListener** 的 **contextLoaded()** 方法通知所有**SpringApplicationRunListener**，告诉它们 **SpringContext** 加载完成。并加载**ConfigurableEnvironment** 和 **Configuration** 类到 **Spring Context** 上下文中
-11. 调用 **ApplicationContext** 的 **refresh()** 方法，进行**自动配置模块的加载**，启动Tomcat容器，加载并初始化数据源，消息队列等中间件组件，执行 **@Scheduled** 注解等
-12. 计时器停止计时，通知所有的 **SpringApplicationRunListener**：Spring Boot 的上下文刷新完成了
-13. 查找实现了 **ApplicationRunner** 或 **CommandLineRunner** 接口的类，并执行它们的 **run()** 方法
-14. 最后再遍历执行 **SpringApplicationRunListener** 的 **finished()** 方法，通知 Spring Boot 启动完成
+##  
