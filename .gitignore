@@ -112,3 +112,5 @@ dist
 .vscode/launch.json
 
 **/.DS_Store
+
+docs/.vuepress/.temp

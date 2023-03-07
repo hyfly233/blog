@@ -1,4 +1,4 @@
-module.exports = [
+export const head = [
     ['link', { rel: 'icon', href: '/assets/img/CowFace.ico' }],
     ['meta', { name: 'author', content: 'hyfly233' }],
     ['meta', { name: 'keywords', content: '通过 vuepress 构建的博客' }],

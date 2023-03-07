@@ -1,11 +1,11 @@
-module.exports = [
+export const navConfig = [
     { text: 'Home', link: '/' },
     {
         text: 'Back End',
-        items: [
+        children: [
             {
                 text: 'Java',
-                items: [
+                children: [
                     { text: 'Basis', link: '/md/backEnd/java/basis/content' },
                     { text: 'MultiThread', link: '/md/backEnd/java/multiThread/multiThread' },
                     { text: 'JVM', link: '/md/backEnd/java/jvm/jvm' },
@@ -20,7 +20,7 @@ module.exports = [
     },
     {
         text: 'Database',
-        items: [
+        children: [
             { text: 'Basis', link: '/md/database/basis/basis' },
             { text: 'MongoDB', link: '/md/database/mongoDB/mongoDB' },
             { text: 'MySQL', link: '/md/database/mysql/mysql' },
@@ -28,27 +28,27 @@ module.exports = [
     },
     {
         text: 'Middleware',
-        items: [
+        children: [
             {
-                text: 'Cache', items: [
+                text: 'Cache', children: [
                     { text: 'Basis', link: '/md/middleware/cache/basis/basis' },
                     { text: 'Redis', link: '/md/middleware/cache/redis/redis' },
                 ]
             },
             {
-                text: 'Message', items: [
+                text: 'Message', children: [
                     { text: 'Basis', link: '/md/middleware/message/basis/basis' },
                     { text: 'RabbitMQ', link: '/md/middleware/message/rabbitMQ/rabbitMQ' },
                     { text: 'Kafka', link: '/' },
                 ]
             },
             {
-                text: 'Search', items: [
+                text: 'Search', children: [
                     { text: 'Elastic Search', link: '/md/middleware/search/es/es' }
                 ]
             },
             {
-                text: 'Storage', items: [
+                text: 'Storage', children: [
                     { text: 'Basis', link: '/md/middleware/storage/basis/basis' },
                     { text: 'FastDFS', link: '/md/middleware/storage/fastDfs/fastDfs' }
                 ]
@@ -57,7 +57,7 @@ module.exports = [
     },
     {
         text: 'Other',
-        items: [
+        children: [
             { text: 'Algorithm', link: '/md/other/algorithm/algorithm' },
             { text: 'Design Patterns', link: '/md/other/designPatterns/designPatterns' },
             { text: 'Data Structure', link: '/md/other/dataStructure/dataStructure' },
