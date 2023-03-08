@@ -6,7 +6,7 @@ import { backToTopPlugin } from '@vuepress/plugin-back-to-top'
 import { prismjsPlugin } from '@vuepress/plugin-prismjs'
 
 export default {
-
+    base: '/blog/',
     title: '尘世闲游',
     description: '河边共指星为客  花里空瞻月是卿',
     head: head,
