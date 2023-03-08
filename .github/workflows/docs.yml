@@ -21,9 +21,7 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           # 选择要使用的 yarn 版本
-          version: latest
-          # 使用 pnpm 安装依赖
-          cmd: install
+          version: 1.22.19
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -34,6 +32,8 @@ jobs:
           cache: yarn
 
       # 运行构建脚本
+      - name: yarn install
+        run: yarn install
       - name: Build VuePress site
         run: yarn docs:build
 
