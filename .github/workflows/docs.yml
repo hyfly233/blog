@@ -20,10 +20,7 @@ jobs:
       - name: Setup yarn
         uses: borales/actions-yarn@v4
         with:
-          # 选择要使用的 yarn 版本
-          version: 1.22.19
-          # 使用 yarn 安装依赖
-          # cmd: install
+          cmd: install
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
