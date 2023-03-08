@@ -22,7 +22,7 @@ jobs:
           node-version: 18
           # 缓存 yarn 依赖
           cache: npm
-          # cache-dependency-path:
+          cache-dependency-path: /home/runner/work/blog
 
       # 运行构建脚本
       - name: npm ci
