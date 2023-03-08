@@ -4,7 +4,7 @@ set -e
 
 yarn docs:build
 
-cd /docs/.vuepress/dist
+cd ./docs/.vuepress/dist
 
 git init
 git add -A
