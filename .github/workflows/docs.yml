@@ -19,7 +19,6 @@ jobs:
 
       - name: Build VuePress site
         run: |
-          cd blog
           npm install
           npm run docs:build
 
