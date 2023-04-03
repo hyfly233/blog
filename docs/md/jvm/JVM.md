@@ -155,7 +155,7 @@ JVM 的指令由一个字节长度代表着某种特殊操作含义的操作码�
    1. 〈init〉：实例初始化方法，通过 JVM 的 invokespecial 指令来调用
    2. 〈clinit〉：类或接口的初始化方法，不含参数，返回 void
 7. 类库
-   JVM 必须对一些 Java 类库提供支持，否则这些类库根本无法实现
+JVM 必须对一些 Java 类库提供支持，否则这些类库根本无法实现
    1. 反射
    2. 加载和创建类或接口，如：ClassLoader
    3. 连接和初始化类和接口的类
@@ -484,3 +484,573 @@ public class TargetClassDump implements Opcodes {
 }
 
 ```
+#### ASM 演示例子 01
+创建三个类，分别为 TargetClass、MyClassVisiter、Generator，其中的 MyClassVisiter 是有 bug 的
+
+- TargetClass
+```java
+package com.hyfly.asm;
+
+/**
+ * @author flyhy
+ */
+public class TargetClass {
+
+    public void fun01() {
+        try {
+            Thread.sleep(100);
+            System.out.println("TargetClass#fun01 run");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+
+- MyClassVisiter
+```java
+package com.hyfly.asm;
+
+import org.objectweb.asm.*;
+
+public class MyClassVisitor extends ClassVisitor {
+
+    public MyClassVisitor(ClassVisitor classVisitor) {
+        super(Opcodes.ASM9, classVisitor);
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        cv.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+        MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
+        if (!"<init>".equals(name) && mv != null) {
+            // 为这种方法增加记录执行时间的功能
+            mv = new MyMethodVisitor(mv);
+        }
+        return mv;
+    }
+
+    static class MyMethodVisitor extends MethodVisitor {
+
+        public MyMethodVisitor(MethodVisitor methodVisitor) {
+            super(Opcodes.ASM9, methodVisitor);
+        }
+
+        @Override
+        public void visitCode() {
+            super.visitCode();
+            // 在方法开始处插入代码
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false);
+            mv.visitVarInsn(Opcodes.LSTORE, 1);
+        }
+
+        @Override
+        public void visitInsn(int opcode) {
+            // 在方法返回处插入代码
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) || opcode == Opcodes.ATHROW) {
+                // 下面的代码是通过 ASM Bytecode Viewer 生成的 ASM 文件中复制出来的
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false);
+                mv.visitVarInsn(Opcodes.LSTORE, 3);
+                Label label7 = new Label();
+                mv.visitLabel(label7);
+                mv.visitLineNumber(20, label7);
+                mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+                mv.visitVarInsn(Opcodes.LLOAD, 3);
+                mv.visitVarInsn(Opcodes.LLOAD, 1);
+                mv.visitInsn(Opcodes.LSUB);
+                mv.visitInvokeDynamicInsn("makeConcatWithConstants", "(J)Ljava/lang/String;", new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/StringConcatFactory", "makeConcatWithConstants", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;", false), new Object[]{"TargetClass#fun01 cost: \u0001"});
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+                Label label8 = new Label();
+                mv.visitLabel(label8);
+                mv.visitLineNumber(21, label8);
+            }
+
+            super.visitInsn(opcode);
+        }
+    }
+}
+
+```
+
+- Generator
+```java
+package com.hyfly.asm;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
+public class Generator {
+    public static void main(String[] args) throws Exception {
+        ClassReader cr = new ClassReader("com/hyfly/asm/TargetClass");
+
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+        ClassVisitor cv = new MyClassVisitor(cw);
+
+        cr.accept(cv, ClassReader.SKIP_DEBUG);
+
+        byte[] data = cw.toByteArray();
+
+        // 输出到文件
+        File file = new File("/Users/flyhy/workspace/jvm-test/asm/bin/com/hyfly/asm/TargetClass.class");
+
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        fileOutputStream.write(data);
+        fileOutputStream.close();
+    }
+}
+
+```
+执行 Generator 中的 main 方法生成 TargetClass.class 文件，并通过 idea 打开得到的内容为，能清楚的看到代码 13 行是错误的
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package com.hyfly.asm;
+
+public class TargetClass {
+    public TargetClass() {
+    }
+
+    public void fun01() {
+        InterruptedException var1 = System.currentTimeMillis();
+
+        try {
+            Thread.sleep(100L);
+            System.out.println("TargetClass#fun01 run");
+        } catch (InterruptedException var5) {
+            var1 = var5;
+            var5.printStackTrace();
+        }
+
+        long var3 = System.currentTimeMillis();
+        System.out.println("TargetClass#fun01 cost: " + (var3 - var1));
+    }
+}
+
+```
+使用 javap -verbose 命令得到的内容
+```java
+Classfile /Users/flyhy/workspace/jvm-test/asm/bin/com/hyfly/asm/TargetClass.class
+  Last modified 2023年4月1日; size 961 bytes
+  SHA-256 checksum 5fd3906b265448870bbff62db9ed106d9527d38b2b43f5d305ecf51992b68e4c
+public class com.hyfly.asm.TargetClass
+  minor version: 0
+  major version: 61
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #2                          // com/hyfly/asm/TargetClass
+  super_class: #4                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 2, attributes: 1
+Constant pool:
+   #1 = Utf8               com/hyfly/asm/TargetClass
+   #2 = Class              #1             // com/hyfly/asm/TargetClass
+   #3 = Utf8               java/lang/Object
+   #4 = Class              #3             // java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = NameAndType        #5:#6          // "<init>":()V
+   #8 = Methodref          #4.#7          // java/lang/Object."<init>":()V
+   #9 = Utf8               fun01
+  #10 = Utf8               java/lang/System
+  #11 = Class              #10            // java/lang/System
+  #12 = Utf8               currentTimeMillis
+  #13 = Utf8               ()J
+  #14 = NameAndType        #12:#13        // currentTimeMillis:()J
+  #15 = Methodref          #11.#14        // java/lang/System.currentTimeMillis:()J
+  #16 = Utf8               java/lang/InterruptedException
+  #17 = Class              #16            // java/lang/InterruptedException
+  #18 = Long               100l
+  #20 = Utf8               java/lang/Thread
+  #21 = Class              #20            // java/lang/Thread
+  #22 = Utf8               sleep
+  #23 = Utf8               (J)V
+  #24 = NameAndType        #22:#23        // sleep:(J)V
+  #25 = Methodref          #21.#24        // java/lang/Thread.sleep:(J)V
+  #26 = Utf8               out
+  #27 = Utf8               Ljava/io/PrintStream;
+  #28 = NameAndType        #26:#27        // out:Ljava/io/PrintStream;
+  #29 = Fieldref           #11.#28        // java/lang/System.out:Ljava/io/PrintStream;
+  #30 = Utf8               TargetClass#fun01 run
+  #31 = String             #30            // TargetClass#fun01 run
+  #32 = Utf8               java/io/PrintStream
+  #33 = Class              #32            // java/io/PrintStream
+  #34 = Utf8               println
+  #35 = Utf8               (Ljava/lang/String;)V
+  #36 = NameAndType        #34:#35        // println:(Ljava/lang/String;)V
+  #37 = Methodref          #33.#36        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #38 = Utf8               printStackTrace
+  #39 = NameAndType        #38:#6         // printStackTrace:()V
+  #40 = Methodref          #17.#39        // java/lang/InterruptedException.printStackTrace:()V
+  #41 = Utf8               TargetClass#fun01 cost: \u0001
+  #42 = String             #41            // TargetClass#fun01 cost: \u0001
+  #43 = Utf8               java/lang/invoke/StringConcatFactory
+  #44 = Class              #43            // java/lang/invoke/StringConcatFactory
+  #45 = Utf8               makeConcatWithConstants
+  #46 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #47 = NameAndType        #45:#46        // makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #48 = Methodref          #44.#47        // java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #49 = MethodHandle       6:#48          // REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #50 = Utf8               (J)Ljava/lang/String;
+  #51 = NameAndType        #45:#50        // makeConcatWithConstants:(J)Ljava/lang/String;
+  #52 = InvokeDynamic      #0:#51         // #0:makeConcatWithConstants:(J)Ljava/lang/String;
+  #53 = Utf8               Code
+  #54 = Utf8               StackMapTable
+  #55 = Utf8               LineNumberTable
+  #56 = Utf8               BootstrapMethods
+{
+  public com.hyfly.asm.TargetClass();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #8                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public void fun01();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=5, locals=5, args_size=1
+         0: invokestatic  #15                 // Method java/lang/System.currentTimeMillis:()J
+         3: lstore_1
+         4: invokestatic  #15                 // Method java/lang/System.currentTimeMillis:()J
+         7: lstore_1
+         8: ldc2_w        #18                 // long 100l
+        11: invokestatic  #25                 // Method java/lang/Thread.sleep:(J)V
+        14: getstatic     #29                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        17: ldc           #31                 // String TargetClass#fun01 run
+        19: invokevirtual #37                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        22: goto          30
+        25: astore_1
+        26: aload_1
+        27: invokevirtual #40                 // Method java/lang/InterruptedException.printStackTrace:()V
+        30: invokestatic  #15                 // Method java/lang/System.currentTimeMillis:()J
+        33: lstore_3
+        34: getstatic     #29                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        37: lload_3
+        38: lload_1
+        39: lsub
+        40: invokedynamic #52,  0             // InvokeDynamic #0:makeConcatWithConstants:(J)Ljava/lang/String;
+        45: invokevirtual #37                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        48: invokestatic  #15                 // Method java/lang/System.currentTimeMillis:()J
+        51: lstore_3
+        52: getstatic     #29                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        55: lload_3
+        56: lload_1
+        57: lsub
+        58: invokedynamic #52,  0             // InvokeDynamic #0:makeConcatWithConstants:(J)Ljava/lang/String;
+        63: invokevirtual #37                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        66: return
+      Exception table:
+         from    to  target type
+             8    22    25   Class java/lang/InterruptedException
+      StackMapTable: number_of_entries = 2
+        frame_type = 89 /* same_locals_1_stack_item */
+          stack = [ class java/lang/InterruptedException ]
+        frame_type = 4 /* same */
+      LineNumberTable:
+        line 20: 52
+        line 21: 66
+}
+BootstrapMethods:
+  0: #49 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #42 TargetClass#fun01 cost: \u0001
+
+```
+##### 测试生成的 TargetClass.class
+将生成的 TargetClass.class 文件替换 target 文件夹中的 TargetClass.class 文件，执行 TestTargetClass 的 main() 方法将报错
+```java
+package com.hyfly.asm;
+
+public class TestTargetClass {
+    public static void main(String[] args) {
+        TargetClass targetClass = new TargetClass();
+        targetClass.fun01();
+    }
+}
+```
+报错信息
+```
+Exception in thread "main" java.lang.VerifyError: Bad local variable type
+Exception Details:
+  Location:
+    com/hyfly/asm/TargetClass.fun01()V @34: lload_1
+  Reason:
+    Type top (current frame, locals[1]) is not assignable to long
+  Current Frame:
+    bci: @34
+    flags: { }
+    locals: { 'com/hyfly/asm/TargetClass', top, top, long, long_2nd }
+    stack: { 'java/io/PrintStream', long, long_2nd }
+  Bytecode:
+    0000000: b800 0f40 1400 12b8 0019 b200 1d12 1fb6
+    0000010: 0025 a700 084c 2bb6 0028 b800 0f42 b200
+    0000020: 1d21 1f65 ba00 3400 00b6 0025 b1       
+  Exception Handler Table:
+    bci [4, 18] => handler: 21
+  Stackmap Table:
+    same_locals_1_stack_item_frame(@21,Object[#17])
+    same_frame(@26)
+
+	at com.hyfly.asm.TestTargetClass.main(TestTargetClass.java:5)
+```
+##### 报错原因
+在 MyClassVisitor 的内部类 MyMethodVisitor 的 visitCode() 方法中，mv.visitVarInsn(Opcodes.LSTORE, 1); 导致变量在存储时出错，MyClassVisitor 将 TargetClass 原有变量的存储值替换为自身的变量
+#### ASM 演示例子 02
+##### 修改相关类
+修改 ASM 演示例子 01 中的相关类，生成 ASM 文件
+
+1. 添加 MyTimeLogger 类
+```java
+package com.hyfly.asm;
+
+public class MyTimeLogger {
+    private static long startTime = 0L;
+
+    public static void start() {
+        startTime = System.currentTimeMillis();
+    }
+
+    public static void end() {
+        long endTime = System.currentTimeMillis();
+        System.out.println("MyTimeLogger invoke method cost: " + (endTime - startTime));
+    }
+}
+```
+ 2. 修改 TargetClass 并对其 javac 编译为 class 文件
+```java
+package com.hyfly.asm;
+
+public class TargetClass {
+
+    public void fun01() {
+        MyTimeLogger.start();
+
+        try {
+            Thread.sleep(100);
+            System.out.println("TargetClass#fun01 run");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        MyTimeLogger.end();
+    }
+}
+
+```
+
+3. 通过 ASM Bytecode Viewer  生成的 ASM 文件为
+```java
+package asm.com.hyfly.asm;
+
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.Attribute;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.ConstantDynamic;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.RecordComponentVisitor;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
+
+public class TargetClassDump implements Opcodes {
+
+    public static byte[] dump() throws Exception {
+
+        ClassWriter classWriter = new ClassWriter(0);
+        FieldVisitor fieldVisitor;
+        RecordComponentVisitor recordComponentVisitor;
+        MethodVisitor methodVisitor;
+        AnnotationVisitor annotationVisitor0;
+
+        classWriter.visit(V17, ACC_PUBLIC | ACC_SUPER, "com/hyfly/asm/TargetClass", null, "java/lang/Object", null);
+
+        classWriter.visitSource("TargetClass.java", null);
+
+        {
+            methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+            methodVisitor.visitCode();
+            Label label0 = new Label();
+            methodVisitor.visitLabel(label0);
+            methodVisitor.visitLineNumber(9, label0);
+            methodVisitor.visitVarInsn(ALOAD, 0);
+            methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            methodVisitor.visitInsn(RETURN);
+            Label label1 = new Label();
+            methodVisitor.visitLabel(label1);
+            methodVisitor.visitLocalVariable("this", "Lcom/hyfly/asm/TargetClass;", null, label0, label1, 0);
+            methodVisitor.visitMaxs(1, 1);
+            methodVisitor.visitEnd();
+        }
+        {
+            methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "fun01", "()V", null, null);
+            methodVisitor.visitCode();
+            Label label0 = new Label();
+            Label label1 = new Label();
+            Label label2 = new Label();
+            methodVisitor.visitTryCatchBlock(label0, label1, label2, "java/lang/InterruptedException");
+            Label label3 = new Label();
+            methodVisitor.visitLabel(label3);
+            methodVisitor.visitLineNumber(12, label3);
+            methodVisitor.visitMethodInsn(INVOKESTATIC, "com/hyfly/asm/MyTimeLogger", "start", "()V", false);
+            methodVisitor.visitLabel(label0);
+            methodVisitor.visitLineNumber(15, label0);
+            methodVisitor.visitLdcInsn(new Long(100L));
+            methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false);
+            Label label4 = new Label();
+            methodVisitor.visitLabel(label4);
+            methodVisitor.visitLineNumber(16, label4);
+            methodVisitor.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            methodVisitor.visitLdcInsn("TargetClass#fun01 run");
+            methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+            methodVisitor.visitLabel(label1);
+            methodVisitor.visitLineNumber(19, label1);
+            Label label5 = new Label();
+            methodVisitor.visitJumpInsn(GOTO, label5);
+            methodVisitor.visitLabel(label2);
+            methodVisitor.visitLineNumber(17, label2);
+            methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/InterruptedException"});
+            methodVisitor.visitVarInsn(ASTORE, 1);
+            Label label6 = new Label();
+            methodVisitor.visitLabel(label6);
+            methodVisitor.visitLineNumber(18, label6);
+            methodVisitor.visitVarInsn(ALOAD, 1);
+            methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/InterruptedException", "printStackTrace", "()V", false);
+            methodVisitor.visitLabel(label5);
+            methodVisitor.visitLineNumber(21, label5);
+            methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+            methodVisitor.visitMethodInsn(INVOKESTATIC, "com/hyfly/asm/MyTimeLogger", "end", "()V", false);
+            Label label7 = new Label();
+            methodVisitor.visitLabel(label7);
+            methodVisitor.visitLineNumber(22, label7);
+            methodVisitor.visitInsn(RETURN);
+            Label label8 = new Label();
+            methodVisitor.visitLabel(label8);
+            methodVisitor.visitLocalVariable("e", "Ljava/lang/InterruptedException;", null, label6, label5, 1);
+            methodVisitor.visitLocalVariable("this", "Lcom/hyfly/asm/TargetClass;", null, label3, label8, 0);
+            methodVisitor.visitMaxs(2, 2);
+            methodVisitor.visitEnd();
+        }
+        classWriter.visitEnd();
+
+        return classWriter.toByteArray();
+    }
+}
+
+```
+
+4. 复制 ASM 文件中的相关内容，修改 MyClassVisitor 类
+```java
+package com.hyfly.asm;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+public class MyClassVisitor extends ClassVisitor {
+
+    public MyClassVisitor(ClassVisitor classVisitor) {
+        super(Opcodes.ASM9, classVisitor);
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        cv.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+        MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
+        if (!"<init>".equals(name) && mv != null) {
+            // 为这种方法增加记录执行时间的功能
+            mv = new MyMethodVisitor(mv);
+        }
+        return mv;
+    }
+
+    static class MyMethodVisitor extends MethodVisitor {
+
+        public MyMethodVisitor(MethodVisitor methodVisitor) {
+            super(Opcodes.ASM9, methodVisitor);
+        }
+
+        @Override
+        public void visitCode() {
+            super.visitCode();
+            // 在方法开始处插入代码
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "com/hyfly/asm/MyTimeLogger", "start", "()V", false);
+        }
+
+        @Override
+        public void visitInsn(int opcode) {
+            // 在方法返回处插入代码
+            if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) || opcode == Opcodes.ATHROW) {
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "com/hyfly/asm/MyTimeLogger", "end", "()V", false);
+                Label label7 = new Label();
+                mv.visitLabel(label7);
+                mv.visitLineNumber(22, label7);
+            }
+
+            super.visitInsn(opcode);
+        }
+    }
+}
+
+```
+##### 测试
+使用到的类有 MyTimeLogger、TargetClass、Generator 、TestTargetClass 、MyClassVisitor。其中为修改的类有 Generator、MyClassVisitor，新增的类为 MyTimeLogger，需要回滚的类为 TargetClass
+
+1. 执行 Generator 中的 main 方法生成 TargetClass.class 文件，并通过 idea 打开得到的内容为
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package com.hyfly.asm;
+
+public class TargetClass {
+    public TargetClass() {
+    }
+
+    public void fun01() {
+        MyTimeLogger.start();
+
+        try {
+            Thread.sleep(100L);
+            System.out.println("TargetClass#fun01 run");
+        } catch (InterruptedException var2) {
+            var2.printStackTrace();
+        }
+
+        MyTimeLogger.end();
+    }
+}
+
+```
+
+2. 将生成的 TargetClass.class 文件替换 target 文件夹中的 TargetClass.class 文件，执行 TestTargetClass 的 main() 方法，控制台输出内容
+```
+TargetClass#fun01 run
+MyTimeLogger invoke method cost: 104
+```
+### ASM 总结
+
