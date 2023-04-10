@@ -484,6 +484,8 @@ public class TargetClassDump implements Opcodes {
 }
 
 ```
+### ASM 代码演示
+代码可参考 [https://github.com/hyfly233/jvm-test](https://github.com/hyfly233/jvm-test)
 #### ASM 演示例子 01
 创建三个类，分别为 TargetClass、MyClassVisiter、Generator，其中的 MyClassVisiter 是有 bug 的
 
@@ -808,7 +810,7 @@ Exception Details:
 	at com.hyfly.asm.TestTargetClass.main(TestTargetClass.java:5)
 ```
 ##### 报错原因
-在 MyClassVisitor 的内部类 MyMethodVisitor 的 visitCode() 方法中，mv.visitVarInsn(Opcodes.LSTORE, 1); 导致变量在存储时出错，MyClassVisitor 将 TargetClass 原有变量的存储值替换为自身的变量
+在 MyClassVisitor 的内部类 MyMethodVisitor 的 visitCode() 方法中，mv.visitVarInsn(Opcodes.LSTORE, 1); 是用于存储局部变量的，而 TargetClass 也存储了局部变量 InterruptedException e，两次存储变量冲突
 #### ASM 演示例子 02
 ##### 修改相关类
 修改 ASM 演示例子 01 中的相关类，生成 ASM 文件
@@ -1004,9 +1006,6 @@ public class MyClassVisitor extends ClassVisitor {
             // 在方法返回处插入代码
             if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) || opcode == Opcodes.ATHROW) {
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "com/hyfly/asm/MyTimeLogger", "end", "()V", false);
-                Label label7 = new Label();
-                mv.visitLabel(label7);
-                mv.visitLineNumber(22, label7);
             }
 
             super.visitInsn(opcode);
@@ -1053,4 +1052,135 @@ TargetClass#fun01 run
 MyTimeLogger invoke method cost: 104
 ```
 ### ASM 总结
+在使用 ASM 增强原始类的功能时，不应该在 MethodVisitor 的相关方法中使用局部变量，而是将增强的方法封装到类的方法中，以避免在存储局部变量时增强类中的局部变量与原始类中的局部变量冲突
+## 类加载、连接和初始化
+### 类在 JVM 中的生命周期
+![Snipaste_2023-04-03_21-50-25.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680529849532-80ea864c-2405-424d-a5e1-0950f3c1cf69.png#averageHue=%23fefefd&clientId=ue6824eed-7a6a-4&from=ui&id=u1eb22735&name=Snipaste_2023-04-03_21-50-25.png&originHeight=946&originWidth=952&originalType=binary&ratio=2&rotation=0&showTitle=false&size=149146&status=done&style=none&taskId=u61615b0c-f4c7-4381-8e5c-9229ee13679&title=)
 
+1. 加载：查找并加载类文件的二进制数据
+2. 连接：将已经读入内存的类的二进制数据合并到 JVM 运行时环境中去
+   1. 验证：确保被加载类的正确性
+   2. 装备：为类的静态变量分配内存，创建静态变量
+   3. 解析：把常量池中的符号引用转换成直接引用
+3. 初始化：为类的静态变量赋初始值
+4. 使用
+5. 卸载
+### 类加载
+
+1. 通过类的全限定名来获取该类的二进制字节流
+2. 把二进制字节流转化为方法区的运行时数据结构
+3. 在堆上创建一个 java.lang.Class 对象，用来封装类在方法区内的数据结构，并向外提供了访问方法区内数据结构的接口
+### 加载类的方法
+
+- 常见方式：从本地文件系统中加载，从 jar 等归档文件中加载
+- 动态方式：将 Java 源文件动态编译成 class
+- 其他：网络下载，从专有数据库中加载
+### 类加载器
+
+- 类加载器并不需要等到某个类首次主动使用的时候才加载它，JVM 规范允许类加载器在预料到某个类将要被使用的时候就预先加载它
+- 如果在加载的时候 .class 文件缺失。会在该类首次主动使用时抛出 LinkageError 错误，如果一直没有被使用，则不会报错
+#### JVM 自带的加载器
+
+- 启动类加载器（BootstrapClassLoader）
+   - Java 程序不能直接引用启动类加载器，直接设置 classLoader 为 null，默认使用启动类加载器
+   - 用于加载启动的基础模块，比如：java.base、java.management、java.xml 等，启动类加载器是 JVM 平台自身的，不允许被其他方式修改，通过 Object.getClass().getClassLoader() 得到的结果是 null
+   - JDK 8 的启动类加载器负责将 JAVA_HONME/lib，或者 -Xbootclasspath 参数指定的路径中的，且是虚拟机识别的类库加载到内存中（按照名字识别，如：rt.jar，对于不能识别的文件不予加载）
+```java
+String str = "hello class loader";
+
+// str class loader null
+System.out.println("str class loader " + str.getClass().getClassLoader());
+```
+
+- 扩展类加载器（ExtensionClassLoader）、平台类加载器（PlatformClassLoader）
+   - JDK 8 之前是扩展类加载器，JDK 8 之后为平台类加载器，扩展类加载器的扩展性较差、安全性较低，所以被移除
+   - JDK 8  的扩展类加载器负责加载 JRE_HOME/lib/ext，或者 java.ext.dirs 系统变量所指定路径上的所有类库
+```java
+Class<?> sqlDriver = Class.forName("java.sql.Driver");
+ClassLoader classLoader = sqlDriver.getClassLoader();
+
+// jdk.internal.loader.ClassLoaders$PlatformClassLoader@1f32e575
+System.out.println("sqlDriver class loader " + classLoader);
+
+// null
+System.out.println("sqlDriver parent class loader " + classLoader.getParent());
+```
+
+- 应用程序类加载器（AppClassLoader）
+   - 用于加载应用级别的模块，比如：jdk.compiler、jdk.jartool、jdk.jshell 等等，还加载 classpath 路径中的所有类库
+   - JDK 8 的应用程序类加载器只加载 classpath 路径中的所有类库
+```java
+ClassLoader01 classLoader01 = new ClassLoader01();
+ClassLoader classLoader03 = classLoader01.getClass().getClassLoader();
+
+// jdk.internal.loader.ClassLoaders$AppClassLoader@251a69d7
+System.out.println("classLoader01 class loader " + classLoader03);
+
+// jdk.internal.loader.ClassLoaders$PlatformClassLoader@1f32e575
+System.out.println("classLoader01 parent class loader " + classLoader03.getParent());
+
+// null
+System.out.println("classLoader01 parent parent class loader " + classLoader03.getParent().getParent());
+
+Class jShell = Class.forName("jdk.jshell.JShell");
+
+// jdk.internal.loader.ClassLoaders$AppClassLoader@251a69d7
+System.out.println("jShell class loader " + jShell.getClassLoader());
+```
+#### 用户自定义类加载器
+是 java,lang.ClassLoader 的子类，用户可以定制类的加载方式，其加载顺序在所有系统类加载器之后
+#### 类加载器的关系
+![Snipaste_2023-04-03_22-28-17.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680532123384-54c99d32-9ebc-4d46-8950-e63bb0f459e4.png#averageHue=%23e5e7e6&clientId=ue6824eed-7a6a-4&from=ui&id=ubf926a56&name=Snipaste_2023-04-03_22-28-17.png&originHeight=1032&originWidth=1986&originalType=binary&ratio=2&rotation=0&showTitle=false&size=716301&status=done&style=none&taskId=ufe61f262-c04b-4453-9f12-0b4b6a92898&title=)
+### 双亲委派模型
+JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加载器外，其余的类加载器都应该有自己的父级加载器，这个父子关系是组合而不是继承
+#### 工作过程
+
+1. 一个类加载器接收到类加载请求后，首先搜索它内建加载器定义的所有“具名模块”
+2. 如果找到了合适的模块定义，即该模块中存在该需要加载的类，将会使用该加载器来加载
+3. 如果 class 没有在这些加载器定义的具名模块中找到，那么将会委托给父级加载器，直到启动类加载器
+4. 如果父级加载器反馈它不能完成加载请求，比如在搜索路径下找不到这个类。那子的类加载器才自己来加载
+5. 在类路径下找到的类将成为这些加载器的无名模块
+6. 都没找到抛出 ClassNotFound
+7. JDK 8 没有模块化，所以直接委派个父加载器
+#### 作用
+
+- 双亲委派模型对于保证了 Java 程序的稳定运行很重要
+- 公用且具有一致性的类都只会被加载一次
+- 对于已经加载的系统级别的类，不管是哪一级别的类都不能再次加载，保证了系统级别的类不会被恶意修改或被覆盖
+#### 其他
+
+- 实现双亲委派的代码在 java.lang.ClassLoader 的 loadClass() 方法中，如果自定义类加载器的话，推荐覆盖实现 findClass() 方法
+- 如果有一个类加载器能加载某个类，则该加载器称为定义类加载的，所有能成功返回该类的 Class 的类加载器都被称为初始类加载器
+- 如果没有指定父加载器，默认就是启动类加载器
+- 每个类加载器都有自己的命名空间，命名空间由该加载器及其所有父加载器所加载的类构成，不同的命名空间可以出现类的全路径名相同的情况
+- 运行时包由同一个类加载器的类构成，决定两个类是否属于同一个运行时包，不及要看全路径名是否一样，还要看定义类加载器是否相同，只有属于同一个运行时包的类才能实现相互包内可见
+### 破坏双亲委派模型
+
+- 双亲委派模型的问题：父加载器无法向下识别子加载器加载的资源
+- Java 不太完美的解决方式：引入线程上下文类加载器，可以通过 Thread 的 setContextClassLoader() 进行设置
+- 另一种情况：实现热替换，比如 OSGI 的模块化热部署，它的类加载器不再严格按照双亲委派模型，更多的使用平级的类加载器
+
+### 类连接
+#### 类连接主要验证的内容
+
+- 类文件结构检查：按照 JVM 规范规定的类文件结构进行检查
+- 元数据验证：对字节码描述的信息进行语义分析，保证其符合 Java 语言规范的要求
+- 字节码验证：通过对数据流和控制流进行分析，确保程序语义是合法和符合逻辑的
+- 符号引用验证：对类自身以外的信息，即常量池中的各种符号引用，进行匹配校验
+#### 类连接的解析
+
+- 解析是把常量池中的符号引用转换成直接引用的过程，包括：符号引用（以一组无歧义的符号来描述所引用的目标，与虚拟机的实现无关）
+- 直接引用：直接指向目标的指针、相对偏移量、或能间接定位到目标的句柄，是和虚拟机的实现相关
+- 主要针对：类、接口、字段、类方法、接口方法、方法类型、方法句柄、调用点限定符
+### 类的初始化
+
+- 类的初始化是类的静态变量赋初始值，或者说是执行类构造器 <clinit> 方法的过程
+   - 如果类还没有加载和连接，就先加载和连接
+   - 如果类存在父类，且父类没有初始化，就先初始化父类
+   - 如果类中存在初始化语句，则会依次执行初始化语句
+   - 如果是接口
+      - 初始化一个类的时候，并不会先初始化它的接口
+      - 初始化一个接口时，并不会初始化它的父接口
+      - 只有当程序首次使用接口里面的变量或者调用接口方法的时候，才会导致接口初始化
+   - 调用 ClassLoader 类的 loadClass 方法来装载一个类，并不会初始化这个类，这不是对类的主动使用
+#### 初始化的时机
