@@ -1159,7 +1159,6 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
 - 双亲委派模型的问题：父加载器无法向下识别子加载器加载的资源
 - Java 不太完美的解决方式：引入线程上下文类加载器，可以通过 Thread 的 setContextClassLoader() 进行设置
 - 另一种情况：实现热替换，比如 OSGI 的模块化热部署，它的类加载器不再严格按照双亲委派模型，更多的使用平级的类加载器
-
 ### 类连接
 #### 类连接主要验证的内容
 
@@ -1225,10 +1224,3 @@ Java中，类的初始化顺序可以分为以下三个步骤：
 
 - 当代表一个类的 Class 对象不再被引用，那么 Class 对象的生命周期就结束了，对应在方法区中的数据也会被卸载
 - JVM 自带的类加载器装载的类，是不会卸载的，由用户自定义的类加载器加载的类是可以被卸载的
-## Java 内存分配基础
-### JVM 的简化架构
-JVM 的简化架构，内存区域被称为运行时数据区
-![Snipaste_2023-04-10_22-26-17.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1681136814886-240288f8-3b94-461e-9fa2-4bfcebf5e5fe.png#averageHue=%23d1a985&clientId=u35c67d1a-373a-4&from=ui&id=ufa9a0d6e&name=Snipaste_2023-04-10_22-26-17.png&originHeight=1044&originWidth=1400&originalType=binary&ratio=2&rotation=0&showTitle=false&size=505683&status=done&style=none&taskId=u272586e2-5a21-4584-a572-ad7f48b6dd9&title=)
-#### 运行时数据区
-主要包括：PC 寄存器、Java 虚拟机栈、Java 堆、方法区、运行时常量池、本地方法栈等
-### 栈、堆、方法区之间的交互关系
