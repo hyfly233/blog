@@ -127,7 +127,7 @@
 - 虚拟机是指通过软件模拟的具有完整硬件系统功能，并且运行在一个完全隔离环境中的计算机系统
 - JVM是通过软件来模拟 Java 字节码的指令集，是 Java 程序的运行环境
 #### JVM有什么 todo
-![Snipaste_2023-03-23_10-08-27.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537343985-07f5827a-2d5d-406b-af62-fc0b6c75a743.png#averageHue=%23f4f3f3&clientId=ufc842c6e-7270-4&from=drop&id=uc6d87bbb&name=Snipaste_2023-03-23_10-08-27.png&originHeight=1216&originWidth=2846&originalType=binary&ratio=2&rotation=0&showTitle=false&size=899278&status=done&style=none&taskId=uedc0d811-a6b9-4fa8-bb3c-2c0389974e5&title=)
+![Snipaste_2023-03-23_10-08-27.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537343985-07f5827a-2d5d-406b-af62-fc0b6c75a743.png#averageHue=%23f4f3f3&clientId=ufc842c6e-7270-4&from=drop&id=uc6d87bbb&originHeight=1216&originWidth=2846&originalType=binary&ratio=2&rotation=0&showTitle=false&size=899278&status=done&style=none&taskId=uedc0d811-a6b9-4fa8-bb3c-2c0389974e5&title=)
 #### JVM主要功能
 
 1. 通过 ClassLoader 寻找和装载 class 文件
@@ -136,7 +136,7 @@
 4. 提供与硬件交互的平台
 #### JVM怎么实现平台无关
 JDK 的安装包是和平台相关的，自己写的代码和平台无关的
-![Snipaste_2023-03-23_10-14-34.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537692385-590e5dba-0ddf-49fe-994e-1520f9a7cc10.png#averageHue=%23fafafa&clientId=ufc842c6e-7270-4&from=drop&id=u40564c22&name=Snipaste_2023-03-23_10-14-34.png&originHeight=1208&originWidth=1620&originalType=binary&ratio=2&rotation=0&showTitle=false&size=374300&status=done&style=none&taskId=u36999bd7-f1af-4669-b436-e869ee3cd0a&title=)
+![Snipaste_2023-03-23_10-14-34.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537692385-590e5dba-0ddf-49fe-994e-1520f9a7cc10.png#averageHue=%23fafafa&clientId=ufc842c6e-7270-4&from=drop&id=u40564c22&originHeight=1208&originWidth=1620&originalType=binary&ratio=2&rotation=0&showTitle=false&size=374300&status=done&style=none&taskId=u36999bd7-f1af-4669-b436-e869ee3cd0a&title=)
 ## JVM规范
 ### JVM规范的作用
 
@@ -174,7 +174,7 @@ Class 文件是 JVM 的输入，Class 文件是 JVM 实现平台无关、技术�
    - 无符号数：基本数据类型，以 u1、u2、u4、u8 来代表几个字节的无符号数
    - 表：由多个无符号数和其他表构成的复合数据类型，通常以 _info 结尾
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679908617361-7e8897d4-4598-46f4-ab07-436d83abd340.png#averageHue=%23f2f2f2&clientId=ud8f846c8-416c-4&from=paste&height=364&id=u372865a6&name=image.png&originHeight=728&originWidth=1088&originalType=binary&ratio=2&rotation=0&showTitle=false&size=308274&status=done&style=none&taskId=udbd4e0f6-d3ef-4c1e-bdad-88ebedbd407&title=&width=544)
+![image.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679908617361-7e8897d4-4598-46f4-ab07-436d83abd340.png#averageHue=%23f2f2f2&clientId=ud8f846c8-416c-4&from=paste&height=364&id=u372865a6&originHeight=728&originWidth=1088&originalType=binary&ratio=2&rotation=0&showTitle=false&size=308274&status=done&style=none&taskId=udbd4e0f6-d3ef-4c1e-bdad-88ebedbd407&title=&width=544)
 #### 查看方式
 
 - vim 查看 16 进制源文件
@@ -1055,7 +1055,7 @@ MyTimeLogger invoke method cost: 104
 在使用 ASM 增强原始类的功能时，不应该在 MethodVisitor 的相关方法中使用局部变量，而是将增强的方法封装到类的方法中，以避免在存储局部变量时增强类中的局部变量与原始类中的局部变量冲突
 ## 类加载、连接和初始化
 ### 类在 JVM 中的生命周期
-![Snipaste_2023-04-03_21-50-25.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680529849532-80ea864c-2405-424d-a5e1-0950f3c1cf69.png#averageHue=%23fefefd&clientId=ue6824eed-7a6a-4&from=ui&id=u1eb22735&name=Snipaste_2023-04-03_21-50-25.png&originHeight=946&originWidth=952&originalType=binary&ratio=2&rotation=0&showTitle=false&size=149146&status=done&style=none&taskId=u61615b0c-f4c7-4381-8e5c-9229ee13679&title=)
+![Snipaste_2023-04-03_21-50-25.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680529849532-80ea864c-2405-424d-a5e1-0950f3c1cf69.png#averageHue=%23fefefd&clientId=ue6824eed-7a6a-4&from=ui&id=u1eb22735&originHeight=946&originWidth=952&originalType=binary&ratio=2&rotation=0&showTitle=false&size=149146&status=done&style=none&taskId=u61615b0c-f4c7-4381-8e5c-9229ee13679&title=)
 
 1. 加载：查找并加载类文件的二进制数据
 2. 连接：将已经读入内存的类的二进制数据合并到 JVM 运行时环境中去
@@ -1130,7 +1130,7 @@ System.out.println("jShell class loader " + jShell.getClassLoader());
 #### 用户自定义类加载器
 是 java,lang.ClassLoader 的子类，用户可以定制类的加载方式，其加载顺序在所有系统类加载器之后
 #### 类加载器的关系
-![Snipaste_2023-04-03_22-28-17.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680532123384-54c99d32-9ebc-4d46-8950-e63bb0f459e4.png#averageHue=%23e5e7e6&clientId=ue6824eed-7a6a-4&from=ui&id=ubf926a56&name=Snipaste_2023-04-03_22-28-17.png&originHeight=1032&originWidth=1986&originalType=binary&ratio=2&rotation=0&showTitle=false&size=716301&status=done&style=none&taskId=ufe61f262-c04b-4453-9f12-0b4b6a92898&title=)
+![Snipaste_2023-04-03_22-28-17.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680532123384-54c99d32-9ebc-4d46-8950-e63bb0f459e4.png#averageHue=%23e5e7e6&clientId=ue6824eed-7a6a-4&from=ui&id=ubf926a56&originHeight=1032&originWidth=1986&originalType=binary&ratio=2&rotation=0&showTitle=false&size=716301&status=done&style=none&taskId=ufe61f262-c04b-4453-9f12-0b4b6a92898&title=)
 ### 双亲委派模型
 JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加载器外，其余的类加载器都应该有自己的父级加载器，这个父子关系是组合而不是继承
 #### 工作过程
