@@ -17,6 +17,7 @@ export default {
         lastUpdated: true,
         lastUpdatedText: "最后更新时间",
         navbar: navConfig,
+        repo: 'hyfly233/blog',
     }),
     plugins: [
         searchPlugin({
