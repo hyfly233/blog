@@ -1,11 +1,32 @@
 ---
 title: 目录
-sidebar: false
 ---
 
 
 
-## 基础
+## Todo
+
++ Vert.x（从 20 年就开始学习了，但没做相关的笔记，那还有可能做吗...）
++ Quarkus（已经学会 50%）
++ Golang or Rust（纠结中...）
+
+
+
+## 知识点
+
+### JVM
+
++ [JVM](../md/知识点/jvm/JVM.md)
++ [JVM 内存模型](../md/知识点/jvm/JVM内存模型.md)
++ [垃圾回收](../md/知识点/jvm/垃圾回收.md)
++ [JVM对高效并发的支持](../md/知识点/jvm/JVM对高效并发的支持.md)
++ [JVM 工具和 JVM 调优](../md/知识点/jvm/JVM工具和JVM调优.md)
+
+
+
+## 八股文
+
+### 基础
 
 + [Java基础](../md/八股文/基础/Java基础.md)
 + [面向对象](../md/八股文/基础/面向对象.md)
@@ -19,19 +40,19 @@ sidebar: false
 
 
 
-## JVM
+### JVM
 
 + [JVM](../md/八股文/jvm/JVM.md)
 
 
 
-## IO
+### IO
 
 + [IO模型](../md/八股文/IO/IO模型.md)
 
 
 
-## 数据库
+### 数据库
 
 + [SQL](../md/八股文/数据库/SQL.md)
 + [数据库索引](../md/八股文/数据库/数据库索引.md)
@@ -40,7 +61,7 @@ sidebar: false
 
 
 
-## Spring
+### Spring
 
 + [Spring](../md/八股文/Spring/Spring.md)
 + [Spring MVC](../md/八股文/Spring/SpringMvc.md)
@@ -48,7 +69,7 @@ sidebar: false
 
 
 
-## 微服务
+### 微服务
 
 + [Spring Cloud](../md/八股文/微服务/SpringCloud.md)
 + [Spring Cloud Alibaba](../md/八股文/微服务/SpringCloudAlibaba.md)
@@ -59,13 +80,13 @@ sidebar: false
 
 
 
-## 中间件
+### 中间件
 
 + [Redis](../md/八股文/中间件/Redis.md)
 
 
 
-## ORM
+### ORM
 
 + [Mybatis](../md/八股文/ORM/Mybatis.md)
 
