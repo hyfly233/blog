@@ -1,5 +1,5 @@
 export const head = [
-    ['link', { rel: 'icon', href: '/assets/img/CowFace.ico' }],
+    ['link', { rel: 'icon', href: '/blog/assets/img/game.ico' }],
     ['meta', { name: 'author', content: 'hyfly233' }],
     ['meta', { name: 'keywords', content: '通过 vuepress 构建的博客' }],
     ['meta', { name: 'theme-color', content: '#3eaf7c' }],

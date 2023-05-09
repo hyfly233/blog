@@ -1,172 +1,81 @@
-## 目录
-1. JVM概念
-   1. JVM基础
-      1. JVM是什么
-      2. JVM有什么
-      3. JVM能干什么
-   2. JVM怎么实现平台无关
-2. JVM规范
-   1. JVM规范的作用
-   2. JVM规范的主要内容
-3. Class文件
-   1. Class文件格式
-   2. Class字节码
-   3. 虚拟机汇编表示的Java类
-   4. ASM
-      1. ASM是什么
-      2. ASM编程模型
-      3. ASM核心API
-4. 类加载、连接和初始化
-   1. 类加载、连接、初始化到卸载的生命周期
-   2. 类加载
-   3. 类加载器
-   4. 双亲委派模型
-   5. 类连接
-   6. 初始化
-      1. 类初始化
-      2. 初始化时机
-   7. 类卸载
-5. JVM内存分配
-   1. JVM简化架构
-   2. JVM内存模型
-   3. 栈、堆、方法区的交互
-6. JVM堆内存
-   1. 概念
-   2. 堆的结构
-   3. 对象的内存布局
-   4. 内存分配的参数
-      1. Trace跟踪参数
-      2. GC日志格式
-      3. Java堆的参数
-      4. Java栈的参数
-      5. 元空间的参数
-7. 字节码执行引擎
-   1. 概念
-      1. 栈帧
-      2. 局部变量表
-      3. 操作数栈
-      4. 动态连接
-      5. 方法返回地址
-   2. 栈帧、运行期操作数栈和局部变量表之间的交互
-   3. 方法调用
-      1. 方法调用
-      2. 分派
-         1. 静态分派
-         2. 动态分派
-8. 垃圾回收基础
-   1. 什么是垃圾
-   2. 如何判断垃圾
-   3. 如何回收
-   4. 根搜索算法
-   5. 引用分类
-   6. 跨代引用
-   7. 记忆集
-   8. 写屏障
-   9. GC类型
-   10. Stop-The-World
-   11. 垃圾收集类型
-9. 垃圾收集算法
-   1. 标记清除法
-   2. 复制算法
-   3. 标记整理法
-   4. 分配担保（分代）
-10. 垃圾收集器
-   1. HotSpot中的收集器
-   2. 串行收集器
-   3. 并行收集器
-   4. 新生代 Parallel Scavenge 收集器
-   5. CMS 收集器
-   6. G1 收集器
-      1. 新生代回收过程
-      2. 老年代回收过程
-   7. ZGC 收集器
-   8. GC 性能指标
-   9. JVM内存配置原则
-11. JVM对高效并发的支持
-   1. Java内存模型
-   2. 内存间的交互操作
-   3. 多线程的可见性
-   4. 有序性
-   5. 指令重排
-   6. 线程安全的处理方法
-   7. 锁优化
-      1. 自旋锁
-      2. 锁消除
-      3. 锁粗化
-      4. 轻量级锁
-      5. 偏向锁
-12. 性能监控与故障处理工具
-   1. 命令行工具
-      1. jps
-      2. jinfo
-      3. jstack
-      4. jmap
-      5. jstat
-      6. jstatd
-      7. jcmd
-   2. 图形化工具
-      1. jconsole
-      2. jmc
-      3. visualvm
-   3. 远程连接
-      1. jmx
-      2. jstatd
-13. JVM调优
-   1. JVM如何调优、调什么、目标
-   2. JVM调优策略
-   3. JVM调优冷思考
-   4. JVM调优经验
-   5. 调优实战
 
-
-## JVM概念
-### JVM基础
-#### JVM是什么
+## JVM 基础概念
+### JVM 是什么
 
 - JVM：Java Virtual Machine，Java 虚拟机
 - 虚拟机是指通过软件模拟的具有完整硬件系统功能，并且运行在一个完全隔离环境中的计算机系统
 - JVM是通过软件来模拟 Java 字节码的指令集，是 Java 程序的运行环境
-#### JVM有什么 todo
-![Snipaste_2023-03-23_10-08-27.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537343985-07f5827a-2d5d-406b-af62-fc0b6c75a743.png#averageHue=%23f4f3f3&clientId=ufc842c6e-7270-4&from=drop&id=uc6d87bbb&originHeight=1216&originWidth=2846&originalType=binary&ratio=2&rotation=0&showTitle=false&size=899278&status=done&style=none&taskId=uedc0d811-a6b9-4fa8-bb3c-2c0389974e5&title=)
-#### JVM主要功能
+
+
+
+### JVM 有什么
+
+主要包括四个部分
+
++ 类加载器（ClassLoader）
++ 运行时数据区（Runtime Data Area）
++ 执行引擎（Execution Engine）
++ 本地库接口（Native Interface）
+
+![Snipaste_2021-03-23_10-08-27.png](/img/Snipaste_2021-03-23_10-08-27.png)
+
+
+
+### JVM 主要功能
 
 1. 通过 ClassLoader 寻找和装载 class 文件
 2. 解释字节码成为指令并执行，提供 class 文件的运行环境
 3. 进行运行期间的内存分配和垃圾回收
 4. 提供与硬件交互的平台
-#### JVM怎么实现平台无关
+
+
+
+### JVM 怎么实现平台无关
 JDK 的安装包是和平台相关的，自己写的代码和平台无关的
-![Snipaste_2023-03-23_10-14-34.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679537692385-590e5dba-0ddf-49fe-994e-1520f9a7cc10.png#averageHue=%23fafafa&clientId=ufc842c6e-7270-4&from=drop&id=u40564c22&originHeight=1208&originWidth=1620&originalType=binary&ratio=2&rotation=0&showTitle=false&size=374300&status=done&style=none&taskId=u36999bd7-f1af-4669-b436-e869ee3cd0a&title=)
-## JVM规范
-### JVM规范的作用
+
+![Snipaste_2021-03-23_10-14-34.png](/img/Snipaste_2021-03-23_10-14-34.png)
+
+
+
+## JVM 规范
+
+### JVM 规范的作用
 
 - JVM 规范为不同硬件平台提供了一种编译 Java 技术代码的规范
 - JVM 规范使得 Java 软件独立于平台
 - 编程语言只要符合 JVM 规范，JVM 就可以运行对应的 class 文件，实现了编程语言无关性
-### JVM规范的主要内容
 
-1. 字节码指令集
-JVM 的指令由一个字节长度代表着某种特殊操作含义的操作码（opcode）以及跟随其后的零个或多个代表此操作所需参数的操作数（operand）所构成
+
+
+### JVM 规范的主要内容
+
+1. 字节码指令集：JVM 的指令由一个字节长度代表着某种特殊操作含义的操作码（opcode）以及跟随其后的零个或多个代表此操作所需参数的操作数（operand）所构成
 2. Class 文件的格式
 3. 数据类型和值
 4. 运行时的数据区
 5. 栈帧
 6. 特殊方法
-   1. 〈init〉：实例初始化方法，通过 JVM 的 invokespecial 指令来调用
-   2. 〈clinit〉：类或接口的初始化方法，不含参数，返回 void
-7. 类库
-JVM 必须对一些 Java 类库提供支持，否则这些类库根本无法实现
-   1. 反射
-   2. 加载和创建类或接口，如：ClassLoader
-   3. 连接和初始化类和接口的类
-   4. 安全类，如：security
-   5. 多线程
-   6. 弱引用
+   + 〈init〉：实例初始化方法，通过 JVM 的 invokespecial 指令来调用
+   + 〈clinit〉：类或接口的初始化方法，不含参数，返回 void
+7. 类库：JVM 必须对一些 Java 类库提供支持，否则这些类库根本无法实现
+   + 反射
+   + 加载和创建类或接口，如：ClassLoader
+   + 连接和初始化类和接口的类
+   + 安全类，如：security
+   + 多线程
+   + 弱引用
 8. 异常
 9. 虚拟机的启动、加载、链接和初始化
-## Class文件
+
+
+
+## Class 文件
+
 Class 文件是 JVM 的输入，Class 文件是 JVM 实现平台无关、技术无关的基础
-### Class文件格式
+
+
+
+### Class 文件格式
 
 - Class 文件是一组以 8 字节为单位的字节流，各个数据项目按顺序紧凑排列
 - 对于占用空间大于 8 字节的数据项，按照高位在前的方式分割成多个 8 字节进行存储
@@ -174,11 +83,17 @@ Class 文件是 JVM 的输入，Class 文件是 JVM 实现平台无关、技术�
    - 无符号数：基本数据类型，以 u1、u2、u4、u8 来代表几个字节的无符号数
    - 表：由多个无符号数和其他表构成的复合数据类型，通常以 _info 结尾
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1679908617361-7e8897d4-4598-46f4-ab07-436d83abd340.png#averageHue=%23f2f2f2&clientId=ud8f846c8-416c-4&from=paste&height=364&id=u372865a6&originHeight=728&originWidth=1088&originalType=binary&ratio=2&rotation=0&showTitle=false&size=308274&status=done&style=none&taskId=udbd4e0f6-d3ef-4c1e-bdad-88ebedbd407&title=&width=544)
+![image23141312.png](/img/image23141312.png)
+
+
+
 #### 查看方式
 
 - vim 查看 16 进制源文件
 - javap 工具生成非正式的"虚拟机汇编语言"
+
+
+
 #### 例子
 ```java
 package test;
@@ -194,6 +109,9 @@ public class Hello {
 
 1. 使用 javac ./test/Hello.java 将其编译为 class 文件
 2. 使用 vim ./test/Hello.class 并使用命令 :%!xxd 将文件转换为 16 进制显示源文件
+
+::: details 点击查看代码
+
 ```shell
 00000000: cafe babe 0000 003d 0020 0a00 0200 0307  .......=. ......
 00000010: 0004 0c00 0500 0601 0010 6a61 7661 2f6c  ..........java/l     
@@ -227,7 +145,12 @@ public class Hello {
 000001d0: 0700 0800 0800 0100 1e00 0000 0200 1f0a  ................
 ```
 
+:::
+
 3. 使用 javap -verbose ./test/Hello.class 查看 class 文件解析后的内容
+
+::: details 点击查看代码
+
 ```java
 Classfile /Users/xxx/test/Hello.class
   Last modified 2023年3月27日; size 479 bytes
@@ -299,12 +222,19 @@ Constant pool:
 }
 SourceFile: "Hello.java"
 ```
-### Class字节码
+:::
+
+
+
+### Class 字节码
+
 #### 常量池 Constant pool
 请阅读官方 JVM 规范获取更多信息！！！
+
+
+
 #### 类定义和属性
-请阅读官方 JVM 规范获取更多信息！！！
-属性的通用格式
+请阅读官方 JVM 规范获取更多信息！！！属性的通用格式
 ```java
 attribute_info {
     u2 attribute_name_index;
@@ -312,9 +242,11 @@ attribute_info {
     u1 info;
 }
 ```
+
+
 #### 方法和调用
-请阅读官方 JVM 规范获取更多信息！！！
-方法的通用格式
+
+请阅读官方 JVM 规范获取更多信息！！！方法的通用格式
 ```java
 method_info {
     u2 access_flag;
@@ -323,16 +255,24 @@ method_info {
     attribute_info attributes[attribute_count];
 }
 ```
-### ASM
+
+
+## ASM
 
 - ASM 是 Java 字节码操作框架，用来动态生成类或增强既有类的功能
 - ASM 可以直接产生二进制 class 文件，也可以在类被加载入虚拟机之前动态改变类行为，ASM 从类文件中读入信息后，能改变类行为、分析类信息、根据要求生成新类
 - cglib、hibernate、spring 都直接或间接使用了 ASM 操作字节码
-#### ASM 编程模型
+
+
+
+### ASM 编程模型
 
 - Core API：提供了基于事件形式的编程模型，该模型不需要一次性将整个类的结构读取到内存中，因此这种方式更快，需要更少的内存，但编程难度较大
 - Tree API：提供基于树形的编程模型，该模型需要一次性将一个类的完整结构全部读取到内存中，所以需要更多的内存，较简单
-#### Core API
+
+
+
+### Core API
 
 - Core API 操作字节码是基于 ClassVisitor 接口，这个接口的每个方法对应了 class 文件中的每一项
 - ASM 提供了三个基于 ClassVisitor 接口的类来实现 class 文件的生成和转换
@@ -340,8 +280,11 @@ method_info {
    - ClassAdapter：主要功能是将 Classreader 解析的字节码进行改造
    - ClassWriter：输出变化后的字节码
 - ASMifier：ASMifier 工具可以生成 ASM 结构
-#### ASMifier
-idea 插件有 ASM Bytecode Outline 、ASM Bytecode Viewer  等，可以生成 ASM 结构文件
+
+
+
+### ASMifier
+idea 插件有 ASM Bytecode Outline、ASM Bytecode Viewer 等，可以生成 ASM 结构文件
 ```java
 package com.hyfly.asm;
 
@@ -366,7 +309,10 @@ public class TargetClass {
     }
 }
 ```
-通过 ASM Bytecode Viewer  生成的 ASM 文件为
+通过 ASM Bytecode Viewer 生成的 ASM 文件为
+
+::: details 点击查看代码
+
 ```java
 package asm.com.hyfly.asm;
 
@@ -484,8 +430,16 @@ public class TargetClassDump implements Opcodes {
 }
 
 ```
+:::
+
+
+
 ### ASM 代码演示
+
 代码可参考 [https://github.com/hyfly233/jvm-test](https://github.com/hyfly233/jvm-test)
+
+
+
 #### ASM 演示例子 01
 创建三个类，分别为 TargetClass、MyClassVisiter、Generator，其中的 MyClassVisiter 是有 bug 的
 
@@ -510,7 +464,10 @@ public class TargetClass {
 
 ```
 
-- MyClassVisiter
+- MyClassVisiter 代码如下
+
+::: details 点击查看代码
+
 ```java
 package com.hyfly.asm;
 
@@ -579,7 +536,14 @@ public class MyClassVisitor extends ClassVisitor {
 
 ```
 
-- Generator
+:::
+
+
+
+- Generator 代码如下
+
+::: details 点击查看代码
+
 ```java
 package com.hyfly.asm;
 
@@ -612,7 +576,12 @@ public class Generator {
 }
 
 ```
+:::
+
+
+
 执行 Generator 中的 main 方法生成 TargetClass.class 文件，并通过 idea 打开得到的内容为，能清楚的看到代码 13 行是错误的
+
 ```java
 //
 // Source code recreated from a .class file by IntelliJ IDEA
@@ -642,7 +611,12 @@ public class TargetClass {
 }
 
 ```
+
+
 使用 javap -verbose 命令得到的内容
+
+::: details 点击查看代码
+
 ```java
 Classfile /Users/flyhy/workspace/jvm-test/asm/bin/com/hyfly/asm/TargetClass.class
   Last modified 2023年4月1日; size 961 bytes
@@ -772,7 +746,12 @@ BootstrapMethods:
       #42 TargetClass#fun01 cost: \u0001
 
 ```
+:::
+
+
+
 ##### 测试生成的 TargetClass.class
+
 将生成的 TargetClass.class 文件替换 target 文件夹中的 TargetClass.class 文件，执行 TestTargetClass 的 main() 方法将报错
 ```java
 package com.hyfly.asm;
@@ -811,6 +790,9 @@ Exception Details:
 ```
 ##### 报错原因
 在 MyClassVisitor 的内部类 MyMethodVisitor 的 visitCode() 方法中，mv.visitVarInsn(Opcodes.LSTORE, 1); 是用于存储局部变量的，而 TargetClass 也存储了局部变量 InterruptedException e，两次存储变量冲突
+
+
+
 #### ASM 演示例子 02
 ##### 修改相关类
 修改 ASM 演示例子 01 中的相关类，生成 ASM 文件
@@ -832,7 +814,8 @@ public class MyTimeLogger {
     }
 }
 ```
- 2. 修改 TargetClass 并对其 javac 编译为 class 文件
+2. 修改 TargetClass 并对其 javac 编译为 class 文件
+
 ```java
 package com.hyfly.asm;
 
@@ -854,7 +837,10 @@ public class TargetClass {
 
 ```
 
-3. 通过 ASM Bytecode Viewer  生成的 ASM 文件为
+3. 通过 ASM Bytecode Viewer 生成的 ASM 文件为
+
+::: details 点击查看代码
+
 ```java
 package asm.com.hyfly.asm;
 
@@ -958,7 +944,12 @@ public class TargetClassDump implements Opcodes {
 
 ```
 
+:::
+
 4. 复制 ASM 文件中的相关内容，修改 MyClassVisitor 类
+
+::: details 点击查看代码
+
 ```java
 package com.hyfly.asm;
 
@@ -1014,8 +1005,11 @@ public class MyClassVisitor extends ClassVisitor {
 }
 
 ```
+:::
+
 ##### 测试
-使用到的类有 MyTimeLogger、TargetClass、Generator 、TestTargetClass 、MyClassVisitor。其中为修改的类有 Generator、MyClassVisitor，新增的类为 MyTimeLogger，需要回滚的类为 TargetClass
+
+使用到的类有 MyTimeLogger、TargetClass、Generator、TestTargetClass、MyClassVisitor。其中为修改的类有 Generator、MyClassVisitor，新增的类为 MyTimeLogger，需要回滚的类为 TargetClass
 
 1. 执行 Generator 中的 main 方法生成 TargetClass.class 文件，并通过 idea 打开得到的内容为
 ```java
@@ -1047,15 +1041,21 @@ public class TargetClass {
 ```
 
 2. 将生成的 TargetClass.class 文件替换 target 文件夹中的 TargetClass.class 文件，执行 TestTargetClass 的 main() 方法，控制台输出内容
-```
+```sh
 TargetClass#fun01 run
 MyTimeLogger invoke method cost: 104
 ```
+
+
 ### ASM 总结
+
 在使用 ASM 增强原始类的功能时，不应该在 MethodVisitor 的相关方法中使用局部变量，而是将增强的方法封装到类的方法中，以避免在存储局部变量时增强类中的局部变量与原始类中的局部变量冲突
+
+
+
 ## 类加载、连接和初始化
+
 ### 类在 JVM 中的生命周期
-![Snipaste_2023-04-03_21-50-25.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680529849532-80ea864c-2405-424d-a5e1-0950f3c1cf69.png#averageHue=%23fefefd&clientId=ue6824eed-7a6a-4&from=ui&id=u1eb22735&originHeight=946&originWidth=952&originalType=binary&ratio=2&rotation=0&showTitle=false&size=149146&status=done&style=none&taskId=u61615b0c-f4c7-4381-8e5c-9229ee13679&title=)
 
 1. 加载：查找并加载类文件的二进制数据
 2. 连接：将已经读入内存的类的二进制数据合并到 JVM 运行时环境中去
@@ -1065,20 +1065,34 @@ MyTimeLogger invoke method cost: 104
 3. 初始化：为类的静态变量赋初始值
 4. 使用
 5. 卸载
+
+![Snipaste_2021-04-03_21-50-25.png](/img/Snipaste_2021-04-03_21-50-25.png)
+
+
+
 ### 类加载
 
 1. 通过类的全限定名来获取该类的二进制字节流
 2. 把二进制字节流转化为方法区的运行时数据结构
 3. 在堆上创建一个 java.lang.Class 对象，用来封装类在方法区内的数据结构，并向外提供了访问方法区内数据结构的接口
+
+
+
 ### 加载类的方法
 
 - 常见方式：从本地文件系统中加载，从 jar 等归档文件中加载
 - 动态方式：将 Java 源文件动态编译成 class
 - 其他：网络下载，从专有数据库中加载
+
+
+
 ### 类加载器
 
 - 类加载器并不需要等到某个类首次主动使用的时候才加载它，JVM 规范允许类加载器在预料到某个类将要被使用的时候就预先加载它
 - 如果在加载的时候 .class 文件缺失。会在该类首次主动使用时抛出 LinkageError 错误，如果一直没有被使用，则不会报错
+
+
+
 #### JVM 自带的加载器
 
 - 启动类加载器（BootstrapClassLoader）
@@ -1127,12 +1141,26 @@ Class jShell = Class.forName("jdk.jshell.JShell");
 // jdk.internal.loader.ClassLoaders$AppClassLoader@251a69d7
 System.out.println("jShell class loader " + jShell.getClassLoader());
 ```
+
+
 #### 用户自定义类加载器
+
 是 java,lang.ClassLoader 的子类，用户可以定制类的加载方式，其加载顺序在所有系统类加载器之后
+
+
+
 #### 类加载器的关系
-![Snipaste_2023-04-03_22-28-17.png](https://cdn.nlark.com/yuque/0/2023/png/29236088/1680532123384-54c99d32-9ebc-4d46-8950-e63bb0f459e4.png#averageHue=%23e5e7e6&clientId=ue6824eed-7a6a-4&from=ui&id=ubf926a56&originHeight=1032&originWidth=1986&originalType=binary&ratio=2&rotation=0&showTitle=false&size=716301&status=done&style=none&taskId=ufe61f262-c04b-4453-9f12-0b4b6a92898&title=)
+
+![Snipaste_2021-04-03_22-28-17.png](/img/Snipaste_2021-04-03_22-28-17.png)
+
+
+
 ### 双亲委派模型
+
 JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加载器外，其余的类加载器都应该有自己的父级加载器，这个父子关系是组合而不是继承
+
+
+
 #### 工作过程
 
 1. 一个类加载器接收到类加载请求后，首先搜索它内建加载器定义的所有“具名模块”
@@ -1142,11 +1170,17 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
 5. 在类路径下找到的类将成为这些加载器的无名模块
 6. 都没找到抛出 ClassNotFound
 7. JDK 8 没有模块化，所以直接委派个父加载器
+
+
+
 #### 作用
 
 - 双亲委派模型对于保证了 Java 程序的稳定运行很重要
 - 公用且具有一致性的类都只会被加载一次
 - 对于已经加载的系统级别的类，不管是哪一级别的类都不能再次加载，保证了系统级别的类不会被恶意修改或被覆盖
+
+
+
 #### 其他
 
 - 实现双亲委派的代码在 java.lang.ClassLoader 的 loadClass() 方法中，如果自定义类加载器的话，推荐覆盖实现 findClass() 方法
@@ -1154,11 +1188,17 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
 - 如果没有指定父加载器，默认就是启动类加载器
 - 每个类加载器都有自己的命名空间，命名空间由该加载器及其所有父加载器所加载的类构成，不同的命名空间可以出现类的全路径名相同的情况
 - 运行时包由同一个类加载器的类构成，决定两个类是否属于同一个运行时包，不及要看全路径名是否一样，还要看定义类加载器是否相同，只有属于同一个运行时包的类才能实现相互包内可见
+
+
+
 ### 破坏双亲委派模型
 
 - 双亲委派模型的问题：父加载器无法向下识别子加载器加载的资源
 - Java 不太完美的解决方式：引入线程上下文类加载器，可以通过 Thread 的 setContextClassLoader() 进行设置
 - 另一种情况：实现热替换，比如 OSGI 的模块化热部署，它的类加载器不再严格按照双亲委派模型，更多的使用平级的类加载器
+
+
+
 ### 类连接
 #### 类连接主要验证的内容
 
@@ -1166,22 +1206,31 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
 - 元数据验证：对字节码描述的信息进行语义分析，保证其符合 Java 语言规范的要求
 - 字节码验证：通过对数据流和控制流进行分析，确保程序语义是合法和符合逻辑的
 - 符号引用验证：对类自身以外的信息，即常量池中的各种符号引用，进行匹配校验
+
+
+
 #### 类连接的解析
 
 - 解析是把常量池中的符号引用转换成直接引用的过程，包括：符号引用（以一组无歧义的符号来描述所引用的目标，与虚拟机的实现无关）
 - 直接引用：直接指向目标的指针、相对偏移量、或能间接定位到目标的句柄，是和虚拟机的实现相关
 - 主要针对：类、接口、字段、类方法、接口方法、方法类型、方法句柄、调用点限定符
+
+
+
 ### 类的初始化
 
-- 类的初始化是类的静态变量赋初始值，或者说是执行类构造器 clinit 方法的过程
-   - 如果类还没有加载和连接，就先加载和连接
-   - 如果类存在父类，且父类没有初始化，就先初始化父类
-   - 如果类中存在初始化语句，则会依次执行初始化语句
-   - 如果是接口
-      - 初始化一个类的时候，并不会先初始化它的接口
-      - 初始化一个接口时，并不会初始化它的父接口
-      - 只有当程序首次使用接口里面的变量或者调用接口方法的时候，才会导致接口初始化
-   - 调用 ClassLoader 类的 loadClass 方法来装载一个类，并不会初始化这个类，这不是对类的主动使用
+类的初始化是类的静态变量赋初始值，或者说是执行类构造器 clinit 方法的过程
+- 如果类还没有加载和连接，就先加载和连接
+- 如果类存在父类，且父类没有初始化，就先初始化父类
+- 如果类中存在初始化语句，则会依次执行初始化语句
+- 如果是接口
+   - 初始化一个类的时候，并不会先初始化它的接口
+   - 初始化一个接口时，并不会初始化它的父接口
+   - 只有当程序首次使用接口里面的变量或者调用接口方法的时候，才会导致接口初始化
+- 调用 ClassLoader 类的 loadClass 方法来装载一个类，并不会初始化这个类，这不是对类的主动使用
+
+
+
 #### 初始化的时机
 
 - Java 程序对类的使用方式分成：主动使用和被动使用，JVM 必须在每个类或接口“首次主动使用”时才初始化它们；被动使用类不会导致类的初始化
@@ -1193,6 +1242,9 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
    - 某个父类还没有初始化时，初始化父类的子类
    - JVM 启动的时候运行的主类
    - 定义了 default 方法的接口，当接口实现类初始化时
+
+
+
 #### 类初始化机制
 在Java中，类的初始化可以分为以下两种情况：
 
@@ -1204,13 +1256,18 @@ JVM 中的 ClassLoader 通常采用双亲委派模型，要求除了启动类加
    2. 构造代码块的执行：如果一个类包含构造代码块，那么这些代码块会在成员变量的初始化之后执行，且按照代码块的顺序执行。
    3. 构造函数的执行：最后，会执行对象的构造函数。
 
-需要注意的是，如果一个类被继承，那么子类的初始化过程中，会先执行父类的初始化过程，然后再执行子类的初始化过程。此外，静态变量和静态代码块只会在类被加载时执行一次，而成员变量和构造代码块会在每次创建对象时都执行。
+需要注意的是，如果一个类被继承，那么子类的初始化过程中，会先执行父类的初始化过程，然后再执行子类的初始化过程。此外，静态变量和静态代码块只会在类被加载时执行一次，而成员变量和构造代码块会在每次创建对象时都执行
+
+
+
 #### 类初始化顺序
 Java中，类的初始化顺序可以分为以下三个步骤：
 
 1. 父类的静态成员变量和静态代码块的初始化，按照代码顺序执行。
 2. 子类的静态成员变量和静态代码块的初始化，按照代码顺序执行。
 3. 父类和子类的实例成员变量和构造函数的初始化，按照代码顺序执行。如果有多个构造函数，则以调用的构造函数为准。
+
+
 
 具体来说，Java类的初始化顺序如下：
 
@@ -1219,7 +1276,10 @@ Java中，类的初始化顺序可以分为以下三个步骤：
 3. 创建父类的实例对象，并按照代码顺序初始化其实例成员变量和构造函数。
 4. 创建子类的实例对象，并按照代码顺序初始化其实例成员变量和构造函数。
 
-需要注意的是，父类和子类的静态成员变量和静态代码块只会在类被加载时执行一次，而实例成员变量和构造函数会在每次创建对象时都执行。另外，如果父类和子类中有同名的成员变量，子类的成员变量会覆盖父类的成员变量。
+需要注意的是，父类和子类的静态成员变量和静态代码块只会在类被加载时执行一次，而实例成员变量和构造函数会在每次创建对象时都执行。另外，如果父类和子类中有同名的成员变量，子类的成员变量会覆盖父类的成员变量
+
+
+
 ### 类的卸载
 
 - 当代表一个类的 Class 对象不再被引用，那么 Class 对象的生命周期就结束了，对应在方法区中的数据也会被卸载

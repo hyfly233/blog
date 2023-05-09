@@ -7,10 +7,10 @@ import { prismjsPlugin } from '@vuepress/plugin-prismjs'
 
 export default {
     base: '/blog/',
-    title: '尘世闲游',
+    title: 'とんぼの気持ち',
     head: head,
     theme: defaultTheme({
-        logo: '/assets/img/favicon.ico',
+        logo: '/assets/img/game.ico',
         sidebar: 'auto',
         contributors: true,
         contributorsText: '贡献者列表',
