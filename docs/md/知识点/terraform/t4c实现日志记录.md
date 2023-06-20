@@ -1,44 +1,5 @@
 # 实现日志记录
 
-- 10分
-- |
-- 大地形态大地形态
-
-
-
-经常引用这个？ [创建一个帐户](https://developer.hashicorp.com/sign-up)以书签教程。
-
-
-
-在本教程中，您将在提供程序中实现日志消息，并从日志输出中筛选特殊值。然后，您将管理日志输出，以便在执行 Terraform 时查看这些日志语句。为此，您将：
-
-1. **添加日志消息。**
-   这会在 Terraform 的日志中创建提供程序定义的日志消息。
-2. **添加结构化日志字段。**
-   这使用提供程序定义的键值对增强了日志记录数据，从而提高了多个日志的一致性并简化了日志查看。
-3. **添加日志筛选。**
-   这会编辑某些日志消息或结构化日志字段数据，使其不包含在日志输出中。
-4. **在命令期间查看所有 Terraform 日志输出。**
-   这将显示运行 Terraform 命令的终端中的所有 Terraform 日志。
-5. **在命令期间将 Terraform 日志输出保存到文件。**
-   这会在运行 Terraform 命令时将所有 Terraform 日志保存到文件中。
-6. **查看特定的地形日志输出。**
-   这将管理 Terraform 日志输出以仅显示某些日志。
-
-## 先决条件
-
-要学习本教程，您需要：
-
-- [Go 1.19+](https://golang.org/doc/install) 已安装并配置。
-- [Terraform v1.0.3+](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) 本地安装。
-- 码头[工人](https://www.docker.com/products/docker-desktop)和[码头工人 撰写](https://docs.docker.com/compose/install/)以运行 本地桥杯。
-
-继续上一教程新设置
-
-导航到您的目录。`terraform-provider-hashicups-pf`
-
-您的代码应与示例存储库中的 [`read-coffees` 分支](https://github.com/hashicorp/terraform-provider-hashicups-pf/tree/read-coffees)匹配。
-
 ## 实现日志消息
 
 提供程序支持通过 Go 模块的包进行日志记录。此包实现了结构化日志记录和筛选功能。`tflog``github.com/hashicorp/terraform-plugin-log`
@@ -264,16 +225,3 @@ data.hashicups_coffees.edu: Read complete after 0s
 cd ../..
 ```
 
-复制
-
-## 后续步骤
-
-祝贺！您已在提供程序中实现了日志记录，查看了它，并优化了输出。
-
-如果在本教程中遇到困难，请查看[`日志记录`](https://github.com/hashicorp/terraform-provider-hashicups-pf/tree/logging)分支以查看本教程中实现的更改。
-
-- 了解有关 Terraform 插件的更多信息 框架，参考 [Terraform 插件框架 文档](https://developer.hashicorp.com/terraform/plugin/framework)。
-- 有关 SDKv2 和插件框架之间的完整功能比较， 请参阅[我应该使用哪个 SDK？ 文档](https://developer.hashicorp.com/terraform/plugin/which-sdk)。
-- The Terraform HashiCups （plugin-framework） 提供程序的主[``分支](https://github.com/hashicorp/terraform-provider-hashicups-pf)包含完整的 HashiCups 提供程序。它包括一个数据源 使用插件框架编写并实现创建、读取、更新和删除 订单资源的功能。
-- 向 [Terraform 插件框架 Github 存储库](https://github.com/hashicorp/terraform-plugin-framework)中的开发团队提交任何 Terraform 插件框架错误报告或功能请求。
-- 在 [Terraform 插件框架讨论论坛中提交任何 Terraform 插件框架](https://discuss.hashicorp.com/c/terraform-providers/tf-plugin-sdk/43)问题。
