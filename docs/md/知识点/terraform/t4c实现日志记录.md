@@ -2,34 +2,9 @@
 
 ## 实现日志消息
 
-提供程序支持通过 Go 模块的包进行日志记录。此包实现了结构化日志记录和筛选功能。`tflog``github.com/hashicorp/terraform-plugin-log`
+ provider 支持通过 `github.com/hashicorp/terraform-plugin-log` 模块的 `tflog` 包进行日志记录。这个包实现了结构化的日志记录和过滤功能。
 
-打开文件。`internal/provider/provider.go`
-
-使用以下命令更新方法逻辑的顶部。`Configure`
-
-
-
-internal/provider/provider.go
-
-复制
-
-```go
-func (p *hashicupsProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-    tflog.Info(ctx, "Configuring HashiCups client")
-
-    // Retrieve provider data from configuration
-    var config hashicupsProviderModel
-    /* ... */
-```
-
-将文件开头的语句替换为以下内容。`import`
-
-
-
-internal/provider/provider.go
-
-复制
+编辑`internal/provider/provider.go`
 
 ```go
 import (
@@ -45,21 +20,24 @@ import (
     "github.com/hashicorp/terraform-plugin-framework/types"
     "github.com/hashicorp/terraform-plugin-log/tflog"
 )
+
+func (p *hashicupsProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+    tflog.Info(ctx, "Configuring HashiCups client")
+
+    // Retrieve provider data from configuration
+    var config hashicupsProviderModel
+    /* ... */
 ```
+
+
 
 ## 实现结构化日志字段
 
-该包支持向日志记录添加其他键值对，以实现一致性和跟踪流。这些对可以通过调用添加到提供程序请求的其余部分，也可以作为任何日志记录调用的最终参数内联添加。`tflog``tflog.SetField()`
+`tflog` 包支持向日志中添加额外的键值对，以实现一致性和跟踪流。这些对可以通过 `tlog.setfield()` 调用添加到 provider 请求的其余部分，或者作为任何日志调用的最终参数内联。
 
-打开文件。`internal/provider/provider.go`
+编辑 `internal/provider/provider.go`
 
-在提供程序的方法中，设置三个日志记录字段和一个日志 在通话前立即发送以下消息。`Configure``hashicups.NewClient()`
-
-
-
-internal/provider/provider.go
-
-复制
+在 provider 的 `Configure` 方法中，在 `hashicup.newclient()` 调用之前立即设置三个日志字段和一条日志消息，如下所示。
 
 ```go
     /* ... */
@@ -78,13 +56,7 @@ internal/provider/provider.go
     /* ... */
 ```
 
-Add a log message at the end of the method with the following.`Configure`
-
-
-
-hashicups/provider.go
-
-Copy
+在 `Configure `方法的末尾添加一条日志消息
 
 ```go
     /* ... */
@@ -97,15 +69,11 @@ Copy
 }
 ```
 
-## Implement log filtering
-
-添加筛选器以在调用方法之前屏蔽用户的密码，如下所示。`tflog.Debug(ctx, "Creating HashiCups client")``Configure`
 
 
+## 实现日志过滤
 
-hashicups/provider.go
-
-复制
+在 `tflog. Debug(ctx, "Creating HashiCups client") ` 之前添加过滤器来屏蔽用户的密码
 
 ```go
     /* ... */
@@ -118,82 +86,56 @@ hashicups/provider.go
     /* ... */
 ```
 
-生成并安装更新的提供程序。
+生成 provider
 
-```shell-session
+```shell
 $ go install .
 ```
 
-复制
 
-## 查看所有地形日志输出
 
-Terraform 的日志输出由各种环境变量控制，例如 或以其他方式以 .`TF_LOG``TF_LOG_`
+## 查看所有 Terraform 日志输出
 
-导航到该目录。`examples/coffees`
+Terraform的日志输出由各种环境变量控制，例如 `TF_LOG` 或 `TF_LOG_` 为前缀。
 
-```shell-session
+移动到 `examples/coffees`
+
+```shell
 $ cd examples/coffees
 ```
 
-复制
+运行一个将 `TF_LOG` 环境变量设置为 `TRACE` 的 Terraform plan
 
-运行环境变量设置为 的地形规划。`TF_LOG``TRACE`
+Terraform 将为 Terraform 本身、Terraform 插件框架和任何 provider 日志记录中的所有组件输出大量日志条目。
 
-Terraform 将为 Terraform 本身、Terraform 插件框架和任何提供程序日志记录中的所有组件输出大量日志条目。
-
-```shell-session
+```shell
 $ TF_LOG=TRACE terraform plan
 ##...
-2022-09-19T09:33:34.487-0500 [INFO]  provider.terraform-provider-hashicups-pf: Configuring HashiCups client: tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=UUID tf_rpc=ConfigureProvider @caller=PATH @module=hashicups_pf timestamp=2022-09-19T09:33:34.487-0500
-2022-09-19T09:33:34.487-0500 [DEBUG] provider.terraform-provider-hashicups-pf: Creating HashiCups client: @module=hashicups_pf hashicups_password=*** tf_req_id=UUID @caller=PATH hashicups_host=http://localhost:19090 hashicups_username=education tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_rpc=ConfigureProvider timestamp=2022-09-19T09:33:34.487-0500
-2022-09-19T09:33:34.517-0500 [INFO]  provider.terraform-provider-hashicups-pf: Configured HashiCups client: tf_rpc=ConfigureProvider hashicups_password=*** hashicups_username=education success=true tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=UUID @caller=PATH @module=hashicups_pf hashicups_host=http://localhost:19090 timestamp=2022-09-19T09:33:34.517-0500
+2022-09-19T09:33:34.487-0500 [INFO]  provider.terraform-provider-hashicups-pf
+2022-09-19T09:33:34.487-0500 [DEBUG] provider.terraform-provider-hashicups-pf
+2022-09-19T09:33:34.517-0500 [INFO]  provider.terraform-provider-hashicups-pf
 ##...
 ```
 
-复制
 
-## 保存所有地形日志输出
 
-如果您计划在同一终端会话中查看日志，或者希望通过管道将输出传输到其他 shell 命令（如 ）。相反，Terraform 可以将此输出写入本地文件系统上的日志文件，以便在文本编辑器中打开或用于存档目的。`grep`
+## 保存所有 Terraform 日志输出
 
-运行同时设置了 和 环境变量的地形规划。`TF_LOG``TF_LOG_PATH`
+运行 terraform plan 同时设置 `TF_LOG` 和 `TF_LOG_PATH`
 
-```shell-session
+```shell
 $ TF_LOG=TRACE TF_LOG_PATH=trace.txt terraform plan
 ```
 
-复制
+日志将保存在 `examples/coffees/trace.txt`中
 
-打开文件并验证它是否包含日志 您添加到提供程序方法的消息。`examples/coffees/trace.txt``Configure`
 
-```text
-##...
-2022-09-30T16:23:38.515-0500 [DEBUG] provider.terraform-provider-hashicups-pf: Calling provider defined Provider Configure: tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=12541d93-279d-1ec0-eac1-d2d2fcfd4030 tf_rpc=ConfigureProvider @caller=/Users/YOU/go/pkg/mod/github.com/hashicorp/terraform-plugin-framework@v0.13.0/internal/fwserver/server_configureprovider.go:12 @module=sdk.framework timestamp=2022-09-30T16:23:38.515-0500
-2022-09-30T16:23:38.515-0500 [INFO]  provider.terraform-provider-hashicups-pf: Configuring HashiCups client: tf_req_id=12541d93-279d-1ec0-eac1-d2d2fcfd4030 tf_rpc=ConfigureProvider @caller=/Users/YOU/code/terraform-provider-hashicups-pf/hashicups/provider.go:66 @module=hashicups_pf tf_provider_addr=hashicorp.com/edu/hashicups-pf timestamp=2022-09-30T16:23:38.515-0500
-2022-09-30T16:23:38.515-0500 [DEBUG] provider.terraform-provider-hashicups-pf: Creating HashiCups client: hashicups_password=*** tf_req_id=12541d93-279d-1ec0-eac1-d2d2fcfd4030 tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_rpc=ConfigureProvider @caller=/Users/YOU/code/terraform-provider-hashicups-pf/hashicups/provider.go:171 @module=hashicups_pf hashicups_host=http://localhost:19090 hashicups_username=education timestamp=2022-09-30T16:23:38.515-0500
-2022-09-30T16:23:38.524-0500 [INFO]  provider.terraform-provider-hashicups-pf: Configured HashiCups client: @module=hashicups_pf hashicups_password=*** hashicups_username=education tf_req_id=12541d93-279d-1ec0-eac1-d2d2fcfd4030 tf_rpc=ConfigureProvider @caller=/Users/YOU/code/terraform-provider-hashicups-pf/hashicups/provider.go:190 hashicups_host=http://localhost:19090 success=true tf_provider_addr=hashicorp.com/edu/hashicups-pf timestamp=2022-09-30T16:23:38.524-0500
-2022-09-30T16:23:38.524-0500 [DEBUG] provider.terraform-provider-hashicups-pf: Called provider defined Provider Configure: @module=sdk.framework tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=12541d93-279d-1ec0-eac1-d2d2fcfd4030 tf_rpc=ConfigureProvider @caller=/Users/YOU/go/pkg/mod/github.com/hashicorp/terraform-plugin-framework@v0.13.0/internal/fwserver/server_configureprovider.go:20 timestamp=2022-09-30T16:23:38.524-0500
-##...
-```
 
-复制
+## 查看特定的 Terraform 日志输出
 
-删除该文件。`examples/coffees/trace.txt`
+日志级别包括 `DEBUG` `INFO` `WARN` `ERROR`
 
-```shell-session
-$ rm trace.txt
-```
-
-复制
-
-## 查看特定的地形日志输出
-
-前面的示例使用了日志记录级别。跟踪日志是可用的最详细的日志记录级别，可能包含大量信息，这些信息仅在您深入了解 Terraform 或 Terraform 插件框架的某些内部组件时才相关。您可以改为将日志记录级别降低到 、、 或 。`TRACE``DEBUG``INFO``WARN``ERROR`
-
-运行环境变量设置为 的地形规划。`TF_LOG``INFO`
-
-```shell-session
+```shell
 $ TF_LOG=INFO terraform plan
 2022-09-30T16:27:38.446-0500 [INFO]  Terraform version: 1.3.0
 2022-09-30T16:27:38.447-0500 [INFO]  Go runtime version: go1.19.1
@@ -201,27 +143,15 @@ $ TF_LOG=INFO terraform plan
 ##...
 ```
 
-复制
+仅输出 provider 日志
 
-您可以为某些组件启用日志输出，例如仅提供程序日志，而不启用 Terraform CLI 日志。
-
-运行环境变量设置为 的地形规划。`TF_LOG_PROVIDER``INFO`
-
-```shell-session
+```shell
 $ TF_LOG_PROVIDER=INFO terraform plan
 ##...
-2022-12-14T10:39:33.247-0600 [INFO]  provider.terraform-provider-hashicups-pf: Configuring HashiCups client: @caller=/Users/YOU/code/terraform-provider-hashicups-pf/hashicups/provider.go:61 @module=hashicups_pf tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=45969718-ed46-42b3-2cb9-847635d5aebb tf_rpc=ConfigureProvider timestamp=2022-12-14T10:39:33.247-0600
-2022-12-14T10:39:33.255-0600 [INFO]  provider.terraform-provider-hashicups-pf: Configured HashiCups client: success=true hashicups_host=http://localhost:19090 hashicups_username=education tf_provider_addr=hashicorp.com/edu/hashicups-pf tf_req_id=45969718-ed46-42b3-2cb9-847635d5aebb tf_rpc=ConfigureProvider @caller=/Users/YOU/code/terraform-provider-hashicups-pf/hashicups/provider.go:184 @module=hashicups_pf timestamp=2022-12-14T10:39:33.255-0600
+2022-12-14T10:39:33.247-0600 [INFO]  provider.terraform-provider-hashicups-pf
+2022-12-14T10:39:33.255-0600 [INFO]  provider.terraform-provider-hashicups-pf
 data.hashicups_coffees.edu: Reading...
 data.hashicups_coffees.edu: Read complete after 0s
 ##...
-```
-
-复制
-
-导航到该目录。`terraform-provider-hashicups-pf`
-
-```shell-session
-cd ../..
 ```
 

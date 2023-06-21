@@ -1,57 +1,16 @@
-# 实施自动化测试
+# 自动化测试
 
-- 11分
-- |
-- 大地形态大地形态
+`terra-plugin-testing` Go 模块 `helper/resource` 包使 provider 能够实现自动化验收测试。测试框架建立在标准的 `go test` 命令功能之上，并调用实际的 Terraform 命令，如 `Terraform apply`、`Terraform import` 和 `Terraform destroy`。与手动测试不同，在运行自动化测试时，不必在代码更新上本地重新安装提供程序，也不必切换目录以使用预期的 Terraform 配置。
 
 
 
-经常引用这个？ [创建一个帐户](https://developer.hashicorp.com/sign-up)以书签教程。
+## 实现 data source id 属性
 
+测试框架要求在每个 data source 和 resource 中都有一个 id 属性。为了在没有 ID 的 data source 和 resource 上运行测试，必须使用占位符值实现 ID 字段
 
+编辑文件 `internal/provider/coffees_data_source.go`
 
-在本教程中，您将向提供程序的数据源和资源添加自动验收测试功能，该提供程序与名为 HashiCups 的虚构咖啡店应用程序的 API 进行交互。为此，您将：
-
-1. **实现数据源 ID 属性。**
-   这可确保数据源与测试框架兼容。
-2. **实施数据源验收测试。**
-   这将自动执行数据源的端到端测试。
-3. **运行数据源验收测试。**
-   这可确保数据源测试按预期工作。
-4. **实施资源验收测试。**
-   这将自动执行资源的端到端测试。
-5. **运行资源验收测试。**
-   这可确保资源测试按预期工作。
-
-Go 模块包使提供程序能够 实施自动化验收测试。测试框架建立在上面 标准命令功能并调用实际的 Terraform 命令， 如 、 和 。与 手动测试，您不必在本地重新安装代码上的提供程序 在以下情况下更新或切换目录以使用预期的 Terraform 配置 运行自动测试。`terraform-plugin-testing``helper/resource``go test``terraform apply``terraform import``terraform destroy`
-
-## 先决条件
-
-要学习本教程，您需要：
-
-- [Go 1.19+](https://golang.org/doc/install) 已安装并配置。
-- [Terraform v1.0.3+](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) 本地安装。
-- Docker 和 [Docker Compose](https://docs.docker.com/compose/install/) 以在本地运行 HashiCups 实例。
-
-继续上一教程新设置
-
-导航到您的目录。`terraform-provider-hashicups-pf`
-
-您的代码应与示例存储库中的[`导入顺序`分支](https://github.com/hashicorp/terraform-provider-hashicups-pf/tree/import-order)匹配。
-
-如果在本教程中的任何时间点遇到困难，请参阅分支以查看本教程中实现的更改。`acceptance-tests`
-
-## 实现数据源 ID 属性
-
-测试框架要求每个数据源和资源中都存在一个属性。若要对没有自己的 ID 的数据源和资源运行测试，必须实现具有占位符值的 ID 字段。`id`
-
-打开文件。`internal/provider/coffees_data_source.go`
-
-使用以下命令将属性添加到方法中。`id``Schema`
-
-
-
-内部/提供商/coffees_data_source.go
+使用以下命令向 Schema 方法添加 id 属性
 
 ```go
 func (d *coffeesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
@@ -64,13 +23,7 @@ func (d *coffeesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
                 //...
 ```
 
-将数据源模型替换为以下内容。`coffeesDataSourceModel`
-
-
-
-内部/提供商/coffees_data_source.go
-
-复制
+用下面的代码替换 `coffeesDataSourceModel` 数据源模型
 
 ```go
 // coffeesDataSourceModel maps the data source schema data.
@@ -80,11 +33,7 @@ type coffeesDataSourceModel struct {
 }
 ```
 
-在数据源方法的末尾附近设置占位符值 在返回以下状态之前。`Read`
-
-
-
-内部/提供商/coffees_data_source.go
+在使用以下命令返回状态之前，在 data source 的 Read 方法的末尾附近设置一个占位符值
 
 ```go
 func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -101,27 +50,15 @@ func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 }
 ```
 
-## 实施数据源验收测试
-
-数据源验收测试用于验证从 API 读取后 Terraform 状态是否包含数据。
-
-大多数提供程序将在单个测试文件中管理一些共享实现详细信息，以简化数据源和资源测试实现。
-
-导航到目录并删除示例基架测试文件。`internal/provider`
-
-```shell-session
-$ cd internal/provider && rm example_data_source_test.go; rm example_resource_test.go
-```
-
-复制
-
-打开该文件并将现有代码替换为以下内容。`internal/provider/provider_test.go`
 
 
+## 实施 data source 验收测试
 
-内部/提供商/provider_test.go
+Data source 验收测试用于验证从 API 读取后 Terraform state 包含的数据
 
-复制
+大多数 provider 将在单个测试文件中管理一些共享实现详细信息，以简化 data source 和 resource 测试实现
+
+编辑 `internal/provider/provider_test.go`
 
 ```go
 package provider
@@ -156,13 +93,7 @@ var (
 )
 ```
 
-使用以下方法创建一个新文件。`internal/provider/coffees_data_source_test.go`
-
-
-
-internal/provider/coffees_data_source_test.go
-
-复制
+创建一个新的 `internal/provider/coffees_data_source_test`，使用以下内容创建文件
 
 ```go
 package provider
@@ -201,13 +132,13 @@ func TestAccCoffeesDataSource(t *testing.T) {
 }
 ```
 
-## Verify data source testing functionality
+## 
 
-Now that you have implemented the testing functionality to the data source, you can run the tests.
+## 验证 data source 测试功能
 
-Run Go testing with the environment variable set. The test framework will report that your data source's test passed.`TF_ACC`
+使用 `TF_ACC` 环境变量运行测试
 
-```shell-session
+```shell
 $ TF_ACC=1 go test -count=1 -v
 === RUN   TestAccCoffeesDataSource
 --- PASS: TestAccCoffeesDataSource (1.23s)
@@ -215,19 +146,13 @@ PASS
 ok      terraform-provider-hashicups-pf/internal/provider   2.120s
 ```
 
-复制
-
-## 实现资源测试功能
-
-资源验收测试用于验证整个资源生命周期， 例如、、、和功能，以及 导入功能。测试框架自动处理销毁测试 资源并返回任何错误作为最后一步，无论是否存在 是显式编写的销毁步骤。`Create``Read``Update``Delete`
-
-使用以下方法创建一个新文件。`internal/provider/order_resource_test.go`
 
 
+## 实现 resource 验收测试功能
 
-内部/提供商/order_resource_test.go
+资源验收测试用于验证整个资源生命周期，例如 `创建`、`读取`、`更新`和`删除`功能，以及导入能力。测试框架自动处理销毁测试资源并返回任何错误，作为最后一步，而不管是否显式地编写了销毁步骤。
 
-复制
+创建一个新的 `internal/provider/order_resource_test`
 
 ```go
 package provider
@@ -314,13 +239,13 @@ resource "hashicups_order" "test" {
 }
 ```
 
-## 验证资源测试功能
 
-实现订单资源的测试功能后，请运行测试。
 
-使用设置的环境变量运行 Go 测试，并且仅运行 资源测试。测试框架将报告资源的测试已通过。`TF_ACC`
+## 验证 resource 测试功能
 
-```shell-session
+使用 `TF_ACC` 环境变量运行测试
+
+```shell
 $ TF_ACC=1 go test -count=1 -run='TestAccOrderResource' -v
 === RUN   TestAccOrderResource
 --- PASS: TestAccOrderResource (2.01s)
@@ -328,24 +253,3 @@ PASS
 ok      terraform-provider-hashicups-pf/internal/provider   2.754s
 ```
 
-复制
-
-导航到该目录。`terraform-provider-hashicups-pf`
-
-```shell-session
-$ cd ../..
-```
-
-复制
-
-## 后续步骤
-
-祝贺！您已通过验收测试增强了提供商 能力。
-
-如果您在本教程中遇到困难，请查看[`验收测试`](https://github.com/hashicorp/terraform-provider-hashicups-pf/tree/acceptance-tests)分支以查看本教程中实现的更改。
-
-- 了解有关 Terraform 插件的更多信息 框架，参考 [Terraform 插件框架 文档](https://developer.hashicorp.com/terraform/plugin/framework)。
-- 有关 SDKv2 和插件框架之间的完整功能比较， 请参阅[我应该使用哪个 SDK？ 文档](https://developer.hashicorp.com/terraform/plugin/which-sdk)。
-- The Terraform HashiCups （plugin-framework） 提供程序的主[``分支](https://github.com/hashicorp/terraform-provider-hashicups-pf)包含完整的 HashiCups 提供程序。它包括一个数据源 使用插件框架编写并实现创建、读取、更新和删除 订单资源的功能。
-- 向 [Terraform 插件框架 Github 存储库](https://github.com/hashicorp/terraform-plugin-framework)中的开发团队提交任何 Terraform 插件框架错误报告或功能请求。
-- 在 [Terraform 插件框架讨论论坛中提交任何 Terraform 插件框架](https://discuss.hashicorp.com/c/terraform-providers/tf-plugin-sdk/43)问题。
