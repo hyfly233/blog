@@ -30,7 +30,7 @@ func (p *hashicupsProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 
 ## 实现 provider data model
 
-Terraform Plugin Framework 使用带有 tfsdk 结构字段标签的 Go 语言结构类型，将 schema 定义映射为带有实际数据的Go 语言类型。结构体中的类型必须与 schema 中的类型保持一致
+Terraform Plugin Framework 使用带有 tfsdk 结构字段标签的 Go 语言结构类型，将 schema 定义映射为带有实际数据的 Go 语言类型。结构体中的类型必须与 schema 中的类型保持一致
 
 编辑文件 `internal/provider/provider.go` 添加以下内容
 
@@ -47,7 +47,7 @@ type hashicupsProviderModel struct {
 
 ## 实现客户端配置功能
 
- provider 使用 Configure 方法从 Terraform 配置或环境变量中读取 API Client 的配置值。在验证值之后，将创建 API Client，并使其可用于 data source 和 resource 使用，Configure 方法遵循以下步骤：
+provider 使用 Configure 方法从 Terraform 配置或环境变量中读取 API Client 的配置值。在验证值之后，将创建 API Client，并使其可用于 data source 和 resource 使用，Configure 方法遵循以下步骤：
 
 1. 从配置中检索值。该方法将尝试从提供程序配置中检索值，并将其转换为 `providerModel` 结构体
 2. 检查未知的配置值。如果只有在应用另一个资源后才知道 Terraform 配置值，则该方法可以防止意外配置错误的客户端
