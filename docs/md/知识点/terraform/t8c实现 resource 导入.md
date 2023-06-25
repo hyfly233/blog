@@ -1,9 +1,5 @@
 # 实现 resource 导入
 
-
-
-在本教程中，您将向提供程序的资源添加导入功能，该提供程序与名为 Hashicups 的虚构咖啡店应用程序的 API 进行交互。为此，您将：`order`
-
 1. 实现 resource 导入，此 import 方法从 `terraform import` 命令中获取给定的订单ID，并使terraform能够开始管理现有订单
 2. 验证 import 功能
 

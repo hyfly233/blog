@@ -2,17 +2,15 @@
 
 ## 先决条件
 
-要学习本教程，您需要：
-
-- [Go 1.19+](https://golang.org/doc/install) 已安装并配置
-- [Terraform v1.0.3+](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) 本地安装
-- docker 本地安装
+- Go 1.19+ 已安装并配置
+- Terraform v1.0.3+ 本地安装
+- Docker 本地安装
 
 
 
 ## 设置开发环境
 
-克隆[Terraform Provider Scaffolding Framework repository](https://github.com/hashicorp/terraform-provider-scaffolding-framework)
+克隆项目 [Terraform Provider Scaffolding Framework repository](https://github.com/hashicorp/terraform-provider-scaffolding-framework)
 
 ```shell
 $ git clone https://github.com/hashicorp/terraform-provider-scaffolding-framework
@@ -39,24 +37,12 @@ $ go mod edit -module terraform-provider-hashicups-pf
 安装依赖
 
 ```shell
-$ go mod tidy
+$ go mod tidy && go install
 ```
 
- 
 
-更新 `main.go` 的 import
 
-```go
-import (
-    "context"
-    "flag"
-    "log"
-
-    "github.com/hashicorp/terraform-plugin-framework/providerserver"
-
-    "terraform-provider-hashicups-pf/internal/provider"
-)
-```
+### 设置 docker compose
 
 在项目中创建一个 `docker_compose` 目录，该目录将包含启动 HashiCups 本地实例所需的 Docker 配置
 
@@ -99,17 +85,19 @@ services:
       POSTGRES_PASSWORD: 'password'
 ```
 
+启动 docker 容器
+
 
 
 ## 实现 provider
 
-Provider 使用 ``provider.Provider` 接口作为所有实现细节的起点，此接口需要满足以下条件：
+Provider 使用 `provider.Provider` 接口作为所有实现 provider 细节的起点，此接口需要满足以下条件：
 
-1. Metadata 方法，用于定义要包含在每个数据源和资源类型名称中的提供程序类型名称
-2. Schema 方法，用于定义 provider-level 配置的 schema
+1. Metadata 方法，用于定义要包含在每个 data source 和 resource 类型名称中的 provider 类型名称
+2. Schema 方法，用于定义 provider 的 schema
 3. Configure 方法，用于为 data source 和 resource 实现配置共享客户端
 4. DataSources 方法，用于定义 provider 的 data sources
-5. Resources 方法，用于定义 provider 的 resources
+5. Resources 方法，用于定义 provider 的 resource
 
 打开 `internal/provider/provider.go` 替换为以下内容
 
@@ -182,6 +170,16 @@ Terraform provider 是与 Terraform 交互以处理每个 data source 和 resour
 打开 `main.go` 替换为以下内容
 
 ```go
+import (
+    "context"
+    "flag"
+    "log"
+
+    "github.com/hashicorp/terraform-plugin-framework/providerserver"
+
+    "terraform-provider-hashicups-pf/internal/provider"
+)
+
 func main() {
     var debug bool
 
@@ -210,7 +208,7 @@ func main() {
 
 ## 验证 provider
 
-手动运行
+运行程序，输出如下内容为正确情况
 
 ```shell
 $ go run main.go
@@ -222,20 +220,22 @@ exit status 1
 
  
 
-## 准备 Terraform 以进行本地 provider 安装
+## 进行本地 provider 安装
 
-当运行 `Terraform init` 时，Terraform 会安装 provider 并验证它们的版本和校验和。Terraform 将从  provider registry 或本地注册中心下载 provider。然而，在构建您的 provider 时，需要针对 provider 的本地开发构建测试 Terraform 配置
+当运行 `Terraform init` 时，Terraform 会安装 provider 并验证它们的版本和校验和
+
+Terraform 将从 `provider registry` 或`本地注册中心`下载 provider
 
 Terraform 通过在配置文件 `.terraformrc` 中设置 `dev_overrides` 块来指定使用本地 provider
 
-首先，找到 Go 安装二进制文件的 `GOBIN` 路径
+1. 首先，找到 Go 安装二进制文件的 `GOBIN` 路径
 
 ```shell
 $ go env GOBIN
 /Users/<Username>/go/bin
 ```
 
-编辑  `.terraformrc` 文件，将 `PATH` 替换为 `go env GOBIN` 的值
+2. 编辑  `.terraformrc` 文件，将 `PATH` 替换为 `go env GOBIN` 的值
 
 ```hcl
 provider_installation {
@@ -283,7 +283,7 @@ provider "hashicups" {}
 data "hashicups_coffees" "example" {}
 ```
 
-运行 `Terraform plan` 将报错，但也验证了 Terraform 能够成功启动本地安装的 provider，并且在开发环境中与之交互
+运行 `Terraform plan` 将报错，但能够验证 Terraform 能够成功启动本地安装的 provider
 
 ```shell
 $ terraform plan
@@ -308,5 +308,4 @@ $ terraform plan
 │ "hashicups_coffees".
 ╵
 ```
-
 

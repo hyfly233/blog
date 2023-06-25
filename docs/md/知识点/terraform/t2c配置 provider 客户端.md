@@ -2,7 +2,7 @@
 
 ## 实现 provider schema
 
-Terraform Plugin Framework 使用 provider 的Schema方法来定义可接受的配置属性名称和类型。HashiCups 客户端需要正确配置主机、用户名和密码。Terraform Plugin Framework 的`types` 包含 schema 和 data model，可以使用 Terraform 的空值、未知值或已知值。
+Terraform Plugin Framework 使用 provider 的 `Schema` 方法来定义可接受的配置属性名称和类型。HashiCups 客户端需要正确配置主机、用户名和密码。Terraform Plugin Framework 的`types` 包含 schema 和 data model，可以使用 Terraform 的空值、未知值或已知值。
 
 编辑文件`internal/provider/provider.go` 添加以下内容
 
