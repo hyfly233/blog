@@ -1,6 +1,6 @@
-# 实现资源创建和读取
+## 实现资源创建和读取的准备工作
 
-## 步骤
+### 步骤
 
 1. 定义初始 resource 类型
 2. 将 resource 添加到 provider 中
@@ -13,7 +13,7 @@
 
 
 
-## 实现初始 resource 类型
+### 实现初始 resource 类型
 
 Provider 使用接口类型 `resource.Resource` 的实现作为 resource 实现的起点
 
@@ -84,7 +84,7 @@ func (r *orderResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 
 
-## 将 resource 添加到 provider 中
+### 将 resource 添加到 provider 中
 
 provider 使用 `Resources` 方法返回其支持的 resource
 
@@ -103,7 +103,7 @@ func (p *hashicupsProvider) Resources(_ context.Context) []func() resource.Resou
 
 
 
-## 实现 resource 客户端功能
+### 实现 resource 客户端功能
 
 resource 使用可选的 `Configure` 方法从提供程序中获取已配置的客户端。provider 已经配置了 HashiCups 客户端， resource 可以为其操作保存对该客户端的引用
 
@@ -162,7 +162,7 @@ func (r *orderResource) Configure(_ context.Context, req resource.ConfigureReque
 
 
 
-## 实现 Schema
+### 实现 Schema
 
 该资源使用 `Schema` 方法来定义支持的 configuration、plan 和 state attribute names/types
 
@@ -219,7 +219,7 @@ func (r *orderResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 
 
 
-## 实现 data model
+### 实现 data model
 
 将资源的以下 data model 添加到 order_resource.go
 

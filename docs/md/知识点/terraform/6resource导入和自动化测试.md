@@ -1,16 +1,167 @@
-# 自动化测试
+## 实现 resource 导入
 
-`terra-plugin-testing` Go 模块 `helper/resource` 包使 provider 能够实现自动化验收测试。测试框架建立在标准的 `go test` 命令功能之上，并调用实际的 Terraform 命令，如 `Terraform apply`、`Terraform import` 和 `Terraform destroy`。与手动测试不同，在运行自动化测试时，不必在代码更新上本地重新安装提供程序，也不必切换目录以使用预期的 Terraform 配置。
+resource 的 import 的方法，能从 `terraform import` 命令中获取给定的订单 id，使得 Terraform 能使用此订单 id 将对应的信息导入到 Terraform state 文件中
 
 
 
-## 实现 data source id 属性
+### 实现 import 功能
+
+resource 使用 `ImportState` 方法导入现有资源，import 方法只有一个步骤：
+
+1. 检索导入标识符并保存为属性状态。该方法将使用 `resource.ImportStatePassthroughID()` 函数从 `terraform import` 命令中检索 ID 值，并将其保存到 `ID` 属性中。
+
+如果没有错误，Terraform 将自动调用资源的 `Read` 方法来导入 `Terraform state` 的其余部分。由于 `id` 属性是 `Read` 方法所必需的，因此不需要额外的实现
+
+编辑文件 `internal/provider/order_resource.go`
+
+```go
+import (
+    "context"
+    "fmt"
+    "strconv"
+    "time"
+
+    "github.com/hashicorp-demoapp/hashicups-client-go"
+    "github.com/hashicorp/terraform-plugin-framework/path"
+    "github.com/hashicorp/terraform-plugin-framework/resource"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+    "github.com/hashicorp/terraform-plugin-framework/types"
+)
+
+// Ensure the implementation satisfies the expected interfaces.
+var (
+    _ resource.Resource                = &orderResource{}
+    _ resource.ResourceWithConfigure   = &orderResource{}
+    _ resource.ResourceWithImportState = &orderResource{}
+)
+
+func (r *orderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+    // Retrieve import ID and save to id attribute
+    resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+```
+
+生成 provider
+
+```shell
+$ go install .
+```
+
+
+
+### 验证 import 功能
+
+导航到该目录。这包含 Terraform HashiCups 提供程序的示例 Terraform 配置。`examples/order`
+
+```shell
+$ cd examples/order
+```
+
+应用此配置以确保 HashiCups API 包含订单
+
+```shell
+$ terraform apply -auto-approve
+##...
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+edu_order = {
+  "id" = "2"
+  "items" = tolist([
+    {
+##...
+```
+
+从 Terraform state 检索订单 ID，将在下一步中使用此订单 ID 导入订单
+
+```shell
+$ terraform show
+# hashicups_order.edu:
+resource "hashicups_order" "edu" {
+    id           = "2"
+    items        = [
+        # (2 unchanged elements hidden)
+    ]
+    last_updated = "Wednesday, 14-Dec-22 11:18:20 CST"
+}
+##...
+```
+
+从 Terraform state 中删除现有的订单，订单仍然存在于 HashiCups API 中
+
+```shell
+$ terraform state rm hashicups_order.edu
+Removed hashicups_order.edu
+Successfully removed 1 resource instance(s).
+```
+
+确认 Terraform state 不再包含订单资源。之前的 `edu_order` 输出值仍然保留。
+
+```shell
+$ terraform show
+
+Outputs:
+
+edu_order = {
+    id           = "2"
+    items        = [
+##...
+```
+
+验证 HashiCups API 是否仍然有订单。如果需要，可以将 2 替换为 terraform show 命令输出的订单号
+
+```shell
+$ curl -X GET -H "Authorization: ${HASHICUPS_TOKEN}" localhost:19090/orders/2
+```
+
+将现有的 HashiCups API 订单导入 Terraform，将订单 ID 替换为你的订单 ID
+
+```shell
+$ terraform import hashicups_order.edu 2
+hashicups_order.edu: Importing from ID "2"...
+hashicups_order.edu: Import prepared!
+  Prepared hashicups_order for import
+hashicups_order.edu: Refreshing state... [id=2]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+```
+
+再次验证 Terraform state 是否包含订单
+
+```shell
+$ terraform show
+# hashicups_order.edu:
+resource "hashicups_order" "edu" {
+    id    = "2"
+    items = [
+        # (2 unchanged elements hidden)
+    ]
+}
+
+##...
+```
+
+
+
+## 自动化测试
+
+Go 模块 `terra-plugin-testing` 中的  `helper/resource` 包能使 provider 实现自动化验收测试。测试框架建立在标准的 `go test` 命令功能之上，并调用实际的 Terraform 命令，如 `Terraform apply`、`Terraform import` 和 `Terraform destroy`。
+
+
+
+### 实现 data source id 属性
 
 测试框架要求在每个 data source 和 resource 中都有一个 id 属性。为了在没有 ID 的 data source 和 resource 上运行测试，必须使用占位符值实现 ID 字段
 
 编辑文件 `internal/provider/coffees_data_source.go`
 
-使用以下命令向 Schema 方法添加 id 属性
+向 Schema 方法添加 id 属性
 
 ```go
 func (d *coffeesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
@@ -33,7 +184,7 @@ type coffeesDataSourceModel struct {
 }
 ```
 
-在使用以下命令返回状态之前，在 data source 的 Read 方法的末尾附近设置一个占位符值
+在 data source 的 Read 方法的末尾附近设置一个占位符值
 
 ```go
 func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -52,9 +203,9 @@ func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 
 
-## 实施 data source 验收测试
+### 实施 data source 验收测试
 
-Data source 验收测试用于验证从 API 读取后 Terraform state 包含的数据
+Data source 验收测试用于验证从 API 读取后 Terraform state 包含数据
 
 大多数 provider 将在单个测试文件中管理一些共享实现详细信息，以简化 data source 和 resource 测试实现
 
@@ -93,7 +244,7 @@ var (
 )
 ```
 
-创建一个新的 `internal/provider/coffees_data_source_test`，使用以下内容创建文件
+创建 `internal/provider/coffees_data_source_test`
 
 ```go
 package provider
@@ -132,9 +283,9 @@ func TestAccCoffeesDataSource(t *testing.T) {
 }
 ```
 
-## 
 
-## 验证 data source 测试功能
+
+### 验证 data source 测试功能
 
 使用 `TF_ACC` 环境变量运行测试
 
@@ -148,11 +299,11 @@ ok      terraform-provider-hashicups-pf/internal/provider   2.120s
 
 
 
-## 实现 resource 验收测试功能
+### 实现 resource 验收测试功能
 
-资源验收测试用于验证整个资源生命周期，例如 `创建`、`读取`、`更新`和`删除`功能，以及导入能力。测试框架自动处理销毁测试资源并返回任何错误，作为最后一步，而不管是否显式地编写了销毁步骤。
+资源验收测试用于验证整个 resource 生命周期，例如 `create`、`read`、`update` 和 `delete` 功能，以及 import 功能。测试框架自动处理销毁测试资源并返回任何错误
 
-创建一个新的 `internal/provider/order_resource_test`
+创建 `internal/provider/order_resource_test`
 
 ```go
 package provider
@@ -241,7 +392,7 @@ resource "hashicups_order" "test" {
 
 
 
-## 验证 resource 测试功能
+### 验证 resource 测试功能
 
 使用 `TF_ACC` 环境变量运行测试
 

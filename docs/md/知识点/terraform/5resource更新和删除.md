@@ -1,4 +1,4 @@
-# 实施资源更新
+## 实施资源更新
 
 1. 验证 schema 和 model
 2. 实现 resource update
@@ -7,9 +7,9 @@
 
 
 
-## 验证 schema 和 model
+### 修改 schema 和 model
 
-验证 Schema 方法包含名为 last_updated 的属性
+添加 last_updated 的属性
 
 ```go
 func (r *orderResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -25,7 +25,7 @@ func (r *orderResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
                 // ...
 ```
 
-验证 `orderResourceModel` 是否包含 `last_updated` 字段
+在 `orderResourceModel` 中添加 `last_updated` 字段
 
 ```go
 type orderResourceModel struct {
@@ -37,7 +37,7 @@ type orderResourceModel struct {
 
 
 
-## 实现 update
+### 实现 update
 
 Provider 使用 Update 方法基于 schema 数据更新现有 resource，Update 方法遵循以下步骤：
 
@@ -139,7 +139,7 @@ $ go install .
 
 
 
-## 验证 update 功能
+### 验证 update 功能
 
 导航到目录 `examples/order`
 
@@ -212,7 +212,7 @@ Plan: 0 to add, 1 to change, 0 to destroy.
 
 
 
-## 增强 plan output
+### 增强 plan output
 
 可配置的 Terraform Plugin Framework 属性不应该显示现有状态值的更新，应该使用 `UseStateForUnknown()` plan 修饰符
 
@@ -227,4 +227,71 @@ Plan: 0 to add, 1 to change, 0 to destroy.
 },
 ```
 
+
+
+## 实施资源删除
+
+### 实现 delete
+
+provider 使用 `Delete` 方法删除现有资源
+
+删除方法遵循以下步骤：
+
+1. 从 state 中检索值
+2. 删除现有订单
+
+编辑文件 `internal/provider/order_resource.go`
+
+```go
+func (r *orderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+// Retrieve values from state
+    var state orderResourceModel
+    diags := req.State.Get(ctx, &state)
+    resp.Diagnostics.Append(diags...)
+    if resp.Diagnostics.HasError() {
+        return
+    }
+
+    // Delete existing order
+    err := r.client.DeleteOrder(state.ID.ValueString())
+    if err != nil {
+        resp.Diagnostics.AddError(
+            "Error Deleting HashiCups Order",
+            "Could not delete order, unexpected error: "+err.Error(),
+        )
+        return
+    }
+}
+```
+
+更新 provider
+
+```shell
+$ go install .
+```
+
+
+
+### 验证 delete
+
+导航到目录 `examples/order`
+
+```shell
+$ cd examples/order
+```
+
+执行 terraform destroy 将删除订单
+
+```shell
+$ terraform destroy -auto-approve
+##...
+Destroy complete! Resources: 1 destroyed.
+```
+
+通过 HashiCups API 验证提供商是否删除了订单
+
+```shell
+$ curl -X GET -H "Authorization: ${HASHICUPS_TOKEN}" localhost:19090/orders/1
+{}
+```
 

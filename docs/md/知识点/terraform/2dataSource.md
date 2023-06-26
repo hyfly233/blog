@@ -69,7 +69,7 @@ func (p *hashicupsProvider) DataSources(_ context.Context) []func() datasource.D
 
 ## 实现 data source 客户端功能
 
-数据源使用可选的Configure方法从提供程序获取已配置的客户端。提供者配置HashiCups客户端，数据源可以为其操作保存对该客户端的引用。
+数据源使用可选的 Configure 方法从提供程序获取已配置的客户端。提供者配置 HashiCups 客户端，数据源可以为其操作保存对该客户端的引用。
 
 打开并编辑 `internal/provider/coffees_data_source.go`
 
@@ -117,7 +117,7 @@ func (d *coffeesDataSource) Configure(_ context.Context, req datasource.Configur
 
 ## 实现 data source schema
 
-用以下代码替换 data source 的 Schema 方法
+替换 data source 的 Schema 方法
 
 ```go
 // Schema defines the schema for the data source.
