@@ -861,3 +861,39 @@ cd /usr/local/share/kolla-ansible && ./init-runonce
 
 - 用户名：admin
 - 密码：查看 /etc/kolla/passwords.yml
+
+## 创建镜像
+
+OpenStack 默认支持的镜像 [https://docs.openstack.org/image-guide/obtain-images.html](https://docs.openstack.org/image-guide/obtain-images.html)
+
+```bash
+# step.1
+yum install libguestfs-tools -y
+
+# step.2
+export LIBGUESTFS_BACKEND=direct
+
+# step.3 设置镜像密码，否则会创建虚拟机时会随机生成密码
+virt-customize -a ./CentOS-7-x86_64-GenericCloud-2009.qcow2 \
+  --root-password password:123456
+
+virt-customize -a ./debian-9.13.42-20220706-openstack-amd64.qcow2 \
+  --root-password password:123456
+
+# step.4 创建 glance 镜像
+openstack image create "CentOS-7-x86_64-GenericCloud-2009" \
+  --public \
+  --min-ram 512 \
+  --min-disk 20 \
+  --disk-format qcow2 \
+  --container-format bare \
+  --file ./CentOS-7-x86_64-GenericCloud-2009.qcow2
+
+openstack image create "debian-9.13.42-20220706-openstack-amd64" \
+  --public \
+  --min-ram 512 \
+  --min-disk 20 \
+  --disk-format qcow2 \
+  --container-format bare \
+  --file ./debian-9.13.42-20220706-openstack-amd64.qcow2
+```
