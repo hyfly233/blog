@@ -149,7 +149,7 @@ yum -y install python-pip
 # step.2
 mkdir ~/.pip
 
-# step.3
+# step.3 配置 pip 源
 cat > ~/.pip/pip.conf <<EOF
 [global]
 timeout = 6000
@@ -163,17 +163,14 @@ EOF
 ### 创建虚拟环境
 
 ```bash
-# step.1
+# step.1 安装虚拟环境依赖
 yum install python-devel libselinux-python python-virtualenv -y
 
 # step.2 创建虚拟环境
 virtualenv /opt/ceph/venv/
 
-# step.3 激活
+# step.3 激活虚拟环境
 source /opt/ceph/venv/bin/activate
-
-# 退出虚拟环境
-deactivate
 ```
 
 ### 虚拟环境中安装 Ceph-Ansible stable-4.0
@@ -184,16 +181,16 @@ cd /opt/ceph
 git clone https://github.com/ceph/ceph-ansible.git
 
 # step.2
-cd ceph-ansible && git checkout stable-4.0
+cd /opt/ceph/ceph-ansible && git checkout stable-4.0
 
 # step.3
 pip install -U pip
 pip install -U setuptools
 
-# step.4 安装依赖
+# step.4 安装 ceph-ansible 依赖
 pip install -r requirements.txt
 
-# step.5
+# step.5 编辑 ansible 配置
 vim /etc/ansible/ansible.cfg
 
 # step.5 内容
@@ -226,21 +223,21 @@ node01
 node01
 ```
 
-### 备份 group_vars 下的文件
-
-```bash
-# step.1
-cd ceph-ansible/group_vars
-
-# step.2
-for file in *; do cp $file ${file%.*}; done
-```
-
 ### 修改 group_vars/all.yml 配置
 
 在 Docker 中部署 Ceph
 
 ```bash
+# step.1
+cd /opt/ceph/ceph-ansible/group_vars
+
+# step.2 备份 group_vars 下的文件
+for file in *; do cp $file ${file%.*}; done
+
+# step.3 编辑 all.yml
+vim /opt/ceph/ceph-ansible/group_vars/all.yml
+
+# step.3 内容
 --- 
 dummy:
 cluster: ceph
@@ -263,12 +260,12 @@ ntp_service_enabled: false
 
 upgrade_ceph_packages: False
 
-# ceph_origin: repository 
-# ceph_repository: community
-# ceph_mirror: http://mirrors.aliyun.com/ceph 
-# ceph_stable_key: http://mirrors.aliyun.com/ceph/keys/release.asc 
-# ceph_stable_release: nautilus 
-# ceph_stable_repo: "{{ ceph_mirror }}/rpm-{{ ceph_stable_release }}"
+ceph_origin: repository 
+ceph_repository: community
+ceph_mirror: http://mirrors.aliyun.com/ceph 
+ceph_stable_key: http://mirrors.aliyun.com/ceph/keys/release.asc 
+ceph_stable_release: nautilus 
+ceph_stable_repo: "{{ ceph_mirror }}/rpm-{{ ceph_stable_release }}"
 
 monitor_interface: ens33
 
@@ -285,7 +282,7 @@ grafana_admin_password: password@123456
 no_log_on_ceph_key_tasks: False
 ```
 
-### 修改 group_vars/osds.yml 配置
+### 修改 group_vars/osds.yml
 
 ```yaml
 devices:
@@ -296,16 +293,20 @@ devices:
 
 ### Docker Ceph 部署
 
-- 可能遇到 ceph-ansible 和已安装的 docker 冲突的情况 [https://github.com/ceph/ceph-ansible/issues/5159](https://github.com/ceph/ceph-ansible/issues/5159)、[https://github.com/ceph/ceph-ansible/issues/3609](https://github.com/ceph/ceph-ansible/issues/3609)
+可能遇到 ceph-ansible 和已安装的 docker 冲突的情况 
+
++ [https://github.com/ceph/ceph-ansible/issues/5159](https://github.com/ceph/ceph-ansible/issues/5159)
++ [https://github.com/ceph/ceph-ansible/issues/3609](https://github.com/ceph/ceph-ansible/issues/3609)
 
 ```bash
 # step.1
+cd /opt/ceph/ceph-ansible
 cp site-container.yml.sample site-container.yml
 
 # step.2 验证连通性
 ansible -i hosts all -m ping
 
-# step.3
+# step.3 部署 ceph
 ansible-playbook -i hosts site-container.yml \
 	-e container_package_name=docker-ce \
 	-e container_service_name=docker-ce \
@@ -313,9 +314,9 @@ ansible-playbook -i hosts site-container.yml \
 	-v
 ```
 
-### Ceph Service 位置
+### 部署后 Ceph Service 位置
 
-ceph-ansible 将会把所有的 ceph 组件分别对应到各自的 service 中，随着主机启动而启动
+ceph-ansible 将会把所有的 ceph 组件分别对应到各自的 service 中
 
 ```bash
 ls -l /etc/systemd/system/ceph*
@@ -324,65 +325,72 @@ ls -l /etc/systemd/system/ceph*
 ### 出错回滚
 
 ```bash
-// step.1 清理集群，会将所有的容器和镜像全部清除
-ansible-playbook -i hosts \
-	infrastructure-playbooks/purge-cluster.yml \
+# step.1 清理集群，会将所有的容器和镜像全部清除
+cd /opt/ceph/ceph-ansible
+ansible-playbook -i hosts infrastructure-playbooks/purge-cluster.yml \
 	-e container_package_name=docker-ce \
 	-e container_service_name=docker-ce \
-	-e container_binding_name=python-docker-py
+	-e container_binding_name=python-docker-py \
+	-v
 
-// step.2
+# step.2 手动清除 ceph 相关文件
 rm -rf /etc/ceph/ && rm -rf /var/lib/ceph/
 
-// step.3 检测硬盘分区
+# step.3 检测硬盘分区
 lsblk
 
-// step.3 如输出内容
+# step.3 如输出内容，需要移除 LVM 逻辑卷
 sdc     8:32   0 447.1G  0 disk 
 └─ceph--399e8b5a--4348xxxx
 
-// step.4 移除 LVM 逻辑卷
+# step.4 移除 LVM 逻辑卷
 lvremove /dev/ceph-399e8b5a--4348xxxx
 ```
 
+### 集群升级
+
 ```bash
-// 升级集群
-ansible-playbook -vv -i hosts infrastructure-playbooks/rolling_update.yml \
+# 升级集群
+cd /opt/ceph/ceph-ansible
+ansible-playbook -i hosts infrastructure-playbooks/rolling_update.yml \
 	-e container_package_name=docker-ce \
 	-e container_service_name=docker-ce \
 	-e container_binding_name=python-docker-py \
 	-v
 ```
 
+### 访问控制台
+
++ Ceph 控制台：https://192.168.93.101:8443/#/login，账号密码 admin/password@123456
++ Grafana 控制台：https://10.247.53.6:3000/login，账号密码 admin/password@123456
+
 ## 安装 Kolla Ansible Train
-
-### 安装依赖
-
-```bash
-yum install python-devel libselinux-python python-virtualenv -y
-```
 
 ### 创建虚拟环境
 
 ```bash
-# step.1 创建虚拟环境
+# step.1 安装虚拟环境依赖
+yum install python-devel libselinux-python python-virtualenv -y
+
+# step.2 创建虚拟环境
 virtualenv /opt/openstack/venv
 
-# step.2 激活
+# step.3 激活
 source /opt/openstack/venv/bin/activate
 ```
 
 ### 安装并配置 Ansible
 
 ```bash
-# step.1 在虚拟环境中执行
+# step.1 
+cd /opt/openstack
+
+# step.2 在虚拟环境中执行
 pip install -U pip
 pip install -U setuptools
 
 # step.2
 pip install 'ansible<2.10'
-
-yum install ansible
 
 # step.3
 vim /etc/ansible/ansible.cfg
@@ -397,24 +405,27 @@ forks=100
 ### 安装 Kolla Ansible
 
 ```bash
-# step.1 在虚拟环境中执行
+# step.1
+cd /opt/openstack
+
+# step.2 拟环境中执行
 pip install kolla-ansible
 
-# step.4
+# step.3
 sudo mkdir -p /etc/kolla
 sudo chown $USER:$USER /etc/kolla
 
-cp -r /opt/venv/openstack/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
-cp /opt/venv/openstack/share/kolla-ansible/ansible/inventory/* .
-
-
+# step.4 复制 kolla 的文件
 cp -r /opt/openstack/venv/share/kolla-ansible/etc_examples/kolla/* /etc/kolla
 cp /opt/openstack/venv/share/kolla-ansible/ansible/inventory/* .
+
+# step.5
+ll
 ```
 
 ### 修改 Kolla Ansible 配置
 
-### 修改 Inventory 文件（multinode） todo
+### 修改 Inventory 文件（multinode）
 
 ```bash
 [control]
@@ -430,16 +441,10 @@ node0[1:5]
 node05
 
 [storage]
-node04
+node0[1:3]
 
 [deployment]
 localhost       ansible_connection=local
-```
-
-### 检测节点
-
-```bash
-ansible -i multinode all -m ping
 ```
 
 ### 生成 Kolla 密钥
@@ -448,13 +453,17 @@ ansible -i multinode all -m ping
 # step.1 执行
 kolla-genpwd
 
-# step.2 查看内容
+# step.2 查看内容，keystone_admin_password 可修改，登录 dashboard 会用到
 cat /etc/kolla/passwords.yml
 ```
 
-### 修改 Kolla globals.yml
+### 修改 globals.yml
 
 ```bash
+# step.1
+vim /etc/kolla/globals.yml
+
+# step.1 修改内容
 kolla_base_distro: "centos"
 
 kolla_install_type: "binary"
@@ -492,81 +501,79 @@ docker_custom_config:
 
 ### 设置 External ceph
 
-docker exec -it  '/bin/bash'
+#### 创建 ceph pool
 
-在ceph节点中创建 pool
+在 ceph 中创建存储池 pool
 
 ```bash
+# step.1 进入 ceph 容器
+docker exec -it ceph-mgr-node01 /bin/bash
+
+# step.2 分别创建 pool
 ceph osd pool create images 128
 ceph osd pool create instances 128
 ceph osd pool create volumes 128
 ceph osd pool create backups 128
 
+# step.3 初始化 pool
 rbd pool init images
 rbd pool init instances
 rbd pool init volumes
 rbd pool init backups
 ```
 
-在ceph节点中创建 user
+#### 创建 ceph user
+
+在 ceph 中创建对应 pool 的 user，输出的 keyring 将用于 openstack 集成 ceph
 
 ```bash
 # step.1 创建 glance
-ceph auth get-or-create client.glance mon 'profile rbd' osd 'profile rbd pool=images' mgr 'profile rbd pool=images'
+ceph auth get-or-create client.glance \
+	mon 'profile rbd' \
+	osd 'profile rbd pool=images' \
+	mgr 'profile rbd pool=images' > \
+	/tmp/ceph.client.glance.keyring
 
-# step.1 输出
+# step.1 输出 keyring
+cat /tmp/ceph.client.glance.keyring
 [client.glance]
-        key = AQC627hkgS2WKhAAQLPn80a8m7CxysJ/vasvJA==
+key = AQC627hkgS2WKhAAQLPn80a8m7CxysJ/vasvJA==
 
 # step.2 创建 cinder
-ceph auth get-or-create client.cinder mon 'profile rbd' osd 'profile rbd pool=volumes, profile rbd pool=instances, profile rbd-read-only pool=images' mgr 'profile rbd pool=volumes, profile rbd pool=instances'
+ceph auth get-or-create client.cinder \
+	mon 'profile rbd' \
+	osd 'profile rbd pool=volumes, profile rbd pool=instances, profile rbd-read-only pool=images' \
+	mgr 'profile rbd pool=volumes, profile rbd pool=instances' > \
+	/tmp/ceph.client.cinder.keyring
 
+# step.2 输出 keyring
+cat /tmp/ceph.client.cinder.keyring
 [client.cinder]
-        key = AQD627hkgs6+KhAAjveZJ159j0oKAGdGp7Ss8A==
+key = AQD627hkgs6+KhAAjveZJ159j0oKAGdGp7Ss8A==
 
 # step.3 创建 cinder-backup
-ceph auth get-or-create client.cinder-backup mon 'profile rbd' osd 'profile rbd pool=backups' mgr 'profile rbd pool=backups'
+ceph auth get-or-create client.cinder-backup \
+	mon 'profile rbd' \
+	osd 'profile rbd pool=backups' \
+	mgr 'profile rbd pool=backups' > \
+	/tmp/ceph.client.cinder-backup.keyring
 
+# step.3 输出 keyring
+cat /tmp/ceph.client.cinder-backup.keyring
 [client.cinder-backup]
-        key = AQAw3LhkgXPpLRAAUTqHmwNh29+nswRWjsUo+Q==
+key = AQAw3LhkgXPpLRAAUTqHmwNh29+nswRWjsUo+Q==
 
 # step.4 创建 nova
-ceph auth get-or-create client.nova mon 'profile rbd' osd 'profile rbd pool=instances' mgr 'profile rbd pool=instances'
+ceph auth get-or-create client.nova \
+	mon 'profile rbd' \
+	osd 'profile rbd pool=instances' \
+	mgr 'profile rbd pool=instances' > \
+	/tmp/ceph.client.nova.keyring
 
+# step.4 输出 keyring
+cat /tmp/ceph.client.nova.keyring
 [client.nova]
-        key = AQBY3LhkGmfyARAA25e4H/Dc3Fd02NSCSN3UmA==
-```
-
-#### 获取 ceph 的密钥
-
-在 ceph 管理节点生成密钥
-
-```bash
-# step.1
-ceph auth get-or-create client.glance > /tmp/ceph.client.glance.keyring
-
-cat /tmp/ceph.client.glance.keyring
-
-[client.glance]
-        key = AQC627hkgS2WKhAAQLPn80a8m7CxysJ/vasvJA==
-
-# step.2
-ceph auth get-or-create client.cinder > /tmp/ceph.client.cinder.keyring
-
-[client.cinder]
-        key = AQD627hkgs6+KhAAjveZJ159j0oKAGdGp7Ss8A==
-
-# step.3
-ceph auth get-or-create client.cinder-backup > /tmp/ceph.client.cinder-backup.keyring
-
-[client.cinder-backup]
-        key = AQAw3LhkgXPpLRAAUTqHmwNh29+nswRWjsUo+Q==
-
-# step.4
-ceph auth get-or-create client.nova > /tmp/ceph.client.nova.keyring
-
-[client.nova]
-        key = AQBY3LhkGmfyARAA25e4H/Dc3Fd02NSCSN3UmA==
+key = AQBY3LhkGmfyARAA25e4H/Dc3Fd02NSCSN3UmA==
 ```
 
 #### Glance External ceph
@@ -590,17 +597,18 @@ rbd_store_ceph_conf = /etc/ceph/ceph.conf
 
 ##### 设置 ceph.conf
 
-fsid 在 cat /etc/ceph/ceph.conf
-
 ```bash
-# step.1 编辑
+# step.1 复制 ceph.conf
 cp /etc/ceph/ceph.conf /etc/kolla/config/glance/ceph.conf
 
-# step.1 内容
+# step.2 编辑
+vim /etc/kolla/config/glance/ceph.conf
+
+# step.2 添加内容
 [global]
 fsid = 1d89fec3-325a-4963-a950-c4afedd37fe3
 
-# 添加下面内容
+# 添加内容
 auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
@@ -612,7 +620,7 @@ auth client required = cephx
 # step.1 创建并编辑
 vim /etc/kolla/config/glance/ceph.client.glance.keyring
 
-# step.1 内容 key 是 ceph 管理节点生成的密钥
+# step.1 内容复制 /tmp/ceph.client.glance.keyring
 [client.glance]
 key = AQAX9LNkAAAAABAA2qfvgDC4wqZm8PKBcWBY4g==
 ```
@@ -621,15 +629,16 @@ key = AQAX9LNkAAAAABAA2qfvgDC4wqZm8PKBcWBY4g==
 
 ##### 设置 cinder-volume.conf
 
-```bash
-# 创建并编辑 cinder-volume.conf
-vim /etc/kolla/config/cinder/cinder-volume.conf
-```
-
 cinder_rbd_secret_uuid 在 /etc/kolla/passwords.yml 文件中
-cat /etc/kolla/passwords.yml |grep cinder_rbd_secret_uuid
 
 ```bash
+# step.1 输出 cinder_rbd_secret_uuid
+cat /etc/kolla/passwords.yml | grep cinder_rbd_secret_uuid
+
+# step.2 创建并编辑 cinder-volume.conf
+vim /etc/kolla/config/cinder/cinder-volume.conf
+
+# step.2 内容 cinder_rbd_secret_uuid 在 /etc/kolla/passwords.yml 文件中
 [DEFAULT]
 enabled_backends=rbd-1
 
@@ -644,16 +653,13 @@ volume_driver=cinder.volume.drivers.rbd.RBDDriver
 rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 ```
 
-ceph 中添加 cinder 用户
-
 ##### 设置 cinder-backup.conf
 
 ```bash
-# 创建并编辑 cinder-volume.conf
+# step.1 创建并编辑 cinder-volume.conf
 vim /etc/kolla/config/cinder/cinder-backup.conf
-```
 
-```bash
+# step.1 内容
 [DEFAULT]
 backup_ceph_conf=/etc/ceph/ceph.conf
 backup_ceph_user=cinder-backup
@@ -669,14 +675,17 @@ restore_discard_excess_bytes = true
 ##### 设置 ceph.conf
 
 ```bash
-# step.1 创建并编辑
+# step.1 复制 ceph.conf
 cp /etc/ceph/ceph.conf /etc/kolla/config/cinder/ceph.conf
 
-# step.1 内容
+# step.2 编辑
+vim /etc/kolla/config/cinder/ceph.conf
+
+# step.2 添加内容
 [global]
 fsid = 1d89fec3-325a-4963-a950-c4afedd37fe3
 
-# 添加下面内容
+# 添加内容
 auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
@@ -688,60 +697,57 @@ auth client required = cephx
 # step.1 创建并编辑
 vim /etc/kolla/config/cinder/cinder-backup/ceph.client.cinder.keyring
 
-# step.1 内容
+# step.1 内容复制 /tmp/ceph.client.cinder.keyring
 [client.cinder]
 key = AQAg5YRXpChaGRAAlTSCleesthCRmCYrfQVX1w==
 
 # step.2 创建并编辑
 vim /etc/kolla/config/cinder/cinder-backup/ceph.client.cinder-backup.keyring
 
-# step.2 内容
+# step.2 内容复制 /tmp/ceph.client.cinder-backup.keyring
 [client.cinder-backup]
 key = AQAg5YRXpChaGRAAlTSCleesthCRmCYrfQVX1w==
 
 # step.3 创建并编辑
 vim /etc/kolla/config/cinder/cinder-volume/ceph.client.cinder.keyring
 
-# step.3 内容
+# step.3 内容复制 /tmp/ceph.client.cinder.keyring
 [client.cinder]
 key = AQAg5YRXpChaGRAAlTSCleesthCRmCYrfQVX1w==
 ```
 
 #### Nova External ceph
 
-如果使用 ceph-ansible，需要将 ceph.client.cinder.keyring 复制为 /etc/kolla/config/nova/ceph.client.nova.keyring
-
-If you are using ceph-ansible - please copy ceph.client.cinder.keyring as /etc/kolla/config/nova/ceph.client.nova.keyring
+如果使用 ceph-ansible 部署的 ceph，需要将 ceph.client.cinder.keyring 复制为 /etc/kolla/config/nova/ceph.client.nova.keyring
 
 ```bash
+# step.1 复制 ceph.conf
 cp /etc/ceph/ceph.conf /etc/kolla/config/ceph.conf
 
-# step.1 内容
-[client]
-rbd_cache = True
-rbd_cache_max_dirty = 134217728
-rbd_cache_max_dirty_age = 10
-rbd_cache_size = 335544320
+# step.2 编辑
+vim /etc/kolla/config/ceph.conf
 
+# step.2 添加内容
 [global]
+fsid = 1d89fec3-325a-4963-a950-c4afedd37fe3
+
+# 添加内容
 auth cluster required = cephx
 auth service required = cephx
 auth client required = cephx
 
-fsid = e408cb46-d5ce-4cf1-beb2-9dab81519f94
+# step.3 复制 ceph.client.cinder.keyring
+cp /etc/kolla/config/cinder/cinder-volume/ceph.client.cinder.keyring /etc/kolla/config/nova/ceph.client.nova.keyring
 
-mon host = [v2:192.168.93.1:3300,v1:192.168.93.1:6789],[v2:192.168.93.2:3300,v1:192.168.93.2:6789],[v2:192.168.93.3:3300,v1:192.168.93.3:6789],[v2:192.168.93.4:3300,v1:192.168.93.4:6789],[v2:192.168.93.5:3300,v1:192.168.93.5:6789]
-mon initial members = node01,node02,node03,node04,node05
+# step.4 编辑 ceph.client.nova.keyring
+vim /etc/kolla/config/nova/ceph.client.nova.keyring
 
-cluster network = 192.168.93.0/24
-public network = 192.168.93.0/24
+# step.4 添加内容复制 /tmp/ceph.client.nova.keyring
+[client.nova]
+key = AQBY3LhkGmfyARAA25e4H/Dc3Fd02NSCSN3UmA==
 
-# step.2
-cp /etc/kolla/config/ceph.conf /etc/kolla/config/nova/ceph.conf
-
-# step.3
-ls /etc/kolla/config/nova
-ceph.client.cinder.keyring  ceph.client.nova.keyring  nova-compute.conf ceph.conf
+[client.cinder]
+key = AQD627hkgs6+KhAAjveZJ159j0oKAGdGp7Ss8A==
 ```
 
 ##### 创建 nova-compute.conf
@@ -788,33 +794,37 @@ tree /etc/kolla/config/
 
 ### 安装 OpenStack
 
-virtualenv: [https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html](https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html)
-ansible_python_interpreter: [https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html](https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html)
++ virtualenv: [https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html](https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html)
++ ansible_python_interpreter: [https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html](https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html)
 
  pip install -U docker    pip install websocket-client
 
 ```bash
-# step.1
+# step.1 检测节点连通性
+cd /opt/openstack
+ansible -i multinode all -m ping
+
+# step.2
 kolla-ansible -i multinode certificates
 
-# step.2 根据 Kolla 部署依赖创建服务器
+# step.3 根据 Kolla 部署依赖创建服务器
 kolla-ansible -i multinode bootstrap-servers \
 	-e virtualenv=/opt/openstack/venv \
 	-v
 
-# step.3 部署前检查主机
+# step.4 部署前检查主机
 kolla-ansible -i multinode prechecks \
 	-e virtualenv=/opt/openstack/venv \
 	-e ansible_python_interpreter=/opt/openstack/venv/bin/python \
 	-vvvv
 
-# step.4
+# step.5 拉取镜像
 kolla-ansible -i multinode pull \
 	-e virtualenv=/opt/openstack/venv \
 	-e ansible_python_interpreter=/opt/openstack/venv/bin/python \
 	-vvvv
 
-# step.5 部署 OpenStack
+# step.6 部署 OpenStack
 kolla-ansible -i multinode deploy \
 	-e virtualenv=/opt/openstack/venv \
 	-e ansible_python_interpreter=/opt/openstack/venv/bin/python \
@@ -823,20 +833,19 @@ kolla-ansible -i multinode deploy \
 kolla-ansible -i multinode deploy \
 	-e virtualenv=/opt/openstack/venv \
 	-vvvv
-```
-
-```bash
-# 停止
+	
+##################
+# 停止所有节点 openstack 服务
 kolla-ansible -i multinode stop \
 	-e virtualenv=/opt/openstack/venv \
 	--yes-i-really-really-mean-it \
-	-v
+	-vvvv
 
-# 销毁
+# 销毁所有节点 openstack 服务
 kolla-ansible -i multinode destroy \
 	-e virtualenv=/opt/openstack/venv \
 	--yes-i-really-really-mean-it \
-	-v
+	-vvvv
 ```
 
 ### 使用 OpenStack
