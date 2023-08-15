@@ -410,6 +410,8 @@ cd /opt/openstack
 
 # step.2 拟环境中执行
 pip install kolla-ansible
+pip install -U docker
+pip install -U websocket-client
 
 # step.3
 sudo mkdir -p /etc/kolla
@@ -797,8 +799,6 @@ tree /etc/kolla/config/
 + virtualenv: [https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html](https://docs.openstack.org/kolla-ansible/train/reference/deployment-and-bootstrapping/bootstrap-servers.html)
 + ansible_python_interpreter: [https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html](https://docs.openstack.org/kolla-ansible/train/user/virtual-environments.html)
 
- pip install -U docker    pip install websocket-client
-
 ```bash
 # step.1 检测节点连通性
 cd /opt/openstack
@@ -852,12 +852,12 @@ kolla-ansible -i multinode destroy \
 
 ```bash
 # step.1 安装 OpenStack CLI 客户端
-pip install python-openstackclient python-glanceclient python-neutronclient
+pip install python-openstackclient python-glanceclient python-neutronclient -y
 
 # step.2 生成 openrc 文件
 kolla-ansible post-deploy
 
-# 自动建立 demo project，建议手工建立
+# step.3 执行脚本，将密码设置到环境变量中
 source /etc/kolla/admin-openrc.sh
 
 # step.3 执行脚本生成示例网络、镜像、实例等
