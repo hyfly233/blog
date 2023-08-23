@@ -308,6 +308,7 @@ ansible -i hosts all -m ping
 
 # step.3 部署 ceph
 ansible-playbook -i hosts site-container.yml \
+	-e ansible_python_interpreter=/opt/ceph/venv/bin/python \
 	-e container_package_name=docker-ce \
 	-e container_service_name=docker-ce \
 	-e container_binding_name=python-docker-py \
