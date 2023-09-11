@@ -668,6 +668,32 @@ volume_driver=cinder.volume.drivers.rbd.RBDDriver
 rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 ```
 
+cinder-volume 中挂载多个 pool
+
+```bash
+[DEFAULT]
+enabled_backends=rbd-1,rbd-2
+
+[rbd-1]
+rbd_ceph_conf=/etc/ceph/ceph.conf
+rbd_user=cinder
+backend_host=rbd:volumes
+rbd_pool=volumes
+
+volume_backend_name=rbd-1
+volume_driver=cinder.volume.drivers.rbd.RBDDriver
+rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+
+[rbd-2]
+rbd_ceph_conf=/etc/ceph/ceph.conf
+rbd_user=cinder                       #
+backend_host=rbd:volumes-erasure      # 
+rbd_pool=volumes-erasure              #
+volume_backend_name=rbd-2
+volume_driver=cinder.volume.drivers.rbd.RBDDriver
+rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+```
+
 ##### 设置 cinder-backup.conf
 
 ```bash
