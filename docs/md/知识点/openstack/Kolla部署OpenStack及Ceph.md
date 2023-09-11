@@ -700,8 +700,7 @@ rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 ceph auth caps client.cinder \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=volumes, profile rbd pool=volumes-erasure, profile rbd pool=instances, profile rbd-read-only pool=images' \
-	mgr 'profile rbd pool=volumes, profile rbd pool=instances' > \
-	/tmp/ceph.client.cinder.keyring
+	mgr 'profile rbd pool=volumes, profile rbd pool=instances'
 ```
 
 ##### 设置 cinder-backup.conf
