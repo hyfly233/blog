@@ -686,12 +686,22 @@ rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 
 [rbd-2]
 rbd_ceph_conf=/etc/ceph/ceph.conf
-rbd_user=cinder                       #
-backend_host=rbd:volumes-erasure      # 
-rbd_pool=volumes-erasure              #
+rbd_user=cinder                   # 需要 ceph auth caps 命令更新 user
+backend_host=rbd:volumes-erasure  # 
+rbd_pool=volumes-erasure          #
 volume_backend_name=rbd-2
 volume_driver=cinder.volume.drivers.rbd.RBDDriver
 rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+```
+
+更新 ceph client.cinder
+
+```bash
+ceph auth get-or-create client.cinder \
+	mon 'profile rbd' \
+	osd 'profile rbd pool=volumes, profile rbd pool=volumes-erasure, profile rbd pool=instances, profile rbd-read-only pool=images' \
+	mgr 'profile rbd pool=volumes, profile rbd pool=instances' > \
+	/tmp/ceph.client.cinder.keyring
 ```
 
 ##### 设置 cinder-backup.conf
