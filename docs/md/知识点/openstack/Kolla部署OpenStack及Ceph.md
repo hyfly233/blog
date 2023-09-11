@@ -510,19 +510,25 @@ docker_custom_config:
 
 ```bash
 # step.1 进入 ceph 容器
-docker exec -it ceph-mgr-node01 /bin/bash
+docker exec -it ceph-mon /bin/sh
 
-# step.2 分别创建 pool
+# step.2 分别创建默认的备份 pool
 ceph osd pool create images 128
 ceph osd pool create instances 128
 ceph osd pool create volumes 128
 ceph osd pool create backups 128
+
+# step.2 或者创建基于纠错码的 pool
+ceph osd pool create backups 128 erasure
 
 # step.3 初始化 pool
 rbd pool init images
 rbd pool init instances
 rbd pool init volumes
 rbd pool init backups
+
+# step.4 查看 pool 的情况
+ceph osd pool ls
 ```
 
 #### 创建 ceph user
@@ -530,53 +536,59 @@ rbd pool init backups
 在 ceph 中创建对应 pool 的 user，输出的 keyring 将用于 openstack 集成 ceph
 
 ```bash
-# step.1 创建 glance
+# step.1 进入 ceph 容器
+docker exec -it ceph-mon /bin/sh
+
+# step.2 创建 glance
 ceph auth get-or-create client.glance \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=images' \
 	mgr 'profile rbd pool=images' > \
 	/tmp/ceph.client.glance.keyring
 
-# step.1 输出 keyring
+# step.2 输出 keyring
 cat /tmp/ceph.client.glance.keyring
 [client.glance]
 key = AQC627hkgS2WKhAAQLPn80a8m7CxysJ/vasvJA==
 
-# step.2 创建 cinder
+# step.3 创建 cinder
 ceph auth get-or-create client.cinder \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=volumes, profile rbd pool=instances, profile rbd-read-only pool=images' \
 	mgr 'profile rbd pool=volumes, profile rbd pool=instances' > \
 	/tmp/ceph.client.cinder.keyring
 
-# step.2 输出 keyring
+# step.3 输出 keyring
 cat /tmp/ceph.client.cinder.keyring
 [client.cinder]
 key = AQD627hkgs6+KhAAjveZJ159j0oKAGdGp7Ss8A==
 
-# step.3 创建 cinder-backup
+# step.4 创建 cinder-backup
 ceph auth get-or-create client.cinder-backup \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=backups' \
 	mgr 'profile rbd pool=backups' > \
 	/tmp/ceph.client.cinder-backup.keyring
 
-# step.3 输出 keyring
+# step.4 输出 keyring
 cat /tmp/ceph.client.cinder-backup.keyring
 [client.cinder-backup]
 key = AQAw3LhkgXPpLRAAUTqHmwNh29+nswRWjsUo+Q==
 
-# step.4 创建 nova
+# step.5 创建 nova
 ceph auth get-or-create client.nova \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=instances' \
 	mgr 'profile rbd pool=instances' > \
 	/tmp/ceph.client.nova.keyring
 
-# step.4 输出 keyring
+# step.5 输出 keyring
 cat /tmp/ceph.client.nova.keyring
 [client.nova]
 key = AQBY3LhkGmfyARAA25e4H/Dc3Fd02NSCSN3UmA==
+
+# step.6 查看 user 的情况
+ceph auth ls
 ```
 
 #### Glance External ceph
