@@ -697,7 +697,7 @@ rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 更新 ceph client.cinder
 
 ```bash
-ceph auth get-or-create client.cinder \
+ceph auth caps client.cinder \
 	mon 'profile rbd' \
 	osd 'profile rbd pool=volumes, profile rbd pool=volumes-erasure, profile rbd pool=instances, profile rbd-read-only pool=images' \
 	mgr 'profile rbd pool=volumes, profile rbd pool=instances' > \
