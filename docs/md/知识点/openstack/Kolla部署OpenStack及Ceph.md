@@ -512,14 +512,11 @@ docker_custom_config:
 # step.1 进入 ceph 容器
 docker exec -it ceph-mon /bin/sh
 
-# step.2 分别创建默认的备份 pool
+# step.2 分别创建备份 pool
 ceph osd pool create images 128
 ceph osd pool create instances 128
 ceph osd pool create volumes 128
 ceph osd pool create backups 128
-
-# step.2 或者创建基于纠错码的 pool
-ceph osd pool create backups 128 erasure
 
 # step.3 初始化 pool
 rbd pool init images
@@ -668,40 +665,52 @@ volume_driver=cinder.volume.drivers.rbd.RBDDriver
 rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
 ```
 
-cinder-volume 中挂载多个 pool
+###### 挂载多个存储池
 
-```bash
-[DEFAULT]
-enabled_backends=rbd-1,rbd-2
+1. 创建新的 pool
 
-[rbd-1]
-rbd_ceph_conf=/etc/ceph/ceph.conf
-rbd_user=cinder
-backend_host=rbd:volumes
-rbd_pool=volumes
+   ```bash
+   ceph osd pool create volumes_two 128
+   
+   rbd pool init volumes_two
+   ```
 
-volume_backend_name=rbd-1
-volume_driver=cinder.volume.drivers.rbd.RBDDriver
-rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+2. 更新 ceph 的 client.cinder user
 
-[rbd-2]
-rbd_ceph_conf=/etc/ceph/ceph.conf
-rbd_user=cinder                   # 需要 ceph auth caps 命令更新 user
-backend_host=rbd:volumes-erasure  # 
-rbd_pool=volumes-erasure          #
-volume_backend_name=rbd-2
-volume_driver=cinder.volume.drivers.rbd.RBDDriver
-rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
-```
+   ```bash
+   ceph auth caps client.cinder \
+   	mon 'profile rbd' \
+   	osd 'profile rbd pool=volumes, profile rbd pool=volumes_two, profile rbd pool=instances, profile rbd-read-only pool=images' \
+   	mgr 'profile rbd pool=volumes, profile rbd pool=volumes_two, profile rbd pool=instances'
+   ```
 
-更新 ceph client.cinder
+3. 设置 cinder-volume.conf
 
-```bash
-ceph auth caps client.cinder \
-	mon 'profile rbd' \
-	osd 'profile rbd pool=volumes, profile rbd pool=volumes-erasure, profile rbd pool=instances, profile rbd-read-only pool=images' \
-	mgr 'profile rbd pool=volumes, profile rbd pool=instances'
-```
+   cinder-volume 挂载多个池时的 cinder-volume.conf，如果已经使用 kolla 部署了 Openstack 则可以直接修改对应的 cinder 节点上的 /etc/kolla/cinder-volume/cinder.conf 后重启 cinder_volume 容器
+
+   ```bash
+   [DEFAULT]
+   enabled_backends=rbd-1,rbd-2
+   
+   [rbd-1]
+   rbd_ceph_conf=/etc/ceph/ceph.conf
+   rbd_user=cinder
+   backend_host=rbd:volumes
+   rbd_pool=volumes
+   
+   volume_backend_name=rbd-1
+   volume_driver=cinder.volume.drivers.rbd.RBDDriver
+   rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+   
+   [rbd-2]
+   rbd_ceph_conf=/etc/ceph/ceph.conf
+   rbd_user=cinder                   # 需要 ceph auth caps 命令更新 user
+   backend_host=rbd:volumes
+   rbd_pool=volumes_two
+   volume_backend_name=rbd-2
+   volume_driver=cinder.volume.drivers.rbd.RBDDriver
+   rbd_secret_uuid = {{ cinder_rbd_secret_uuid }}
+   ```
 
 ##### 设置 cinder-backup.conf
 
