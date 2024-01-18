@@ -12,7 +12,7 @@
 # step.1 设置 yun 源
 sudo sed -e 's|^mirrorlist=|#mirrorlist=|g' \
          -e 's|^#baseurl=http://mirror.centos.org/centos|baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos|g' \
-         -i.bak \
+         -i.bak \s
          /etc/yum.repos.d/CentOS-*.repo
 
 # step.2
@@ -115,10 +115,7 @@ touch /etc/docker/daemon.json && vim /etc/docker/daemon.json
 
 # step.4
 systemctl daemon-reload
-systemctl enable docker
-systemctl start docker
-
-systemctl restart docker
+systemctl enable docker && systemctl start docker
 ```
 
 ### 配置 Docker 私有仓库
@@ -143,8 +140,7 @@ services:
 
 ```bash
 # step.1
-yum -y install epel-release
-yum -y install python-pip
+yum install epel-release python-pip -y
 
 # step.2
 mkdir ~/.pip
@@ -313,6 +309,14 @@ ansible-playbook -i hosts site-container.yml \
 	-e container_service_name=docker-ce \
 	-e container_binding_name=python-docker-py \
 	-v
+
+# 或者指定 /usr/bin/python2
+ansible-playbook -i hosts site-container.yml \
+	-e ansible_python_interpreter=/usr/bin/python2 \
+	-e container_package_name=docker-ce \
+	-e container_service_name=docker-ce \
+	-e container_binding_name=python-docker-py \
+	-v
 ```
 
 ### 部署后 Ceph Service 位置
@@ -328,6 +332,7 @@ ls -l /etc/systemd/system/ceph*
 ```bash
 # step.1 清理集群，会将所有的容器和镜像全部清除
 cd /opt/ceph/ceph-ansible
+
 ansible-playbook -i hosts infrastructure-playbooks/purge-cluster.yml \
 	-e container_package_name=docker-ce \
 	-e container_service_name=docker-ce \
