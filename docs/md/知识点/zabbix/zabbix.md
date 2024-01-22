@@ -1,5 +1,5 @@
 ## 参考资料
-- [Download and install Zabbix](https://www.zabbix.com/download?zabbix=5.0&os_distribution=centos&os_version=7&components=server_frontend_agent&db=mysql&ws=apache)
+- [官方下载 Zabbix](https://www.zabbix.com/download?zabbix=5.0&os_distribution=centos&os_version=7&components=server_frontend_agent&db=mysql&ws=apache)
 ## 安装 Zabbix Server
 ### 关闭 Selinux
 ```bash
@@ -12,7 +12,7 @@ vim /etc/selinux/config
 # step.2 修改内容
 SELINUX=disabled
 ```
-### 关闭防火墙
+### 修改防火墙策略
 ```bash
 # 关闭防火墙
 systemctl stop firewalld && systemctl disable firewalld
@@ -182,5 +182,124 @@ systemctl status zabbix-agent.service
 
 # step.7 查看 zabbix server 日志
 cat /var/log/zabbix/zabbix_agentd.log
+```
+
+
+
+## Docker 部署
+
+### docker-compose.yaml
+
+```yaml
+version: '3'
+
+networks:
+  zbx_net:
+    driver: bridge
+
+services:
+  zabbix-mysql:
+    image: mysql:8.0.23
+    container_name: zabbix-mysql
+    restart: always
+    command:
+      - mysqld
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8
+      - --collation-server=utf8_bin
+    environment:
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_ROOT_PASSWORD=biitt@123
+    ports:
+      - 13306:3306
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/logs:/logs
+    networks:
+      - zbx_net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:centos-5.2-latest
+    container_name: zabbix-server
+    restart: always
+    environment:
+      - DB_SERVER_HOST=zabbix-mysql
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_ROOT_PASSWORD=biitt@123
+      - ZBX_JAVAGATEWAY=zabbix-java-gateway
+      - ZBX_JAVAGATEWAY_ENABLE=true
+      - ZBX_JAVAGATEWAYPORT=10052
+      - ZBX_IPMIPOLLERS=3
+    ports:
+      - 10051:10051
+    volumes:
+      - ./server/conf.d:/etc/zabbix/zabbix_server.conf.d
+      - ./server/logs:/logs
+    depends_on:
+      - zabbix-mysql
+    networks:
+      - zbx_net
+  
+  zabbix-web-nginx:
+    image: zabbix/zabbix-web-nginx-mysql:centos-5.2-latest
+    container_name: zabbix-web-nginx
+    restart: always
+    environment:
+      - DB_SERVER_HOST=zabbix-mysql
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - MYSQL_ROOT_PASSWORD=biitt@123
+      - ZBX_SERVER_HOST=zabbix-server
+    ports:
+      - 18080:8080
+    volumes:
+      - ./web/conf.d:/etc/zabbix/web/conf.d
+      - ./web/logs:/logs
+      - ./web/DejaVuSans.ttf:/usr/share/zabbix/assets/fonts/DejaVuSans.ttf
+    depends_on:
+      - zabbix-server
+      - zabbix-mysql
+    networks:
+      - zbx_net
+  
+  zabbix-java-gateway:
+    image: zabbix/zabbix-java-gateway:centos-5.2-latest
+    container_name: zabbix-java-gateway
+    restart: always
+    networks:
+      - zbx_net
+  
+  zabbix-agent:
+    image: zabbix/zabbix-agent:centos-5.2-latest
+    container_name: zabbix-agent
+    restart: always
+    ports:
+      - 10050:10050
+    environment:
+      - ZBX_HOSTNAME=Zabbix server
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_SERVER_PORT=10051
+    depends_on:
+      - zabbix-server
+    networks:
+      - zbx_net
+```
+
+### 部署
+
+```bash
+cd /opt/docker/zabbix/web
+
+wget https://dl.cactifans.com/zabbix_docker/msty.ttf
+mv msty.ttf DejaVuSans.ttf
+
+cd /opt/docker/zabbix
+
+docker-compose up -d
 ```
 
