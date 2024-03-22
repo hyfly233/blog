@@ -1,0 +1,1466 @@
+import{_ as t,M as p,p as o,q as c,R as n,t as s,N as i,a1 as a}from"./framework-39bdc1ba.js";const u={},l=a('<h1 id="使用-terraform-插件框架实现-provider" tabindex="-1"><a class="header-anchor" href="#使用-terraform-插件框架实现-provider" aria-hidden="true">#</a> 使用 Terraform 插件框架实现 provider</h1><h2 id="先决条件" tabindex="-1"><a class="header-anchor" href="#先决条件" aria-hidden="true">#</a> 先决条件</h2><ul><li>Go 1.19+ 已安装并配置</li><li>Terraform v1.0.3+ 本地安装</li><li>Docker 本地安装</li></ul><h2 id="设置开发环境" tabindex="-1"><a class="header-anchor" href="#设置开发环境" aria-hidden="true">#</a> 设置开发环境</h2>',4),r={href:"https://github.com/hashicorp/terraform-provider-scaffolding-framework",target:"_blank",rel:"noopener noreferrer"},d=a(`<div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">git</span> clone https://github.com/hashicorp/terraform-provider-scaffolding-framework
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>项目重命名<code>terraform-provider-hashicups-pf</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">mv</span> terraform-provider-scaffolding-framework terraform-provider-hashicups-pf
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>切换到克隆的项目</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> terraform-provider-hashicups-pf
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>重命名模块 <code>go.mod</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go mod edit <span class="token parameter variable">-module</span> terraform-provider-hashicups-pf
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>安装依赖</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go mod tidy <span class="token operator">&amp;&amp;</span> go <span class="token function">install</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h3 id="设置-docker-compose" tabindex="-1"><a class="header-anchor" href="#设置-docker-compose" aria-hidden="true">#</a> 设置 docker compose</h3><p>在项目中创建一个 <code>docker_compose</code> 目录，该目录将包含启动 HashiCups 本地实例所需的 Docker 配置</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">mkdir</span> docker_compose
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>创建文件 <code>docker_compose/conf.json</code></p><div class="language-json line-numbers-mode" data-ext="json"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;db_connection&quot;</span><span class="token operator">:</span> <span class="token string">&quot;host=db port=5432 user=postgres password=password dbname=products sslmode=disable&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;bind_address&quot;</span><span class="token operator">:</span> <span class="token string">&quot;0.0.0.0:9090&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;metrics_address&quot;</span><span class="token operator">:</span> <span class="token string">&quot;localhost:9102&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>创建文件 <code>docker_compose/docker-compose.yml</code></p><div class="language-yaml line-numbers-mode" data-ext="yml"><pre class="language-yaml"><code><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">&#39;3.7&#39;</span>
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">api</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> <span class="token string">&quot;hashicorpdemoapp/product-api:v0.0.22&quot;</span>
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">&quot;19090:9090&quot;</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./conf.json<span class="token punctuation">:</span>/config/config.json
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">CONFIG_FILE</span><span class="token punctuation">:</span> <span class="token string">&#39;/config/config.json&#39;</span>
+    <span class="token key atrule">depends_on</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> db
+  <span class="token key atrule">db</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> <span class="token string">&quot;hashicorpdemoapp/product-api-db:v0.0.22&quot;</span>
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">&quot;15432:5432&quot;</span>
+    <span class="token key atrule">environment</span><span class="token punctuation">:</span>
+      <span class="token key atrule">POSTGRES_DB</span><span class="token punctuation">:</span> <span class="token string">&#39;products&#39;</span>
+      <span class="token key atrule">POSTGRES_USER</span><span class="token punctuation">:</span> <span class="token string">&#39;postgres&#39;</span>
+      <span class="token key atrule">POSTGRES_PASSWORD</span><span class="token punctuation">:</span> <span class="token string">&#39;password&#39;</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>启动 docker 容器</p><h2 id="实现-provider" tabindex="-1"><a class="header-anchor" href="#实现-provider" aria-hidden="true">#</a> 实现 provider</h2><p>Provider 使用 <code>provider.Provider</code> 接口作为所有实现 provider 细节的起点，此接口需要满足以下条件：</p><ol><li>Metadata 方法，用于定义要包含在每个 data source 和 resource 类型名称中的 provider 类型名称</li><li>Schema 方法，用于定义 provider 的 schema</li><li>Configure 方法，用于为 data source 和 resource 实现配置共享客户端</li><li>DataSources 方法，用于定义 provider 的 data sources</li><li>Resources 方法，用于定义 provider 的 resource</li></ol><p>打开 <code>internal/provider/provider.go</code> 替换为以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> provider<span class="token punctuation">.</span>Provider <span class="token operator">=</span> <span class="token operator">&amp;</span>hashicupsProvider<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// New is a helper function to simplify provider server and testing implementation.</span>
+<span class="token keyword">func</span> <span class="token function">New</span><span class="token punctuation">(</span>version <span class="token builtin">string</span><span class="token punctuation">)</span> <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> provider<span class="token punctuation">.</span>Provider <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> provider<span class="token punctuation">.</span>Provider <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token operator">&amp;</span>hashicupsProvider<span class="token punctuation">{</span>
+            version<span class="token punctuation">:</span> version<span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// hashicupsProvider is the provider implementation.</span>
+<span class="token keyword">type</span> hashicupsProvider <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    <span class="token comment">// version is set to the provider version on release, &quot;dev&quot; when the</span>
+    <span class="token comment">// provider is built and ran locally, and &quot;test&quot; when running acceptance</span>
+    <span class="token comment">// testing.</span>
+    version <span class="token builtin">string</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Metadata returns the provider type name.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Metadata</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> provider<span class="token punctuation">.</span>MetadataRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>MetadataResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>TypeName <span class="token operator">=</span> <span class="token string">&quot;hashicups&quot;</span>
+    resp<span class="token punctuation">.</span>Version <span class="token operator">=</span> p<span class="token punctuation">.</span>version
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Schema defines the provider-level schema for configuration data.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> provider<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Configure prepares a HashiCups API client for data sources and resources.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Configure</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req provider<span class="token punctuation">.</span>ConfigureRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>ConfigureResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// DataSources defines the data sources implemented in the provider.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">DataSources</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> datasource<span class="token punctuation">.</span>DataSource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token boolean">nil</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Resources defines the resources implemented in the provider.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Resources</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> resource<span class="token punctuation">.</span>Resource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token boolean">nil</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-provider-server" tabindex="-1"><a class="header-anchor" href="#实现-provider-server" aria-hidden="true">#</a> 实现 provider server</h2><p>Terraform provider 是与 Terraform 交互以处理每个 data source 和 resource 操作的服务器进程</p><p>打开 <code>main.go</code> 替换为以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;flag&quot;</span>
+    <span class="token string">&quot;log&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/providerserver&quot;</span>
+
+    <span class="token string">&quot;terraform-provider-hashicups-pf/internal/provider&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> debug <span class="token builtin">bool</span>
+
+    flag<span class="token punctuation">.</span><span class="token function">BoolVar</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>debug<span class="token punctuation">,</span> <span class="token string">&quot;debug&quot;</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token string">&quot;set to true to run the provider with support for debuggers like delve&quot;</span><span class="token punctuation">)</span>
+    flag<span class="token punctuation">.</span><span class="token function">Parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    opts <span class="token operator">:=</span> providerserver<span class="token punctuation">.</span>ServeOpts<span class="token punctuation">{</span>
+        <span class="token comment">// NOTE: This is not a typical Terraform Registry provider address,</span>
+        <span class="token comment">// such as registry.terraform.io/hashicorp/hashicups. This specific</span>
+        <span class="token comment">// provider address is used in these tutorials in conjunction with a</span>
+        <span class="token comment">// specific Terraform CLI configuration for manual development testing</span>
+        <span class="token comment">// of this provider.</span>
+        Address<span class="token punctuation">:</span> <span class="token string">&quot;hashicorp.com/edu/hashicups-pf&quot;</span><span class="token punctuation">,</span>
+        Debug<span class="token punctuation">:</span>   debug<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+
+    err <span class="token operator">:=</span> providerserver<span class="token punctuation">.</span><span class="token function">Serve</span><span class="token punctuation">(</span>context<span class="token punctuation">.</span><span class="token function">Background</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> provider<span class="token punctuation">.</span><span class="token function">New</span><span class="token punctuation">(</span>version<span class="token punctuation">)</span><span class="token punctuation">,</span> opts<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        log<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="验证-provider" tabindex="-1"><a class="header-anchor" href="#验证-provider" aria-hidden="true">#</a> 验证 provider</h2><p>运行程序，输出如下内容为正确情况</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go run main.go
+This binary is a plugin. These are not meant to be executed directly.
+Please execute the program that consumes these plugins, <span class="token function">which</span> will
+load any plugins automatically
+<span class="token builtin class-name">exit</span> status <span class="token number">1</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="进行本地-provider-安装" tabindex="-1"><a class="header-anchor" href="#进行本地-provider-安装" aria-hidden="true">#</a> 进行本地 provider 安装</h2><p>当运行 <code>Terraform init</code> 时，Terraform 会安装 provider 并验证它们的版本和校验和</p><p>Terraform 将从 <code>provider registry</code> 或<code>本地注册中心</code>下载 provider</p><p>Terraform 通过在配置文件 <code>.terraformrc</code> 中设置 <code>dev_overrides</code> 块来指定使用本地 provider</p><ol><li>首先，找到 Go 安装二进制文件的 <code>GOBIN</code> 路径</li></ol><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">env</span> GOBIN
+/Users/<span class="token operator">&lt;</span>Username<span class="token operator">&gt;</span>/go/bin
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div></div></div><ol start="2"><li>编辑 <code>.terraformrc</code> 文件，将 <code>PATH</code> 替换为 <code>go env GOBIN</code> 的值</li></ol><div class="language-hcl line-numbers-mode" data-ext="hcl"><pre class="language-hcl"><code><span class="token keyword">provider_installation</span> <span class="token punctuation">{</span>
+
+  <span class="token keyword">dev_overrides</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;hashicorp.com/edu/hashicups-pf&quot;</span> <span class="token punctuation">=</span> <span class="token string">&quot;&lt;PATH&gt;&quot;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment"># For all other providers, install them directly from their origin provider</span>
+  <span class="token comment"># registries as normal. If you omit this, Terraform will _only_ use</span>
+  <span class="token comment"># the dev_overrides block, and so no other providers will be available.</span>
+  <span class="token keyword">direct</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="本地安装-provider-并使用-terraform-进行验证" tabindex="-1"><a class="header-anchor" href="#本地安装-provider-并使用-terraform-进行验证" aria-hidden="true">#</a> 本地安装 provider 并使用 Terraform 进行验证</h2><p>编译后的二进制文件将会安装在 <code>GOBIN</code> 路径中</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>创建目录 <code>examples/provider-install-verification</code>，该目录将包含用于验证本地 provider 的 terraform 配置</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">mkdir</span> examples/provider-install-verification <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> <span class="token string">&quot;<span class="token variable">$_</span>&quot;</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>使用以下内容创建文件 <code>examples/provider-install-verification/main.tf</code></p><div class="language-terraform line-numbers-mode" data-ext="terraform"><pre class="language-terraform"><code>terraform {
+  required_providers {
+    hashicups = {
+      source = &quot;hashicorp.com/edu/hashicups-pf&quot;
+    }
+  }
+}
+
+provider &quot;hashicups&quot; {}
+
+data &quot;hashicups_coffees&quot; &quot;example&quot; {}
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>运行 <code>Terraform plan</code> 将报错，但能够验证 Terraform 能够成功启动本地安装的 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform plan
+╷
+│ Warning: Provider development overrides are <span class="token keyword">in</span> effect
+│
+│ The following provider development overrides are <span class="token builtin class-name">set</span> <span class="token keyword">in</span> the CLI
+│ configuration:
+│  - hashicorp.com/edu/hashicups-pf <span class="token keyword">in</span> /Users/<span class="token operator">&lt;</span>Username<span class="token operator">&gt;</span>/go/bin
+│
+│ The behavior may therefore not match any released version of the provider and
+│ applying changes may cause the state to become incompatible with published
+│ releases.
+╵
+╷
+│ Error: Invalid data <span class="token builtin class-name">source</span>
+│
+│   on main.tf line <span class="token number">11</span>, <span class="token keyword">in</span> data <span class="token string">&quot;hashicups_coffees&quot;</span> <span class="token string">&quot;example&quot;</span><span class="token builtin class-name">:</span>
+│   <span class="token number">11</span>: data <span class="token string">&quot;hashicups_coffees&quot;</span> <span class="token string">&quot;example&quot;</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+│
+│ The provider hashicorp.com/edu/hashicups-pf does not support data <span class="token builtin class-name">source</span>
+│ <span class="token string">&quot;hashicups_coffees&quot;</span><span class="token builtin class-name">.</span>
+╵
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-provider-schema" tabindex="-1"><a class="header-anchor" href="#实现-provider-schema" aria-hidden="true">#</a> 实现 provider schema</h2><p>Terraform Plugin Framework 使用 provider 的 <code>Schema</code> 方法来定义可接受的配置属性名称和类型。HashiCups 客户端需要正确配置主机、用户名和密码。Terraform Plugin Framework 的<code>types</code> 包含 schema 和 data model，可以使用 Terraform 的空值、未知值或已知值。</p><p>编辑文件<code>internal/provider/provider.go</code> 添加以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Schema defines the provider-level schema for configuration data.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> provider<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span>
+        Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+            <span class="token string">&quot;host&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Optional<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;username&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Optional<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;password&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Optional<span class="token punctuation">:</span>  <span class="token boolean">true</span><span class="token punctuation">,</span>
+                Sensitive<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-provider-data-model" tabindex="-1"><a class="header-anchor" href="#实现-provider-data-model" aria-hidden="true">#</a> 实现 provider data model</h2><p>Terraform Plugin Framework 使用带有 tfsdk 结构字段标签的 Go 语言结构类型，将 schema 定义映射为带有实际数据的 Go 语言类型。结构体中的类型必须与 schema 中的类型保持一致</p><p>编辑文件 <code>internal/provider/provider.go</code> 添加以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// hashicupsProviderModel maps provider schema data to a Go type.</span>
+<span class="token keyword">type</span> hashicupsProviderModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Host     types<span class="token punctuation">.</span>String <span class="token string">\`tfsdk:&quot;host&quot;\`</span>
+    Username types<span class="token punctuation">.</span>String <span class="token string">\`tfsdk:&quot;username&quot;\`</span>
+    Password types<span class="token punctuation">.</span>String <span class="token string">\`tfsdk:&quot;password&quot;\`</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现客户端配置功能" tabindex="-1"><a class="header-anchor" href="#实现客户端配置功能" aria-hidden="true">#</a> 实现客户端配置功能</h2><p>provider 使用 Configure 方法从 Terraform 配置或环境变量中读取 API Client 的配置值。在验证值之后，将创建 API Client，并使其可用于 data source 和 resource 使用，Configure 方法遵循以下步骤：</p><ol><li>从配置中检索值。该方法将尝试从提供程序配置中检索值，并将其转换为 <code>providerModel</code> 结构体</li><li>检查未知的配置值。如果只有在应用另一个资源后才知道 Terraform 配置值，则该方法可以防止意外配置错误的客户端</li><li>从环境变量中检索值。该方法从环境变量中检索值，然后用任何已设置的 Terraform 配置值覆盖它们</li><li>创建 API Client。该方法调用HashiCups API客户端的 <code>NewClient</code> 函数</li><li>存储已配置的客户端供 data source 和 resource 使用。该方法设置 response 的 <code>DataSourceData</code> 和 <code>ResourceData</code> 字段，因此客户端可供 data source 和 resource 实现使用</li></ol><p>编辑文件 <code>internal/provider/provider.go</code> 添加以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+       <span class="token string">&quot;context&quot;</span>
+       <span class="token string">&quot;os&quot;</span>
+
+       <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/path&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider/schema&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Configure</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req provider<span class="token punctuation">.</span>ConfigureRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>ConfigureResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Retrieve provider data from configuration</span>
+    <span class="token keyword">var</span> config hashicupsProviderModel
+    diags <span class="token operator">:=</span> req<span class="token punctuation">.</span>Config<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>config<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// If practitioner provided a configuration value for any of the</span>
+    <span class="token comment">// attributes, it must be a known value.</span>
+
+    <span class="token keyword">if</span> config<span class="token punctuation">.</span>Host<span class="token punctuation">.</span><span class="token function">IsUnknown</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;host&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Unknown HashiCups API Host&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is an unknown configuration value for the HashiCups API host. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Either target apply the source of the value first, set the value statically in the configuration, or use the HASHICUPS_HOST environment variable.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> config<span class="token punctuation">.</span>Username<span class="token punctuation">.</span><span class="token function">IsUnknown</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;username&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Unknown HashiCups API Username&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is an unknown configuration value for the HashiCups API username. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Either target apply the source of the value first, set the value statically in the configuration, or use the HASHICUPS_USERNAME environment variable.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> config<span class="token punctuation">.</span>Password<span class="token punctuation">.</span><span class="token function">IsUnknown</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;password&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Unknown HashiCups API Password&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is an unknown configuration value for the HashiCups API password. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Either target apply the source of the value first, set the value statically in the configuration, or use the HASHICUPS_PASSWORD environment variable.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Default values to environment variables, but override</span>
+    <span class="token comment">// with Terraform configuration value if set.</span>
+
+    host <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Getenv</span><span class="token punctuation">(</span><span class="token string">&quot;HASHICUPS_HOST&quot;</span><span class="token punctuation">)</span>
+    username <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Getenv</span><span class="token punctuation">(</span><span class="token string">&quot;HASHICUPS_USERNAME&quot;</span><span class="token punctuation">)</span>
+    password <span class="token operator">:=</span> os<span class="token punctuation">.</span><span class="token function">Getenv</span><span class="token punctuation">(</span><span class="token string">&quot;HASHICUPS_PASSWORD&quot;</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token operator">!</span>config<span class="token punctuation">.</span>Host<span class="token punctuation">.</span><span class="token function">IsNull</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        host <span class="token operator">=</span> config<span class="token punctuation">.</span>Host<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token operator">!</span>config<span class="token punctuation">.</span>Username<span class="token punctuation">.</span><span class="token function">IsNull</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        username <span class="token operator">=</span> config<span class="token punctuation">.</span>Username<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token operator">!</span>config<span class="token punctuation">.</span>Password<span class="token punctuation">.</span><span class="token function">IsNull</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        password <span class="token operator">=</span> config<span class="token punctuation">.</span>Password<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// If any of the expected configurations are missing, return</span>
+    <span class="token comment">// errors with provider-specific guidance.</span>
+
+    <span class="token keyword">if</span> host <span class="token operator">==</span> <span class="token string">&quot;&quot;</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;host&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Missing HashiCups API Host&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API host. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Set the host value in the configuration or use the HASHICUPS_HOST environment variable. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;If either is already set, ensure the value is not empty.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> username <span class="token operator">==</span> <span class="token string">&quot;&quot;</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;username&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Missing HashiCups API Username&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API username. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Set the username value in the configuration or use the HASHICUPS_USERNAME environment variable. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;If either is already set, ensure the value is not empty.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> password <span class="token operator">==</span> <span class="token string">&quot;&quot;</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddAttributeError</span><span class="token punctuation">(</span>
+            path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;password&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Missing HashiCups API Password&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API password. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;Set the password value in the configuration or use the HASHICUPS_PASSWORD environment variable. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;If either is already set, ensure the value is not empty.&quot;</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Create a new HashiCups client using the configuration values</span>
+    client<span class="token punctuation">,</span> err <span class="token operator">:=</span> hashicups<span class="token punctuation">.</span><span class="token function">NewClient</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>host<span class="token punctuation">,</span> <span class="token operator">&amp;</span>username<span class="token punctuation">,</span> <span class="token operator">&amp;</span>password<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Unable to Create HashiCups API Client&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;An unexpected error occurred when creating the HashiCups API client. &quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;If the error is not clear, please contact the provider developers.\\n\\n&quot;</span><span class="token operator">+</span>
+                <span class="token string">&quot;HashiCups Client Error: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Make the HashiCups client available during DataSource and Resource</span>
+    <span class="token comment">// type Configure methods.</span>
+    resp<span class="token punctuation">.</span>DataSourceData <span class="token operator">=</span> client
+    resp<span class="token punctuation">.</span>ResourceData <span class="token operator">=</span> client
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>更新所有依赖</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go mod tidy
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>生成并安装更新的 provider 。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h2 id="在本地启动-hashicups" tabindex="-1"><a class="header-anchor" href="#在本地启动-hashicups" aria-hidden="true">#</a> 在本地启动 HashiCups</h2><p>您的 HashiCups provider 需要一个正在运行的 HashiCups 实例。</p><p>在另一个终端窗口中，导航到该目录。<code>docker_compose</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> docker_compose
+$ <span class="token function">docker-compose</span> up
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div></div></div><p>验证 HashiCups 是否正在运行</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">curl</span> localhost:19090/health/readyz
+ok
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="创建-hashicups-用户" tabindex="-1"><a class="header-anchor" href="#创建-hashicups-用户" aria-hidden="true">#</a> 创建 HashiCups 用户</h2><p>HashiCups 需要用户名和密码来生成 JWT 令牌，用于对受保护的端点进行身份验证。在 HashiCups 上创建一个名为education 的用户，密码为 test123</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">curl</span> <span class="token parameter variable">-X</span> POST localhost:19090/signup <span class="token parameter variable">-d</span> <span class="token string">&#39;{&quot;username&quot;:&quot;education&quot;, &quot;password&quot;:&quot;test123&quot;}&#39;</span>
+<span class="token punctuation">{</span><span class="token string">&quot;UserID&quot;</span>:1,<span class="token string">&quot;Username&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;education&quot;</span>,<span class="token string">&quot;token&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTEwNzgwODUsInVzZXJfaWQiOjIsInVzZXJuYW1lIjoiZWR1Y2F0aW9uIn0.CguceCNILKdjOQ7Gx0u4UAMlOTaH3Dw-fsll2iXDrYU&quot;</span><span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div></div></div><p>设置环境变量 HASHICUPS_TOKEN</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">export</span> <span class="token assign-left variable">HASHICUPS_TOKEN</span><span class="token operator">=</span>ey<span class="token punctuation">..</span>.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h1 id="实现-data-source" tabindex="-1"><a class="header-anchor" href="#实现-data-source" aria-hidden="true">#</a> 实现 data source</h1><h2 id="实现初始-data-source" tabindex="-1"><a class="header-anchor" href="#实现初始-data-source" aria-hidden="true">#</a> 实现初始 data source</h2><p>实现 <code>datasource.DataSource</code> 接口，此接口需要满足以下条件：</p><ol><li>Metadata 方法。定义 data source 类型名称</li><li>Schema 方法。定义任意 data source 配置和 state data 的 schema</li><li>Read 方法。定义为 data source 设置 Terraform state 的逻辑</li></ol><p>添加并编辑 <code>internal/provider/coffees_data_source.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource/schema&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>DataSource <span class="token operator">=</span> <span class="token operator">&amp;</span>coffeesDataSource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// NewCoffeesDataSource is a helper function to simplify the provider implementation.</span>
+<span class="token keyword">func</span> <span class="token function">NewCoffeesDataSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> datasource<span class="token punctuation">.</span>DataSource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">&amp;</span>coffeesDataSource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// coffeesDataSource is the data source implementation.</span>
+<span class="token keyword">type</span> coffeesDataSource <span class="token keyword">struct</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token comment">// Metadata returns the data source type name.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Metadata</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req datasource<span class="token punctuation">.</span>MetadataRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>MetadataResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>TypeName <span class="token operator">=</span> req<span class="token punctuation">.</span>ProviderTypeName <span class="token operator">+</span> <span class="token string">&quot;_coffees&quot;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Schema defines the schema for the data source.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Read refreshes the Terraform state with the latest data.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Read</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req datasource<span class="token punctuation">.</span>ReadRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>ReadResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="将-data-source-添加到-provider" tabindex="-1"><a class="header-anchor" href="#将-data-source-添加到-provider" aria-hidden="true">#</a> 将 data source 添加到 provider</h2><p>将 data source 添加到 provider 的 <code>DataSources</code> 方法中</p><p>打开并编辑 <code>internal/provider/provider.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// DataSources defines the data sources implemented in the provider.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">DataSources</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> datasource<span class="token punctuation">.</span>DataSource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> datasource<span class="token punctuation">.</span>DataSource <span class="token punctuation">{</span>
+        NewCoffeesDataSource<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-data-source-客户端功能" tabindex="-1"><a class="header-anchor" href="#实现-data-source-客户端功能" aria-hidden="true">#</a> 实现 data source 客户端功能</h2><p>数据源使用可选的 Configure 方法从提供程序获取已配置的客户端。提供者配置 HashiCups 客户端，数据源可以为其操作保存对该客户端的引用。</p><p>打开并编辑 <code>internal/provider/coffees_data_source.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+       <span class="token string">&quot;context&quot;</span>
+
+       <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+       <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource/schema&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>DataSource              <span class="token operator">=</span> <span class="token operator">&amp;</span>coffeesDataSource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>DataSourceWithConfigure <span class="token operator">=</span> <span class="token operator">&amp;</span>coffeesDataSource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// coffeesDataSource is the data source implementation.</span>
+<span class="token keyword">type</span> coffeesDataSource <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    client <span class="token operator">*</span>hashicups<span class="token punctuation">.</span>Client
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Configure adds the provider configured client to the data source.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Configure</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req datasource<span class="token punctuation">.</span>ConfigureRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>ConfigureResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> req<span class="token punctuation">.</span>ProviderData <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    client<span class="token punctuation">,</span> ok <span class="token operator">:=</span> req<span class="token punctuation">.</span>ProviderData<span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token operator">*</span>hashicups<span class="token punctuation">.</span>Client<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token operator">!</span>ok <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Unexpected Data Source Configure Type&quot;</span><span class="token punctuation">,</span>
+            fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">&quot;Expected *hashicups.Client, got: %T. Please report this issue to the provider developers.&quot;</span><span class="token punctuation">,</span> req<span class="token punctuation">.</span>ProviderData<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    d<span class="token punctuation">.</span>client <span class="token operator">=</span> client
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-data-source-schema" tabindex="-1"><a class="header-anchor" href="#实现-data-source-schema" aria-hidden="true">#</a> 实现 data source schema</h2><p>替换 data source 的 Schema 方法</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Schema defines the schema for the data source.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span>
+        Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+            <span class="token string">&quot;coffees&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>ListNestedAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                NestedObject<span class="token punctuation">:</span> schema<span class="token punctuation">.</span>NestedAttributeObject<span class="token punctuation">{</span>
+                    Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+                        <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Int64Attribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;name&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;teaser&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;description&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;price&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Float64Attribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;image&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;ingredients&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>ListNestedAttribute<span class="token punctuation">{</span>
+                            Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                            NestedObject<span class="token punctuation">:</span> schema<span class="token punctuation">.</span>NestedAttributeObject<span class="token punctuation">{</span>
+                                Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+                                    <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Int64Attribute<span class="token punctuation">{</span>
+                                        Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-data-source-的-data-model" tabindex="-1"><a class="header-anchor" href="#实现-data-source-的-data-model" aria-hidden="true">#</a> 实现 data source 的 data model</h2><p>使用以下内容向 data source 添加 data model</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;fmt&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// coffeesDataSourceModel maps the data source schema data.</span>
+<span class="token keyword">type</span> coffeesDataSourceModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Coffees <span class="token punctuation">[</span><span class="token punctuation">]</span>coffeesModel <span class="token string">\`tfsdk:&quot;coffees&quot;\`</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// coffeesModel maps coffees schema data.</span>
+<span class="token keyword">type</span> coffeesModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    ID          types<span class="token punctuation">.</span>Int64               <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+    Name        types<span class="token punctuation">.</span>String              <span class="token string">\`tfsdk:&quot;name&quot;\`</span>
+    Teaser      types<span class="token punctuation">.</span>String              <span class="token string">\`tfsdk:&quot;teaser&quot;\`</span>
+    Description types<span class="token punctuation">.</span>String              <span class="token string">\`tfsdk:&quot;description&quot;\`</span>
+    Price       types<span class="token punctuation">.</span>Float64             <span class="token string">\`tfsdk:&quot;price&quot;\`</span>
+    Image       types<span class="token punctuation">.</span>String              <span class="token string">\`tfsdk:&quot;image&quot;\`</span>
+    Ingredients <span class="token punctuation">[</span><span class="token punctuation">]</span>coffeesIngredientsModel <span class="token string">\`tfsdk:&quot;ingredients&quot;\`</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// coffeesIngredientsModel maps coffee ingredients data</span>
+<span class="token keyword">type</span> coffeesIngredientsModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    ID types<span class="token punctuation">.</span>Int64 <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-read" tabindex="-1"><a class="header-anchor" href="#实现-read" aria-hidden="true">#</a> 实现 read</h2><p>data source 使用 Read 方法根据 schema 数据刷新 Terraform state，读取方法遵循以下步骤：</p><ol><li>Read 方法，该方法调用 API Client 的 GetCoffees 方法</li><li>将 response 正文映射到 schema 属性中</li><li>设置 Terraform state</li></ol><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Read refreshes the Terraform state with the latest data.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Read</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req datasource<span class="token punctuation">.</span>ReadRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>ReadResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> state coffeesDataSourceModel
+
+    coffees<span class="token punctuation">,</span> err <span class="token operator">:=</span> d<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">GetCoffees</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Unable to Read HashiCups Coffees&quot;</span><span class="token punctuation">,</span>
+            err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Map response body to model</span>
+    <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> coffee <span class="token operator">:=</span> <span class="token keyword">range</span> coffees <span class="token punctuation">{</span>
+        coffeeState <span class="token operator">:=</span> coffeesModel<span class="token punctuation">{</span>
+            ID<span class="token punctuation">:</span>          types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            Name<span class="token punctuation">:</span>        types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>Name<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            Teaser<span class="token punctuation">:</span>      types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>Teaser<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            Description<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>Description<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            Price<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">Float64Value</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>Price<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            Image<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>coffee<span class="token punctuation">.</span>Image<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> ingredient <span class="token operator">:=</span> <span class="token keyword">range</span> coffee<span class="token punctuation">.</span>Ingredient <span class="token punctuation">{</span>
+            coffeeState<span class="token punctuation">.</span>Ingredients <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>coffeeState<span class="token punctuation">.</span>Ingredients<span class="token punctuation">,</span> coffeesIngredientsModel<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>ingredient<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+
+        state<span class="token punctuation">.</span>Coffees <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>state<span class="token punctuation">.</span>Coffees<span class="token punctuation">,</span> coffeeState<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Set state</span>
+    diags <span class="token operator">:=</span> resp<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Set</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>state<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>生成并安装更新的 provider 。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h2 id="验证-data-source" tabindex="-1"><a class="header-anchor" href="#验证-data-source" aria-hidden="true">#</a> 验证 data source</h2><p>导航到该目录 <code>examples/coffees</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> examples/coffees
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>创建并编辑 <code>examples/coffees/main.tf</code></p><div class="language-terraform line-numbers-mode" data-ext="terraform"><pre class="language-terraform"><code>terraform {
+  required_providers {
+    hashicups = {
+      source = &quot;hashicorp.com/edu/hashicups-pf&quot;
+    }
+  }
+}
+
+provider &quot;hashicups&quot; {
+  host     = &quot;http://localhost:19090&quot;
+  username = &quot;education&quot;
+  password = &quot;test123&quot;
+}
+
+data &quot;hashicups_coffees&quot; &quot;edu&quot; {}
+
+output &quot;edu_coffees&quot; {
+  value = data.hashicups_coffees.edu
+}
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>运行 Terraform plan，Terraform将报告它从 HashiCups API 检索到的数据。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform plan
+<span class="token comment">##...</span>
+data.hashicups_coffees.edu: Reading<span class="token punctuation">..</span>.
+data.hashicups_coffees.edu: Read complete after 0s
+
+Changes to Outputs:
+  + edu_coffees <span class="token operator">=</span> <span class="token punctuation">{</span>
+      + coffees <span class="token operator">=</span> <span class="token punctuation">[</span>
+          + <span class="token punctuation">{</span>
+              + description <span class="token operator">=</span> <span class="token string">&quot;&quot;</span>
+              + <span class="token function">id</span>          <span class="token operator">=</span> <span class="token number">1</span>
+              + image       <span class="token operator">=</span> <span class="token string">&quot;/hashicorp.png&quot;</span>
+              + ingredients <span class="token operator">=</span> <span class="token punctuation">[</span>
+                  + <span class="token punctuation">{</span>
+                      + <span class="token function">id</span> <span class="token operator">=</span> <span class="token number">6</span>
+                    <span class="token punctuation">}</span>,
+                <span class="token punctuation">]</span>
+              + name        <span class="token operator">=</span> <span class="token string">&quot;HCP Aeropress&quot;</span>
+              + price       <span class="token operator">=</span> <span class="token number">200</span>
+              + teaser      <span class="token operator">=</span> <span class="token string">&quot;Automation in a cup&quot;</span>
+            <span class="token punctuation">}</span>,
+<span class="token comment">##...</span>
+You can apply this plan to save these new output values to the Terraform state,
+without changing any real infrastructure.
+
+───────────────────────────────────────────────────────────────────────────────
+
+Note: You didn<span class="token string">&#39;t use the -out option to save this plan, so Terraform can&#39;</span>t
+guarantee to take exactly these actions <span class="token keyword">if</span> you run <span class="token string">&quot;terraform apply&quot;</span> now.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>复制</p><p>导航到该目录。<code>terraform-provider-hashicups-pf</code></p><div class="language-shell-session line-numbers-mode" data-ext="shell-session"><pre class="language-shell-session"><code><span class="token command"><span class="token shell-symbol important">$</span> <span class="token bash language-bash"><span class="token builtin class-name">cd</span> <span class="token punctuation">..</span>/<span class="token punctuation">..</span></span></span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h1 id="实现日志记录" tabindex="-1"><a class="header-anchor" href="#实现日志记录" aria-hidden="true">#</a> 实现日志记录</h1><h2 id="实现日志消息" tabindex="-1"><a class="header-anchor" href="#实现日志消息" aria-hidden="true">#</a> 实现日志消息</h2><p>provider 支持通过 <code>github.com/hashicorp/terraform-plugin-log</code> 模块的 <code>tflog</code> 包进行日志记录。这个包实现了结构化的日志记录和过滤功能。</p><p>编辑<code>internal/provider/provider.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;os&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/datasource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/path&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/provider/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-log/tflog&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Configure</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req provider<span class="token punctuation">.</span>ConfigureRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>provider<span class="token punctuation">.</span>ConfigureResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    tflog<span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;Configuring HashiCups client&quot;</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// Retrieve provider data from configuration</span>
+    <span class="token keyword">var</span> config hashicupsProviderModel
+    <span class="token comment">/* ... */</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现结构化日志字段" tabindex="-1"><a class="header-anchor" href="#实现结构化日志字段" aria-hidden="true">#</a> 实现结构化日志字段</h2><p><code>tflog</code> 包支持向日志中添加额外的键值对，以实现一致性和跟踪流。这些对可以通过 <code>tlog.setfield()</code> 调用添加到 provider 请求的其余部分，或者作为任何日志调用的最终参数内联。</p><p>编辑 <code>internal/provider/provider.go</code></p><p>在 provider 的 <code>Configure</code> 方法中，在 <code>hashicup.newclient()</code> 调用之前立即设置三个日志字段和一条日志消息，如下所示。</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code>    <span class="token comment">/* ... */</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_host&quot;</span><span class="token punctuation">,</span> host<span class="token punctuation">)</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_username&quot;</span><span class="token punctuation">,</span> username<span class="token punctuation">)</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_password&quot;</span><span class="token punctuation">,</span> password<span class="token punctuation">)</span>
+
+    tflog<span class="token punctuation">.</span><span class="token function">Debug</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;Creating HashiCups client&quot;</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// Create a new HashiCups client using the configuration values</span>
+    client<span class="token punctuation">,</span> err <span class="token operator">:=</span> hashicups<span class="token punctuation">.</span><span class="token function">NewClient</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>host<span class="token punctuation">,</span> <span class="token operator">&amp;</span>username<span class="token punctuation">,</span> <span class="token operator">&amp;</span>password<span class="token punctuation">)</span>
+    <span class="token comment">/* ... */</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在 <code>Configure </code>方法的末尾添加一条日志消息</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code>    <span class="token comment">/* ... */</span>
+    <span class="token comment">// Make the HashiCups client available during DataSource and Resource</span>
+    <span class="token comment">// type Configure methods.</span>
+    resp<span class="token punctuation">.</span>DataSourceData <span class="token operator">=</span> client
+    resp<span class="token punctuation">.</span>ResourceData <span class="token operator">=</span> client
+
+    tflog<span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;Configured HashiCups client&quot;</span><span class="token punctuation">,</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>any<span class="token punctuation">{</span><span class="token string">&quot;success&quot;</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现日志过滤" tabindex="-1"><a class="header-anchor" href="#实现日志过滤" aria-hidden="true">#</a> 实现日志过滤</h2><p>在 <code>tflog. Debug(ctx, &quot;Creating HashiCups client&quot;) </code> 之前添加过滤器来屏蔽用户的密码</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code>    <span class="token comment">/* ... */</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_host&quot;</span><span class="token punctuation">,</span> host<span class="token punctuation">)</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_username&quot;</span><span class="token punctuation">,</span> username<span class="token punctuation">)</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">SetField</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_password&quot;</span><span class="token punctuation">,</span> password<span class="token punctuation">)</span>
+    ctx <span class="token operator">=</span> tflog<span class="token punctuation">.</span><span class="token function">MaskFieldValuesWithFieldKeys</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;hashicups_password&quot;</span><span class="token punctuation">)</span>
+
+    tflog<span class="token punctuation">.</span><span class="token function">Debug</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token string">&quot;Creating HashiCups client&quot;</span><span class="token punctuation">)</span>
+    <span class="token comment">/* ... */</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>生成 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h2 id="查看所有-terraform-日志输出" tabindex="-1"><a class="header-anchor" href="#查看所有-terraform-日志输出" aria-hidden="true">#</a> 查看所有 Terraform 日志输出</h2><p>Terraform的日志输出由各种环境变量控制，例如 <code>TF_LOG</code> 或 <code>TF_LOG_</code> 为前缀。</p><p>移动到 <code>examples/coffees</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> examples/coffees
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>运行一个将 <code>TF_LOG</code> 环境变量设置为 <code>TRACE</code> 的 Terraform plan</p><p>Terraform 将为 Terraform 本身、Terraform 插件框架和任何 provider 日志记录中的所有组件输出大量日志条目。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_LOG</span><span class="token operator">=</span>TRACE terraform plan
+<span class="token comment">##...</span>
+<span class="token number">2022</span>-09-19T09:33:34.487-0500 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  provider.terraform-provider-hashicups-pf
+<span class="token number">2022</span>-09-19T09:33:34.487-0500 <span class="token punctuation">[</span>DEBUG<span class="token punctuation">]</span> provider.terraform-provider-hashicups-pf
+<span class="token number">2022</span>-09-19T09:33:34.517-0500 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  provider.terraform-provider-hashicups-pf
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="保存所有-terraform-日志输出" tabindex="-1"><a class="header-anchor" href="#保存所有-terraform-日志输出" aria-hidden="true">#</a> 保存所有 Terraform 日志输出</h2><p>运行 terraform plan 同时设置 <code>TF_LOG</code> 和 <code>TF_LOG_PATH</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_LOG</span><span class="token operator">=</span>TRACE <span class="token assign-left variable">TF_LOG_PATH</span><span class="token operator">=</span>trace.txt terraform plan
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>日志将保存在 <code>examples/coffees/trace.txt</code>中</p><h2 id="查看特定的-terraform-日志输出" tabindex="-1"><a class="header-anchor" href="#查看特定的-terraform-日志输出" aria-hidden="true">#</a> 查看特定的 Terraform 日志输出</h2><p>日志级别包括 <code>DEBUG</code> <code>INFO</code> <code>WARN</code> <code>ERROR</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_LOG</span><span class="token operator">=</span>INFO terraform plan
+<span class="token number">2022</span>-09-30T16:27:38.446-0500 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  Terraform version: <span class="token number">1.3</span>.0
+<span class="token number">2022</span>-09-30T16:27:38.447-0500 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  Go runtime version: go1.19.1
+<span class="token number">2022</span>-09-30T16:27:38.447-0500 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  CLI args: <span class="token punctuation">[</span><span class="token punctuation">]</span>string<span class="token punctuation">{</span><span class="token string">&quot;terraform&quot;</span>, <span class="token string">&quot;plan&quot;</span><span class="token punctuation">}</span>
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>仅输出 provider 日志</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_LOG_PROVIDER</span><span class="token operator">=</span>INFO terraform plan
+<span class="token comment">##...</span>
+<span class="token number">2022</span>-12-14T10:39:33.247-0600 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  provider.terraform-provider-hashicups-pf
+<span class="token number">2022</span>-12-14T10:39:33.255-0600 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span>  provider.terraform-provider-hashicups-pf
+data.hashicups_coffees.edu: Reading<span class="token punctuation">..</span>.
+data.hashicups_coffees.edu: Read complete after 0s
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-resource-创建和读取的准备工作" tabindex="-1"><a class="header-anchor" href="#实现-resource-创建和读取的准备工作" aria-hidden="true">#</a> 实现 resource 创建和读取的准备工作</h2><h3 id="步骤" tabindex="-1"><a class="header-anchor" href="#步骤" aria-hidden="true">#</a> 步骤</h3><ol><li>定义初始 resource 类型</li><li>将 resource 添加到 provider 中</li><li>在 resource 中实现 HashiCups 客户端</li><li>定义 resource 的 schema</li><li>定义 resource 的 data mode</li><li>定义 resource 的 create 逻辑</li><li>定义 resource 的 read 逻辑</li><li>验证 resource 的行为</li></ol><h3 id="实现初始-resource-类型" tabindex="-1"><a class="header-anchor" href="#实现初始-resource-类型" aria-hidden="true">#</a> 实现初始 resource 类型</h3><p>Provider 使用接口类型 <code>resource.Resource</code> 的实现作为 resource 实现的起点</p><p>此接口需要满足以下条件：</p><ol><li>用于定义 resource 类型名称的元数据 Metadata 方法</li><li>Schema 方法，用于定义 resource 的 configure、plan 和 state data</li><li>Create 方法，用于定义创建 resource 并设置其初始 Terraform 状态的逻辑</li><li>Read 方法，用于定义刷新 resource 的 Terraform 状态的逻辑</li><li>Update 方法，用于定义更新并在成功时设置 resource 的 Terraform 状态的逻辑</li><li>Delete 方法，用于定义删除并在成功时移除 resource 的 Terraform 状态的逻辑</li></ol><h3 id="创建文件-order-resource-go" tabindex="-1"><a class="header-anchor" href="#创建文件-order-resource-go" aria-hidden="true">#</a> 创建文件 order_resource.go</h3><p>文件路径 <code>internal/provider/order_resource.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>Resource <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// NewOrderResource is a helper function to simplify the provider implementation.</span>
+<span class="token keyword">func</span> <span class="token function">NewOrderResource</span><span class="token punctuation">(</span><span class="token punctuation">)</span> resource<span class="token punctuation">.</span>Resource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// orderResource is the resource implementation.</span>
+<span class="token keyword">type</span> orderResource <span class="token keyword">struct</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token comment">// Metadata returns the resource type name.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Metadata</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>MetadataRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>MetadataResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>TypeName <span class="token operator">=</span> req<span class="token punctuation">.</span>ProviderTypeName <span class="token operator">+</span> <span class="token string">&quot;_order&quot;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Schema defines the schema for the resource.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> resource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Create creates the resource and sets the initial Terraform state.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Create</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>CreateRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>CreateResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Read refreshes the Terraform state with the latest data.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Read</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>ReadRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>ReadResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Update updates the resource and sets the updated Terraform state on success.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Update</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>UpdateRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>UpdateResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Delete deletes the resource and removes the Terraform state on success.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Delete</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>DeleteRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>DeleteResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="将-resource-添加到-provider-中" tabindex="-1"><a class="header-anchor" href="#将-resource-添加到-provider-中" aria-hidden="true">#</a> 将 resource 添加到 provider 中</h3><p>provider 使用 <code>Resources</code> 方法返回其支持的 resource</p><p>打开文件 <code>internal/provider/provider.go</code></p><p>将 resource 中的 <code>NewOrderResource</code> 方法替换为以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Resources defines the resources implemented in the provider.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>p <span class="token operator">*</span>hashicupsProvider<span class="token punctuation">)</span> <span class="token function">Resources</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> resource<span class="token punctuation">.</span>Resource <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> resource<span class="token punctuation">.</span>Resource<span class="token punctuation">{</span>
+        NewOrderResource<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实现-resource-客户端功能" tabindex="-1"><a class="header-anchor" href="#实现-resource-客户端功能" aria-hidden="true">#</a> 实现 resource 客户端功能</h3><p>resource 使用可选的 <code>Configure</code> 方法从提供程序中获取已配置的客户端。provider 已经配置了 HashiCups 客户端， resource 可以为其操作保存对该客户端的引用</p><p>打开文件 <code>internal/provider/order_resource.go</code></p><p>通过将 <code>orderResource</code> 类型替换为以下内容，允许 resource 类型存储对 HashiCups 客户端的引用</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// orderResource is the resource implementation.</span>
+<span class="token keyword">type</span> orderResource <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    client <span class="token operator">*</span>hashicups<span class="token punctuation">.</span>Client
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>确保 resource 满足框架定义的 Resource 和 ResourceWithConfigure 接口，可用下面的语句替换 var 语句</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>Resource              <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>ResourceWithConfigure <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>添加一个 <code>Configure</code> 方法，使用以下代码配置 HashiCups 客户端</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Configure adds the provider configured client to the resource.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Configure</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>ConfigureRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>ConfigureResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> req<span class="token punctuation">.</span>ProviderData <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    client<span class="token punctuation">,</span> ok <span class="token operator">:=</span> req<span class="token punctuation">.</span>ProviderData<span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token operator">*</span>hashicups<span class="token punctuation">.</span>Client<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token operator">!</span>ok <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Unexpected Data Source Configure Type&quot;</span><span class="token punctuation">,</span>
+            fmt<span class="token punctuation">.</span><span class="token function">Sprintf</span><span class="token punctuation">(</span><span class="token string">&quot;Expected *hashicups.Client, got: %T. Please report this issue to the provider developers.&quot;</span><span class="token punctuation">,</span> req<span class="token punctuation">.</span>ProviderData<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    r<span class="token punctuation">.</span>client <span class="token operator">=</span> client
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实现-schema" tabindex="-1"><a class="header-anchor" href="#实现-schema" aria-hidden="true">#</a> 实现 Schema</h3><p>该资源使用 <code>Schema</code> 方法来定义支持的 configuration、plan 和 state attribute names/types</p><p>将 resource 的 <code>Schema</code> 方法替换为以下内容</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Schema defines the schema for the resource.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> resource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span>
+        Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+            <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;last_updated&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;items&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>ListNestedAttribute<span class="token punctuation">{</span>
+                Required<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                NestedObject<span class="token punctuation">:</span> schema<span class="token punctuation">.</span>NestedAttributeObject<span class="token punctuation">{</span>
+                    Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+                        <span class="token string">&quot;quantity&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Int64Attribute<span class="token punctuation">{</span>
+                            Required<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token string">&quot;coffee&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>SingleNestedAttribute<span class="token punctuation">{</span>
+                            Required<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                            Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+                                <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Int64Attribute<span class="token punctuation">{</span>
+                                    Required<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token string">&quot;name&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                                    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token string">&quot;teaser&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                                    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token string">&quot;description&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                                    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token string">&quot;price&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>Float64Attribute<span class="token punctuation">{</span>
+                                    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                                <span class="token string">&quot;image&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                                    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实现-data-model" tabindex="-1"><a class="header-anchor" href="#实现-data-model" aria-hidden="true">#</a> 实现 data model</h3><p>将资源的以下 data model 添加到 order_resource.go</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// orderResourceModel maps the resource schema data.</span>
+<span class="token keyword">type</span> orderResourceModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    ID          types<span class="token punctuation">.</span>String     <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+    Items       <span class="token punctuation">[</span><span class="token punctuation">]</span>orderItemModel <span class="token string">\`tfsdk:&quot;items&quot;\`</span>
+    LastUpdated types<span class="token punctuation">.</span>String     <span class="token string">\`tfsdk:&quot;last_updated&quot;\`</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// orderItemModel maps order item data.</span>
+<span class="token keyword">type</span> orderItemModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Coffee   orderItemCoffeeModel <span class="token string">\`tfsdk:&quot;coffee&quot;\`</span>
+    Quantity types<span class="token punctuation">.</span>Int64          <span class="token string">\`tfsdk:&quot;quantity&quot;\`</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// orderItemCoffeeModel maps coffee order item data.</span>
+<span class="token keyword">type</span> orderItemCoffeeModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    ID          types<span class="token punctuation">.</span>Int64   <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+    Name        types<span class="token punctuation">.</span>String  <span class="token string">\`tfsdk:&quot;name&quot;\`</span>
+    Teaser      types<span class="token punctuation">.</span>String  <span class="token string">\`tfsdk:&quot;teaser&quot;\`</span>
+    Description types<span class="token punctuation">.</span>String  <span class="token string">\`tfsdk:&quot;description&quot;\`</span>
+    Price       types<span class="token punctuation">.</span>Float64 <span class="token string">\`tfsdk:&quot;price&quot;\`</span>
+    Image       types<span class="token punctuation">.</span>String  <span class="token string">\`tfsdk:&quot;image&quot;\`</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-create" tabindex="-1"><a class="header-anchor" href="#实现-create" aria-hidden="true">#</a> 实现 create</h2><p>provider 使用 <code>Create</code> 方法基于 data model 创建新资源，create 方法遵循以下步骤</p><ol><li>检查是否配置 API Client。如果不是，resource 抛出一个错误</li><li>从 plan 中检索值。该方法将尝试从 plan 中检索值并将其转换为 <code>orderResourceModel</code></li><li>根据 plan 的值生成 API 请求体。该方法循环遍历每个 plan 项并将其映射到 <code>hashicups.OrderItem</code></li><li>创建一个新订单。该方法调用 API 客户端的 <code>CreateOrder</code> 方法</li><li>将响应体映射到 resource schema attributes 属性中。该方法创建一个订单后，它会映射 <code>hashicups.Order</code> 响应到 <code>[]OrderItem</code>，以便提供程序可以更新 Terraform 的 state</li><li>设置 Terraform 的 state 与新订单的详细信息</li></ol><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;fmt&quot;</span>
+    <span class="token string">&quot;strconv&quot;</span>
+    <span class="token string">&quot;time&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Create a new resource.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Create</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>CreateRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>CreateResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Retrieve values from plan</span>
+    <span class="token keyword">var</span> plan orderResourceModel
+    diags <span class="token operator">:=</span> req<span class="token punctuation">.</span>Plan<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>plan<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Generate API request body from plan</span>
+    <span class="token keyword">var</span> items <span class="token punctuation">[</span><span class="token punctuation">]</span>hashicups<span class="token punctuation">.</span>OrderItem
+    <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> item <span class="token operator">:=</span> <span class="token keyword">range</span> plan<span class="token punctuation">.</span>Items <span class="token punctuation">{</span>
+        items <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>items<span class="token punctuation">,</span> hashicups<span class="token punctuation">.</span>OrderItem<span class="token punctuation">{</span>
+            Coffee<span class="token punctuation">:</span> hashicups<span class="token punctuation">.</span>Coffee<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span> <span class="token function">int</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueInt64</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            Quantity<span class="token punctuation">:</span> <span class="token function">int</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Quantity<span class="token punctuation">.</span><span class="token function">ValueInt64</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Create new order</span>
+    order<span class="token punctuation">,</span> err <span class="token operator">:=</span> r<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">CreateOrder</span><span class="token punctuation">(</span>items<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Error creating order&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Could not create order, unexpected error: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Map response body to schema and populate Computed attribute values</span>
+    plan<span class="token punctuation">.</span>ID <span class="token operator">=</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>strconv<span class="token punctuation">.</span><span class="token function">Itoa</span><span class="token punctuation">(</span>order<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> orderItemIndex<span class="token punctuation">,</span> orderItem <span class="token operator">:=</span> <span class="token keyword">range</span> order<span class="token punctuation">.</span>Items <span class="token punctuation">{</span>
+        plan<span class="token punctuation">.</span>Items<span class="token punctuation">[</span>orderItemIndex<span class="token punctuation">]</span> <span class="token operator">=</span> orderItemModel<span class="token punctuation">{</span>
+            Coffee<span class="token punctuation">:</span> orderItemCoffeeModel<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span>          types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Name<span class="token punctuation">:</span>        types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Name<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Teaser<span class="token punctuation">:</span>      types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Teaser<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Description<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Description<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Price<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">Float64Value</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Price<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Image<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Image<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            Quantity<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>orderItem<span class="token punctuation">.</span>Quantity<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    plan<span class="token punctuation">.</span>LastUpdated <span class="token operator">=</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span><span class="token function">Now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Format</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span>RFC850<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// Set state to fully populated data</span>
+    diags <span class="token operator">=</span> resp<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Set</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> plan<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-read-1" tabindex="-1"><a class="header-anchor" href="#实现-read-1" aria-hidden="true">#</a> 实现 read</h2><p>provider 使用 <code>Read</code> 方法来检索 resource 的信息并更新 Terraform 的 state 以反映 resource 的当前状态。provider 在每个 plan 生成 resource 当前 state 和 configuration 之间的准确差异之前调用此函数，read 方法遵循以下步骤:</p><ol><li>获取当前状态。如果不能，则 provider 响应一个错误</li><li>从 Terraform 的 state 中获取订单 ID</li><li>从客户端获取订单详情。该方法使用订单 ID 调用 API 客户端的 <code>GetOrder</code> 方法</li><li>将响应体映射到 resource schema attributes 属性上。方法检索到顺序后，映射 <code>hashicups.Order</code> 响应到 <code>[]OrderItem</code>，以便提供程序可以更新 Terraform 的 state</li><li>设置 Terraform 的 state 与订单的详细信息</li></ol><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// Read resource information.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Read</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>ReadRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>ReadResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">// Get current state</span>
+    <span class="token keyword">var</span> state orderResourceModel
+    diags <span class="token operator">:=</span> req<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>state<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Get refreshed order value from HashiCups</span>
+    order<span class="token punctuation">,</span> err <span class="token operator">:=</span> r<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">GetOrder</span><span class="token punctuation">(</span>state<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Error Reading HashiCups Order&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Could not read HashiCups order ID &quot;</span><span class="token operator">+</span>state<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Overwrite items with refreshed state</span>
+    state<span class="token punctuation">.</span>Items <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>orderItemModel<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> item <span class="token operator">:=</span> <span class="token keyword">range</span> order<span class="token punctuation">.</span>Items <span class="token punctuation">{</span>
+        state<span class="token punctuation">.</span>Items <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>state<span class="token punctuation">.</span>Items<span class="token punctuation">,</span> orderItemModel<span class="token punctuation">{</span>
+            Coffee<span class="token punctuation">:</span> orderItemCoffeeModel<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span>          types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Name<span class="token punctuation">:</span>        types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Name<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Teaser<span class="token punctuation">:</span>      types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Teaser<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Description<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Description<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Price<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">Float64Value</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Price<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Image<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Image<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            Quantity<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Quantity<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Set refreshed state</span>
+    diags <span class="token operator">=</span> resp<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Set</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>state<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>生成并安装 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h2 id="验证-resource" tabindex="-1"><a class="header-anchor" href="#验证-resource" aria-hidden="true">#</a> 验证 resource</h2><p>创建一个 <code>examples/order</code> 目录</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code><span class="token function">mkdir</span> examples/order <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> <span class="token string">&quot;<span class="token variable">$_</span>&quot;</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>在此目录中创建一个 <code>examples/order/main.tf</code></p><div class="language-terraform line-numbers-mode" data-ext="terraform"><pre class="language-terraform"><code>terraform {
+  required_providers {
+    hashicups = {
+      source  = &quot;hashicorp.com/edu/hashicups-pf&quot;
+    }
+  }
+  required_version = &quot;&gt;= 1.1.0&quot;
+}
+
+provider &quot;hashicups&quot; {
+  username = &quot;education&quot;
+  password = &quot;test123&quot;
+  host     = &quot;http://localhost:19090&quot;
+}
+
+resource &quot;hashicups_order&quot; &quot;edu&quot; {
+  items = [{
+    coffee = {
+      id = 3
+    }
+    quantity = 2
+    }, {
+    coffee = {
+      id = 1
+    }
+    quantity = 2
+    }
+  ]
+}
+
+output &quot;edu_order&quot; {
+  value = hashicups_order.edu
+}
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>执行 terraform apply 并输入 yes</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform apply
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  <span class="token comment"># hashicups_order.edu will be created</span>
+  + resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+      + <span class="token function">id</span>           <span class="token operator">=</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+      <span class="token comment">## ...</span>
+    <span class="token punctuation">}</span>
+
+Plan: <span class="token number">1</span> to add, <span class="token number">0</span> to change, <span class="token number">0</span> to destroy.
+
+Changes to Outputs:
+  + edu_order <span class="token operator">=</span> <span class="token punctuation">{</span>
+      + <span class="token function">id</span>           <span class="token operator">=</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+      + items        <span class="token operator">=</span> <span class="token punctuation">[</span>
+          + <span class="token punctuation">{</span>
+<span class="token comment">##...</span>
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only <span class="token string">&#39;yes&#39;</span> will be accepted to approve.
+
+  Enter a value: <span class="token function">yes</span>
+
+hashicups_order.edu: Creating<span class="token punctuation">..</span>.
+hashicups_order.edu: Creation complete after 0s <span class="token punctuation">[</span>id<span class="token operator">=</span><span class="token number">21</span><span class="token punctuation">]</span>
+
+Apply complete<span class="token operator">!</span> Resources: <span class="token number">1</span> added, <span class="token number">0</span> changed, <span class="token number">0</span> destroyed.
+
+Outputs:
+
+edu_order <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token string">&quot;id&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;1&quot;</span>
+  <span class="token string">&quot;items&quot;</span> <span class="token operator">=</span> tolist<span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token string">&quot;coffee&quot;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token string">&quot;description&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;&quot;</span>
+        <span class="token string">&quot;id&quot;</span> <span class="token operator">=</span> <span class="token number">3</span>
+        <span class="token string">&quot;image&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;/vault.png&quot;</span>
+        <span class="token string">&quot;name&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;Vaulatte&quot;</span>
+        <span class="token string">&quot;price&quot;</span> <span class="token operator">=</span> <span class="token number">200</span>
+        <span class="token string">&quot;teaser&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;Nothing gives you a safe and secure feeling like a Vaulatte&quot;</span>
+      <span class="token punctuation">}</span>
+      <span class="token string">&quot;quantity&quot;</span> <span class="token operator">=</span> <span class="token number">2</span>
+    <span class="token punctuation">}</span>,
+    <span class="token punctuation">{</span>
+      <span class="token string">&quot;coffee&quot;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token string">&quot;description&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;&quot;</span>
+        <span class="token string">&quot;id&quot;</span> <span class="token operator">=</span> <span class="token number">1</span>
+        <span class="token string">&quot;image&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;/hashicorp.png&quot;</span>
+        <span class="token string">&quot;name&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;HCP Aeropress&quot;</span>
+        <span class="token string">&quot;price&quot;</span> <span class="token operator">=</span> <span class="token number">200</span>
+        <span class="token string">&quot;teaser&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;Automation in a cup&quot;</span>
+      <span class="token punctuation">}</span>
+      <span class="token string">&quot;quantity&quot;</span> <span class="token operator">=</span> <span class="token number">2</span>
+    <span class="token punctuation">}</span>,
+  <span class="token punctuation">]</span><span class="token punctuation">)</span>
+  <span class="token string">&quot;last_updated&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;Thursday, 09-Feb-23 11:32:05 EST&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>一旦申请完成，provider 将 resource 的详细信息保存在 Terraform 的 state 中。执行 <code>terraform state show resource_name</code> 命令查看状态。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform state show hashicups_order.edu
+<span class="token comment"># hashicups_order.edu:</span>
+resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+    <span class="token function">id</span>           <span class="token operator">=</span> <span class="token string">&quot;1&quot;</span>
+    items        <span class="token operator">=</span> <span class="token punctuation">[</span>
+      <span class="token comment"># (2 unchanged elements hidden)</span>
+    <span class="token punctuation">]</span>
+    last_updated <span class="token operator">=</span> <span class="token string">&quot;Thursday, 22-Jul-21 03:26:51 PDT&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="验证创建的订单" tabindex="-1"><a class="header-anchor" href="#验证创建的订单" aria-hidden="true">#</a> 验证创建的订单</h3><p>使用 RESTful api 查询订单信息，验证 Terraform 是否通过 API 检索订单详细信息创建了订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">curl</span> <span class="token parameter variable">-X</span> GET  <span class="token parameter variable">-H</span> <span class="token string">&quot;Authorization: <span class="token variable">\${HASHICUPS_TOKEN}</span>&quot;</span> localhost:19090/orders/1
+
+<span class="token punctuation">{</span><span class="token string">&quot;id&quot;</span>:1,<span class="token string">&quot;items&quot;</span>:<span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token string">&quot;coffee&quot;</span>:<span class="token punctuation">{</span><span class="token string">&quot;id&quot;</span>:3,<span class="token string">&quot;name&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Vaulatte&quot;</span>,<span class="token string">&quot;teaser&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Nothing gives you a safe and secure feeling like a Vaulatte&quot;</span>,<span class="token string">&quot;collection&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Foundations&quot;</span>,<span class="token string">&quot;origin&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Spring 2015&quot;</span>,<span class="token string">&quot;color&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;#FFD814&quot;</span>,<span class="token string">&quot;description&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;&quot;</span>,<span class="token string">&quot;price&quot;</span>:200,<span class="token string">&quot;image&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;/vault.png&quot;</span>,<span class="token string">&quot;ingredients&quot;</span>:<span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token string">&quot;ingredient_id&quot;</span>:1<span class="token punctuation">}</span>,<span class="token punctuation">{</span><span class="token string">&quot;ingredient_id&quot;</span>:2<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span>,<span class="token string">&quot;quantity&quot;</span>:2<span class="token punctuation">}</span>,<span class="token punctuation">{</span><span class="token string">&quot;coffee&quot;</span>:<span class="token punctuation">{</span><span class="token string">&quot;id&quot;</span>:1,<span class="token string">&quot;name&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;HCP Aeropress&quot;</span>,<span class="token string">&quot;teaser&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Automation in a cup&quot;</span>,<span class="token string">&quot;collection&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Foundations&quot;</span>,<span class="token string">&quot;origin&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;Summer 2020&quot;</span>,<span class="token string">&quot;color&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;#444&quot;</span>,<span class="token string">&quot;description&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;&quot;</span>,<span class="token string">&quot;price&quot;</span>:200,<span class="token string">&quot;image&quot;</span><span class="token builtin class-name">:</span><span class="token string">&quot;/hashicorp.png&quot;</span>,<span class="token string">&quot;ingredients&quot;</span>:<span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token string">&quot;ingredient_id&quot;</span>:6<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span>,<span class="token string">&quot;quantity&quot;</span>:2<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>订单的属性应该与 <code>hashicups_order.edu</code> resource 的属性相同</p><h2 id="实施-resource-更新" tabindex="-1"><a class="header-anchor" href="#实施-resource-更新" aria-hidden="true">#</a> 实施 resource 更新</h2><ol><li>验证 schema 和 model</li><li>实现 resource update</li><li>使用 plan modifier 增强 plan output</li><li>验证 update 功能</li></ol><h3 id="修改-schema-和-model" tabindex="-1"><a class="header-anchor" href="#修改-schema-和-model" aria-hidden="true">#</a> 修改 schema 和 model</h3><p>添加 last_updated 的属性</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> resource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span>
+        Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+            <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;last_updated&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;items&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>ListNestedAttribute<span class="token punctuation">{</span>
+                <span class="token comment">// ...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在 <code>orderResourceModel</code> 中添加 <code>last_updated</code> 字段</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">type</span> orderResourceModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    ID          types<span class="token punctuation">.</span>String     <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+    Items       <span class="token punctuation">[</span><span class="token punctuation">]</span>orderItemModel <span class="token string">\`tfsdk:&quot;items&quot;\`</span>
+    LastUpdated types<span class="token punctuation">.</span>String     <span class="token string">\`tfsdk:&quot;last_updated&quot;\`</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实现-update" tabindex="-1"><a class="header-anchor" href="#实现-update" aria-hidden="true">#</a> 实现 update</h3><p>Provider 使用 Update 方法基于 schema 数据更新现有 resource，Update 方法遵循以下步骤：</p><ol><li>从 plan 中检索值</li><li>从 plan 值生成 API 请求体</li><li>更新订单</li><li>将 response 正文映射到 resource schema 属性</li><li>设置 <code>LastUpdated</code> 属性</li><li>使用更新后的订单设置 Terraform state</li></ol><p>编辑 <code>internal/provider/order_resource.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;fmt&quot;</span>
+    <span class="token string">&quot;strconv&quot;</span>
+    <span class="token string">&quot;time&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Update</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>UpdateRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>UpdateResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Retrieve values from plan</span>
+    <span class="token keyword">var</span> plan orderResourceModel
+    diags <span class="token operator">:=</span> req<span class="token punctuation">.</span>Plan<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>plan<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Generate API request body from plan</span>
+    <span class="token keyword">var</span> hashicupsItems <span class="token punctuation">[</span><span class="token punctuation">]</span>hashicups<span class="token punctuation">.</span>OrderItem
+    <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> item <span class="token operator">:=</span> <span class="token keyword">range</span> plan<span class="token punctuation">.</span>Items <span class="token punctuation">{</span>
+        hashicupsItems <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>hashicupsItems<span class="token punctuation">,</span> hashicups<span class="token punctuation">.</span>OrderItem<span class="token punctuation">{</span>
+            Coffee<span class="token punctuation">:</span> hashicups<span class="token punctuation">.</span>Coffee<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span> <span class="token function">int</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueInt64</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            Quantity<span class="token punctuation">:</span> <span class="token function">int</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Quantity<span class="token punctuation">.</span><span class="token function">ValueInt64</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Update existing order</span>
+    <span class="token boolean">_</span><span class="token punctuation">,</span> err <span class="token operator">:=</span> r<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">UpdateOrder</span><span class="token punctuation">(</span>plan<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> hashicupsItems<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Error Updating HashiCups Order&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Could not update order, unexpected error: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Fetch updated items from GetOrder as UpdateOrder items are not</span>
+    <span class="token comment">// populated.</span>
+    order<span class="token punctuation">,</span> err <span class="token operator">:=</span> r<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">GetOrder</span><span class="token punctuation">(</span>plan<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Error Reading HashiCups Order&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Could not read HashiCups order ID &quot;</span><span class="token operator">+</span>plan<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">&quot;: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Update resource state with updated items and timestamp</span>
+    plan<span class="token punctuation">.</span>Items <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>orderItemModel<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token keyword">for</span> <span class="token boolean">_</span><span class="token punctuation">,</span> item <span class="token operator">:=</span> <span class="token keyword">range</span> order<span class="token punctuation">.</span>Items <span class="token punctuation">{</span>
+        plan<span class="token punctuation">.</span>Items <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>plan<span class="token punctuation">.</span>Items<span class="token punctuation">,</span> orderItemModel<span class="token punctuation">{</span>
+            Coffee<span class="token punctuation">:</span> orderItemCoffeeModel<span class="token punctuation">{</span>
+                ID<span class="token punctuation">:</span>          types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>ID<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Name<span class="token punctuation">:</span>        types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Name<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Teaser<span class="token punctuation">:</span>      types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Teaser<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Description<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Description<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Price<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">Float64Value</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Price<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                Image<span class="token punctuation">:</span>       types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Coffee<span class="token punctuation">.</span>Image<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            Quantity<span class="token punctuation">:</span> types<span class="token punctuation">.</span><span class="token function">Int64Value</span><span class="token punctuation">(</span><span class="token function">int64</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>Quantity<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    plan<span class="token punctuation">.</span>LastUpdated <span class="token operator">=</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span><span class="token function">Now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Format</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span>RFC850<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    diags <span class="token operator">=</span> resp<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Set</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> plan<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>更新 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h3 id="验证-update-功能" tabindex="-1"><a class="header-anchor" href="#验证-update-功能" aria-hidden="true">#</a> 验证 update 功能</h3><p>导航到目录 <code>examples/order</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> examples/order
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>编辑 <code>examples/order/main.tf</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code>resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+  items <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+    coffee <span class="token operator">=</span> <span class="token punctuation">{</span>
+      id <span class="token operator">=</span> <span class="token number">3</span>
+    <span class="token punctuation">}</span>
+    quantity <span class="token operator">=</span> <span class="token number">2</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      coffee <span class="token operator">=</span> <span class="token punctuation">{</span>
+        id <span class="token operator">=</span> <span class="token number">2</span>
+      <span class="token punctuation">}</span>
+      quantity <span class="token operator">=</span> <span class="token number">3</span>
+  <span class="token punctuation">}</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>执行 terraform plan</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform plan
+hashicups_order.edu: Refreshing state<span class="token punctuation">..</span>. <span class="token punctuation">[</span>id<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">]</span>
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  <span class="token comment"># hashicups_order.edu will be updated in-place</span>
+  ~ resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+      ~ <span class="token function">id</span>           <span class="token operator">=</span> <span class="token string">&quot;1&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+      ~ items        <span class="token operator">=</span> <span class="token punctuation">[</span>
+          ~ <span class="token punctuation">{</span>
+              ~ coffee   <span class="token operator">=</span> <span class="token punctuation">{</span>
+                  + description <span class="token operator">=</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                    <span class="token function">id</span>          <span class="token operator">=</span> <span class="token number">3</span>
+                  ~ image       <span class="token operator">=</span> <span class="token string">&quot;/vault.png&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ name        <span class="token operator">=</span> <span class="token string">&quot;Vaulatte&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ price       <span class="token operator">=</span> <span class="token number">200</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ teaser      <span class="token operator">=</span> <span class="token string">&quot;Nothing gives you a safe and secure feeling like a Vaulatte&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment"># (1 unchanged attribute hidden)</span>
+            <span class="token punctuation">}</span>,
+          ~ <span class="token punctuation">{</span>
+              ~ coffee   <span class="token operator">=</span> <span class="token punctuation">{</span>
+                  + description <span class="token operator">=</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ <span class="token function">id</span>          <span class="token operator">=</span> <span class="token number">1</span> -<span class="token operator">&gt;</span> <span class="token number">2</span>
+                  ~ image       <span class="token operator">=</span> <span class="token string">&quot;/hashicorp.png&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ name        <span class="token operator">=</span> <span class="token string">&quot;HCP Aeropress&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ price       <span class="token operator">=</span> <span class="token number">200</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                  ~ teaser      <span class="token operator">=</span> <span class="token string">&quot;Automation in a cup&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+                <span class="token punctuation">}</span>
+              ~ quantity <span class="token operator">=</span> <span class="token number">2</span> -<span class="token operator">&gt;</span> <span class="token number">3</span>
+            <span class="token punctuation">}</span>,
+        <span class="token punctuation">]</span>
+      ~ last_updated <span class="token operator">=</span> <span class="token string">&quot;Thursday, 09-Feb-23 11:32:05 EST&quot;</span> -<span class="token operator">&gt;</span> <span class="token punctuation">(</span>known after apply<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+Plan: <span class="token number">0</span> to add, <span class="token number">1</span> to change, <span class="token number">0</span> to destroy.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="增强-plan-output" tabindex="-1"><a class="header-anchor" href="#增强-plan-output" aria-hidden="true">#</a> 增强 plan output</h3><p>可配置的 Terraform Plugin Framework 属性不应该显示现有状态值的更新，应该使用 <code>UseStateForUnknown()</code> plan 修饰符</p><p>编辑 <code>internal/provider/order_resource.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+    Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    PlanModifiers<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>planmodifier<span class="token punctuation">.</span>String<span class="token punctuation">{</span>
+        stringplanmodifier<span class="token punctuation">.</span><span class="token function">UseStateForUnknown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实施资源删除" tabindex="-1"><a class="header-anchor" href="#实施资源删除" aria-hidden="true">#</a> 实施资源删除</h2><h3 id="实现-delete" tabindex="-1"><a class="header-anchor" href="#实现-delete" aria-hidden="true">#</a> 实现 delete</h3><p>provider 使用 <code>Delete</code> 方法删除现有资源</p><p>删除方法遵循以下步骤：</p><ol><li>从 state 中检索值</li><li>删除现有订单</li></ol><p>编辑文件 <code>internal/provider/order_resource.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">Delete</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>DeleteRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>DeleteResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">// Retrieve values from state</span>
+    <span class="token keyword">var</span> state orderResourceModel
+    diags <span class="token operator">:=</span> req<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>state<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Delete existing order</span>
+    err <span class="token operator">:=</span> r<span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">DeleteOrder</span><span class="token punctuation">(</span>state<span class="token punctuation">.</span>ID<span class="token punctuation">.</span><span class="token function">ValueString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">AddError</span><span class="token punctuation">(</span>
+            <span class="token string">&quot;Error Deleting HashiCups Order&quot;</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;Could not delete order, unexpected error: &quot;</span><span class="token operator">+</span>err<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>更新 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h3 id="验证-delete" tabindex="-1"><a class="header-anchor" href="#验证-delete" aria-hidden="true">#</a> 验证 delete</h3><p>导航到目录 <code>examples/order</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> examples/order
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>执行 terraform destroy 将删除订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform destroy -auto-approve
+<span class="token comment">##...</span>
+Destroy complete<span class="token operator">!</span> Resources: <span class="token number">1</span> destroyed.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>通过 HashiCups API 验证提供商是否删除了订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">curl</span> <span class="token parameter variable">-X</span> GET <span class="token parameter variable">-H</span> <span class="token string">&quot;Authorization: <span class="token variable">\${HASHICUPS_TOKEN}</span>&quot;</span> localhost:19090/orders/1
+<span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="实现-resource-导入" tabindex="-1"><a class="header-anchor" href="#实现-resource-导入" aria-hidden="true">#</a> 实现 resource 导入</h2><p>resource 的 import 的方法，能从 <code>terraform import</code> 命令中获取给定的订单 id，使得 Terraform 能使用此订单 id 将对应的信息导入到 Terraform state 文件中</p><h3 id="实现-import-功能" tabindex="-1"><a class="header-anchor" href="#实现-import-功能" aria-hidden="true">#</a> 实现 import 功能</h3><p>resource 使用 <code>ImportState</code> 方法导入现有资源，import 方法只有一个步骤：</p><ol><li>检索导入标识符并保存为属性状态。该方法将使用 <code>resource.ImportStatePassthroughID()</code> 函数从 <code>terraform import</code> 命令中检索 ID 值，并将其保存到 <code>ID</code> 属性中。</li></ol><p>如果没有错误，Terraform 将自动调用资源的 <code>Read</code> 方法来导入 <code>Terraform state</code> 的其余部分。由于 <code>id</code> 属性是 <code>Read</code> 方法所必需的，因此不需要额外的实现</p><p>编辑文件 <code>internal/provider/order_resource.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;context&quot;</span>
+    <span class="token string">&quot;fmt&quot;</span>
+    <span class="token string">&quot;strconv&quot;</span>
+    <span class="token string">&quot;time&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp-demoapp/hashicups-client-go&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/path&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/types&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token comment">// Ensure the implementation satisfies the expected interfaces.</span>
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>Resource                <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>ResourceWithConfigure   <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token boolean">_</span> resource<span class="token punctuation">.</span>ResourceWithImportState <span class="token operator">=</span> <span class="token operator">&amp;</span>orderResource<span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>r <span class="token operator">*</span>orderResource<span class="token punctuation">)</span> <span class="token function">ImportState</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req resource<span class="token punctuation">.</span>ImportStateRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>resource<span class="token punctuation">.</span>ImportStateResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Retrieve import ID and save to id attribute</span>
+    resource<span class="token punctuation">.</span><span class="token function">ImportStatePassthroughID</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> path<span class="token punctuation">.</span><span class="token function">Root</span><span class="token punctuation">(</span><span class="token string">&quot;id&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span> req<span class="token punctuation">,</span> resp<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>生成 provider</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ go <span class="token function">install</span> <span class="token builtin class-name">.</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><h3 id="验证-import-功能" tabindex="-1"><a class="header-anchor" href="#验证-import-功能" aria-hidden="true">#</a> 验证 import 功能</h3><p>导航到该目录。这包含 Terraform HashiCups 提供程序的示例 Terraform 配置。<code>examples/order</code></p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token builtin class-name">cd</span> examples/order
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>应用此配置以确保 HashiCups API 包含订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform apply -auto-approve
+<span class="token comment">##...</span>
+Apply complete<span class="token operator">!</span> Resources: <span class="token number">1</span> added, <span class="token number">0</span> changed, <span class="token number">0</span> destroyed.
+
+Outputs:
+
+edu_order <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token string">&quot;id&quot;</span> <span class="token operator">=</span> <span class="token string">&quot;2&quot;</span>
+  <span class="token string">&quot;items&quot;</span> <span class="token operator">=</span> tolist<span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>从 Terraform state 检索订单 ID，将在下一步中使用此订单 ID 导入订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform show
+<span class="token comment"># hashicups_order.edu:</span>
+resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+    <span class="token function">id</span>           <span class="token operator">=</span> <span class="token string">&quot;2&quot;</span>
+    items        <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token comment"># (2 unchanged elements hidden)</span>
+    <span class="token punctuation">]</span>
+    last_updated <span class="token operator">=</span> <span class="token string">&quot;Wednesday, 14-Dec-22 11:18:20 CST&quot;</span>
+<span class="token punctuation">}</span>
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>从 Terraform state 中删除现有的订单，订单仍然存在于 HashiCups API 中</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform state <span class="token function">rm</span> hashicups_order.edu
+Removed hashicups_order.edu
+Successfully removed <span class="token number">1</span> resource instance<span class="token punctuation">(</span>s<span class="token punctuation">)</span>.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>确认 Terraform state 不再包含订单资源。之前的 <code>edu_order</code> 输出值仍然保留。</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform show
+
+Outputs:
+
+edu_order <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token function">id</span>           <span class="token operator">=</span> <span class="token string">&quot;2&quot;</span>
+    items        <span class="token operator">=</span> <span class="token punctuation">[</span>
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>验证 HashiCups API 是否仍然有订单。如果需要，可以将 2 替换为 terraform show 命令输出的订单号</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token function">curl</span> <span class="token parameter variable">-X</span> GET <span class="token parameter variable">-H</span> <span class="token string">&quot;Authorization: <span class="token variable">\${HASHICUPS_TOKEN}</span>&quot;</span> localhost:19090/orders/2
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>将现有的 HashiCups API 订单导入 Terraform，将订单 ID 替换为你的订单 ID</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform <span class="token function">import</span> hashicups_order.edu <span class="token number">2</span>
+hashicups_order.edu: Importing from ID <span class="token string">&quot;2&quot;</span><span class="token punctuation">..</span>.
+hashicups_order.edu: Import prepared<span class="token operator">!</span>
+  Prepared hashicups_order <span class="token keyword">for</span> <span class="token function">import</span>
+hashicups_order.edu: Refreshing state<span class="token punctuation">..</span>. <span class="token punctuation">[</span>id<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">]</span>
+
+Import successful<span class="token operator">!</span>
+
+The resources that were imported are shown above. These resources are now <span class="token keyword">in</span>
+your Terraform state and will henceforth be managed by Terraform.
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>再次验证 Terraform state 是否包含订单</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ terraform show
+<span class="token comment"># hashicups_order.edu:</span>
+resource <span class="token string">&quot;hashicups_order&quot;</span> <span class="token string">&quot;edu&quot;</span> <span class="token punctuation">{</span>
+    <span class="token function">id</span>    <span class="token operator">=</span> <span class="token string">&quot;2&quot;</span>
+    items <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token comment"># (2 unchanged elements hidden)</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">##...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="自动化测试" tabindex="-1"><a class="header-anchor" href="#自动化测试" aria-hidden="true">#</a> 自动化测试</h2><p>Go 模块 <code>terra-plugin-testing</code> 中的 <code>helper/resource</code> 包能使 provider 实现自动化验收测试。测试框架建立在标准的 <code>go test</code> 命令功能之上，并调用实际的 Terraform 命令，如 <code>Terraform apply</code>、<code>Terraform import</code> 和 <code>Terraform destroy</code>。</p><h3 id="实现-data-source-id-属性" tabindex="-1"><a class="header-anchor" href="#实现-data-source-id-属性" aria-hidden="true">#</a> 实现 data source id 属性</h3><p>测试框架要求在每个 data source 和 resource 中都有一个 id 属性。为了在没有 ID 的 data source 和 resource 上运行测试，必须使用占位符值实现 ID 字段</p><p>编辑文件 <code>internal/provider/coffees_data_source.go</code></p><p>向 Schema 方法添加 id 属性</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Schema</span><span class="token punctuation">(</span><span class="token boolean">_</span> context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> <span class="token boolean">_</span> datasource<span class="token punctuation">.</span>SchemaRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>SchemaResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resp<span class="token punctuation">.</span>Schema <span class="token operator">=</span> schema<span class="token punctuation">.</span>Schema<span class="token punctuation">{</span>
+        Attributes<span class="token punctuation">:</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span>schema<span class="token punctuation">.</span>Attribute<span class="token punctuation">{</span>
+            <span class="token string">&quot;id&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>StringAttribute<span class="token punctuation">{</span>
+                Computed<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">&quot;coffees&quot;</span><span class="token punctuation">:</span> schema<span class="token punctuation">.</span>ListNestedAttribute<span class="token punctuation">{</span>
+                <span class="token comment">//...</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>用下面的代码替换 <code>coffeesDataSourceModel</code> 数据源模型</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token comment">// coffeesDataSourceModel maps the data source schema data.</span>
+<span class="token keyword">type</span> coffeesDataSourceModel <span class="token keyword">struct</span> <span class="token punctuation">{</span>
+    Coffees <span class="token punctuation">[</span><span class="token punctuation">]</span>coffeesModel <span class="token string">\`tfsdk:&quot;coffees&quot;\`</span>
+    ID      types<span class="token punctuation">.</span>String   <span class="token string">\`tfsdk:&quot;id&quot;\`</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在 data source 的 Read 方法的末尾附近设置一个占位符值</p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">func</span> <span class="token punctuation">(</span>d <span class="token operator">*</span>coffeesDataSource<span class="token punctuation">)</span> <span class="token function">Read</span><span class="token punctuation">(</span>ctx context<span class="token punctuation">.</span>Context<span class="token punctuation">,</span> req datasource<span class="token punctuation">.</span>ReadRequest<span class="token punctuation">,</span> resp <span class="token operator">*</span>datasource<span class="token punctuation">.</span>ReadResponse<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">//...</span>
+
+    state<span class="token punctuation">.</span>ID <span class="token operator">=</span> types<span class="token punctuation">.</span><span class="token function">StringValue</span><span class="token punctuation">(</span><span class="token string">&quot;placeholder&quot;</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// Set state</span>
+    diags <span class="token operator">:=</span> resp<span class="token punctuation">.</span>State<span class="token punctuation">.</span><span class="token function">Set</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token operator">&amp;</span>state<span class="token punctuation">)</span>
+    resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">Append</span><span class="token punctuation">(</span>diags<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> resp<span class="token punctuation">.</span>Diagnostics<span class="token punctuation">.</span><span class="token function">HasError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实施-data-source-验收测试" tabindex="-1"><a class="header-anchor" href="#实施-data-source-验收测试" aria-hidden="true">#</a> 实施 data source 验收测试</h3><p>Data source 验收测试用于验证从 API 读取后 Terraform state 包含数据</p><p>大多数 provider 将在单个测试文件中管理一些共享实现详细信息，以简化 data source 和 resource 测试实现</p><p>编辑 <code>internal/provider/provider_test.go</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-framework/providerserver&quot;</span>
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-go/tfprotov6&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">const</span> <span class="token punctuation">(</span>
+    <span class="token comment">// providerConfig is a shared configuration to combine with the actual</span>
+    <span class="token comment">// test configuration so the HashiCups client is properly configured.</span>
+    <span class="token comment">// It is also possible to use the HASHICUPS_ environment variables instead,</span>
+    <span class="token comment">// such as updating the Makefile and running the testing through that tool.</span>
+    providerConfig <span class="token operator">=</span> <span class="token string">\`
+provider &quot;hashicups&quot; {
+  username = &quot;education&quot;
+  password = &quot;test123&quot;
+  host     = &quot;http://localhost:19090&quot;
+}
+\`</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">var</span> <span class="token punctuation">(</span>
+    <span class="token comment">// testAccProtoV6ProviderFactories are used to instantiate a provider during</span>
+    <span class="token comment">// acceptance testing. The factory function will be invoked for every Terraform</span>
+    <span class="token comment">// CLI command executed to create a provider server to which the CLI can</span>
+    <span class="token comment">// reattach.</span>
+    testAccProtoV6ProviderFactories <span class="token operator">=</span> <span class="token keyword">map</span><span class="token punctuation">[</span><span class="token builtin">string</span><span class="token punctuation">]</span><span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">(</span>tfprotov6<span class="token punctuation">.</span>ProviderServer<span class="token punctuation">,</span> <span class="token builtin">error</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token string">&quot;hashicups&quot;</span><span class="token punctuation">:</span> providerserver<span class="token punctuation">.</span><span class="token function">NewProtocol6WithError</span><span class="token punctuation">(</span><span class="token function">New</span><span class="token punctuation">(</span><span class="token string">&quot;test&quot;</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>创建 <code>internal/provider/coffees_data_source_test</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;testing&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-testing/helper/resource&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">TestAccCoffeesDataSource</span><span class="token punctuation">(</span>t <span class="token operator">*</span>testing<span class="token punctuation">.</span>T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resource<span class="token punctuation">.</span><span class="token function">Test</span><span class="token punctuation">(</span>t<span class="token punctuation">,</span> resource<span class="token punctuation">.</span>TestCase<span class="token punctuation">{</span>
+        ProtoV6ProviderFactories<span class="token punctuation">:</span> testAccProtoV6ProviderFactories<span class="token punctuation">,</span>
+        Steps<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>resource<span class="token punctuation">.</span>TestStep<span class="token punctuation">{</span>
+            <span class="token comment">// Read testing</span>
+            <span class="token punctuation">{</span>
+                Config<span class="token punctuation">:</span> providerConfig <span class="token operator">+</span> <span class="token string">\`data &quot;hashicups_coffees&quot; &quot;test&quot; {}\`</span><span class="token punctuation">,</span>
+                Check<span class="token punctuation">:</span> resource<span class="token punctuation">.</span><span class="token function">ComposeAggregateTestCheckFunc</span><span class="token punctuation">(</span>
+                    <span class="token comment">// Verify number of coffees returned</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.#&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;9&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify the first coffee to ensure all attributes are set</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.description&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.id&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;1&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.image&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;/hashicorp.png&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.ingredients.#&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;1&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.ingredients.0.id&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;6&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.name&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;HCP Aeropress&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.price&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;200&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;coffees.0.teaser&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;Automation in a cup&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify placeholder id attribute</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;data.hashicups_coffees.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;id&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;placeholder&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="验证-data-source-测试功能" tabindex="-1"><a class="header-anchor" href="#验证-data-source-测试功能" aria-hidden="true">#</a> 验证 data source 测试功能</h3><p>使用 <code>TF_ACC</code> 环境变量运行测试</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_ACC</span><span class="token operator">=</span><span class="token number">1</span> go <span class="token builtin class-name">test</span> <span class="token parameter variable">-count</span><span class="token operator">=</span><span class="token number">1</span> <span class="token parameter variable">-v</span>
+<span class="token operator">==</span><span class="token operator">=</span> RUN   TestAccCoffeesDataSource
+--- PASS: TestAccCoffeesDataSource <span class="token punctuation">(</span><span class="token number">1</span>.23s<span class="token punctuation">)</span>
+PASS
+ok      terraform-provider-hashicups-pf/internal/provider   <span class="token number">2</span>.120s
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="实现-resource-验收测试功能" tabindex="-1"><a class="header-anchor" href="#实现-resource-验收测试功能" aria-hidden="true">#</a> 实现 resource 验收测试功能</h3><p>资源验收测试用于验证整个 resource 生命周期，例如 <code>create</code>、<code>read</code>、<code>update</code> 和 <code>delete</code> 功能，以及 import 功能。测试框架自动处理销毁测试资源并返回任何错误</p><p>创建 <code>internal/provider/order_resource_test</code></p><div class="language-go line-numbers-mode" data-ext="go"><pre class="language-go"><code><span class="token keyword">package</span> provider
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">&quot;testing&quot;</span>
+
+    <span class="token string">&quot;github.com/hashicorp/terraform-plugin-testing/helper/resource&quot;</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">TestAccOrderResource</span><span class="token punctuation">(</span>t <span class="token operator">*</span>testing<span class="token punctuation">.</span>T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    resource<span class="token punctuation">.</span><span class="token function">Test</span><span class="token punctuation">(</span>t<span class="token punctuation">,</span> resource<span class="token punctuation">.</span>TestCase<span class="token punctuation">{</span>
+        ProtoV6ProviderFactories<span class="token punctuation">:</span> testAccProtoV6ProviderFactories<span class="token punctuation">,</span>
+        Steps<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>resource<span class="token punctuation">.</span>TestStep<span class="token punctuation">{</span>
+            <span class="token comment">// Create and Read testing</span>
+            <span class="token punctuation">{</span>
+                Config<span class="token punctuation">:</span> providerConfig <span class="token operator">+</span> <span class="token string">\`
+resource &quot;hashicups_order&quot; &quot;test&quot; {
+  items = [
+    {
+      coffee = {
+        id = 1
+      }
+      quantity = 2
+    },
+  ]
+}
+\`</span><span class="token punctuation">,</span>
+                Check<span class="token punctuation">:</span> resource<span class="token punctuation">.</span><span class="token function">ComposeAggregateTestCheckFunc</span><span class="token punctuation">(</span>
+                    <span class="token comment">// Verify number of items</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.#&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;1&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify first order item</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.quantity&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;2&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.id&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;1&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify first coffee item has Computed attributes filled.</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.description&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.image&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;/hashicorp.png&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.name&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;HCP Aeropress&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.price&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;200&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.teaser&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;Automation in a cup&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify dynamic values have any value set in the state.</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttrSet</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;id&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttrSet</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;last_updated&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token comment">// ImportState testing</span>
+            <span class="token punctuation">{</span>
+                ResourceName<span class="token punctuation">:</span>      <span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span>
+                ImportState<span class="token punctuation">:</span>       <span class="token boolean">true</span><span class="token punctuation">,</span>
+                ImportStateVerify<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+                <span class="token comment">// The last_updated attribute does not exist in the HashiCups</span>
+                <span class="token comment">// API, therefore there is no value for it during import.</span>
+                ImportStateVerifyIgnore<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">string</span><span class="token punctuation">{</span><span class="token string">&quot;last_updated&quot;</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token comment">// Update and Read testing</span>
+            <span class="token punctuation">{</span>
+                Config<span class="token punctuation">:</span> providerConfig <span class="token operator">+</span> <span class="token string">\`
+resource &quot;hashicups_order&quot; &quot;test&quot; {
+  items = [
+    {
+      coffee = {
+        id = 2
+      }
+      quantity = 2
+    },
+  ]
+}
+\`</span><span class="token punctuation">,</span>
+                Check<span class="token punctuation">:</span> resource<span class="token punctuation">.</span><span class="token function">ComposeAggregateTestCheckFunc</span><span class="token punctuation">(</span>
+                    <span class="token comment">// Verify first order item updated</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.quantity&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;2&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.id&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;2&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token comment">// Verify first coffee item has Computed attributes updated.</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.description&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.image&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;/packer.png&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.name&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;Packer Spiced Latte&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.price&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;350&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    resource<span class="token punctuation">.</span><span class="token function">TestCheckResourceAttr</span><span class="token punctuation">(</span><span class="token string">&quot;hashicups_order.test&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;items.0.coffee.teaser&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;Packed with goodness to spice up your images&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token comment">// Delete testing automatically occurs in TestCase</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="验证-resource-测试功能" tabindex="-1"><a class="header-anchor" href="#验证-resource-测试功能" aria-hidden="true">#</a> 验证 resource 测试功能</h3><p>使用 <code>TF_ACC</code> 环境变量运行测试</p><div class="language-bash line-numbers-mode" data-ext="sh"><pre class="language-bash"><code>$ <span class="token assign-left variable">TF_ACC</span><span class="token operator">=</span><span class="token number">1</span> go <span class="token builtin class-name">test</span> <span class="token parameter variable">-count</span><span class="token operator">=</span><span class="token number">1</span> <span class="token parameter variable">-run</span><span class="token operator">=</span><span class="token string">&#39;TestAccOrderResource&#39;</span> <span class="token parameter variable">-v</span>
+<span class="token operator">==</span><span class="token operator">=</span> RUN   TestAccOrderResource
+--- PASS: TestAccOrderResource <span class="token punctuation">(</span><span class="token number">2</span>.01s<span class="token punctuation">)</span>
+PASS
+ok      terraform-provider-hashicups-pf/internal/provider   <span class="token number">2</span>.754s
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div>`,293);function k(v,m){const e=p("ExternalLinkIcon");return o(),c("div",null,[l,n("p",null,[s("克隆项目 "),n("a",r,[s("Terraform Provider Scaffolding Framework repository"),i(e)])]),d])}const h=t(u,[["render",k],["__file","provider.html.vue"]]);export{h as default};
