@@ -1,4 +1,3 @@
-import {head} from './config/head'
 import {navConfig} from './config/navConfig'
 import {viteBundler} from '@vuepress/bundler-vite'
 import {defaultTheme} from '@vuepress/theme-default'
@@ -11,7 +10,6 @@ import {googleAnalyticsPlugin} from "@vuepress/plugin-google-analytics";
 export default defineUserConfig({
     base: '/blog/',
     title: 'とんぼの気持ち',
-//    head: head,
     bundler: viteBundler(),
     theme: defaultTheme({
         logo: '/assets/img/game.ico',
