@@ -27,5 +27,8 @@ export default {
         prismjsPlugin({
             preloadLanguages: ['markdown', 'jsdoc', 'yaml']
         }),
+        googleAnalyticsPlugin({
+            "id": "G-7XQX2KF44C"
+        })
     ],
 }
