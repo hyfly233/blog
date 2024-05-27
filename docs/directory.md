@@ -6,24 +6,24 @@ title: 目录
 
 ### JVM
 
-+ [JVM](../md/知识点/jvm/JVM.md)
-+ [JVM 内存模型](../md/知识点/jvm/JVM内存模型.md)
-+ [垃圾回收](../md/知识点/jvm/垃圾回收.md)
-+ [JVM对高效并发的支持](../md/知识点/jvm/JVM对高效并发的支持.md)
-+ [JVM 工具和 JVM 调优](../md/知识点/jvm/JVM工具和JVM调优.md)
++ [JVM](../md/article/jvm/JVM.md)
++ [JVM 内存模型](../md/article/jvm/JVM内存模型.md)
++ [垃圾回收](../md/article/jvm/垃圾回收.md)
++ [JVM对高效并发的支持](../md/article/jvm/JVM对高效并发的支持.md)
++ [JVM 工具和 JVM 调优](../md/article/jvm/JVM工具和JVM调优.md)
 
 
 
 ### K8s
 
-+ [环境搭建](../md/知识点/k8s/环境搭建.md)
++ [环境搭建](../md/article/k8s/环境搭建.md)
 
 
 
 ### Terraform
 
-+ [Terraform](../md/知识点/terraform/terraform.md)
-+ [Terraform Provider](../md/知识点/terraform/provider.md)
++ [Terraform](../md/article/terraform/terraform.md)
++ [Terraform Provider](../md/article/terraform/provider.md)
 
 
 

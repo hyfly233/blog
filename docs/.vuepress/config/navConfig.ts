@@ -6,15 +6,15 @@ export const navConfig = [
             {
                 text: "JVM",
                 children: [
-                    {text: 'JVM', link: '/md/知识点/jvm/JVM.md'},
-                    {text: 'JVM 内存模型', link: '/md/知识点/jvm/JVM内存模型.md'},
-                    {text: '垃圾回收', link: '/md/知识点/jvm/垃圾回收.md'},
+                    {text: 'JVM', link: '/md/article/jvm/JVM.md'},
+                    {text: 'JVM 内存模型', link: '/md/article/jvm/JVM内存模型.md'},
+                    {text: '垃圾回收', link: '/md/article/jvm/垃圾回收.md'},
                 ]
             },
             {
                 text: "K8s",
                 children: [
-                    {text: '环境搭建', link: '/md/知识点/k8s/环境搭建.md'}
+                    {text: '环境搭建', link: '/md/article/k8s/环境搭建.md'}
                 ]
             }
         ]
