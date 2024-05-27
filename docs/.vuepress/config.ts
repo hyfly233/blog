@@ -1,14 +1,18 @@
-import { head } from './config/head'
-import { navConfig } from './config/navConfig'
-import { defaultTheme } from 'vuepress'
-import { searchPlugin } from '@vuepress/plugin-search'
-import { backToTopPlugin } from '@vuepress/plugin-back-to-top'
-import { prismjsPlugin } from '@vuepress/plugin-prismjs'
+import {head} from './config/head'
+import {navConfig} from './config/navConfig'
+import {viteBundler} from '@vuepress/bundler-vite'
+import {defaultTheme} from '@vuepress/theme-default'
+import {defineUserConfig} from 'vuepress'
+import {searchPlugin} from '@vuepress/plugin-search'
+import {backToTopPlugin} from '@vuepress/plugin-back-to-top'
+import {prismjsPlugin} from '@vuepress/plugin-prismjs'
+import {googleAnalyticsPlugin} from "@vuepress/plugin-google-analytics";
 
-export default {
+export default defineUserConfig({
     base: '/blog/',
     title: 'とんぼの気持ち',
-    head: head,
+//    head: head,
+    bundler: viteBundler(),
     theme: defaultTheme({
         logo: '/assets/img/game.ico',
         sidebar: 'auto',
@@ -31,4 +35,4 @@ export default {
             "id": "G-7XQX2KF44C"
         })
     ],
-}
+})
