@@ -2,94 +2,215 @@
 title: 目录
 ---
 
-## 知识点
+## 语言
 
-### JVM
++ Java
++ Golang
++ Kotlin
++ Python3
 
-+ [JVM](../md/article/jvm/JVM.md)
-+ [JVM 内存模型](../md/article/jvm/JVM内存模型.md)
-+ [垃圾回收](../md/article/jvm/垃圾回收.md)
-+ [JVM对高效并发的支持](../md/article/jvm/JVM对高效并发的支持.md)
-+ [JVM 工具和 JVM 调优](../md/article/jvm/JVM工具和JVM调优.md)
+## 框架
 
++ Spring（Java、Kotlin）
++ Quarkus（Java、Kotlin）
++ Vert.x（Java、Kotlin）
++ Ktor（Kotlin）
++ Gin（Golang）
++ Beego（Golang）
++ Buffalo（Golang）
++ Gorm（Golang）
++ Goframe（Golang）
++ Kratos（Golang）
++ Django（Python）
 
+## 数据库
 
-### K8s
+### 关系型
 
-+ [环境搭建](../md/article/k8s/环境搭建.md)
++ MySQL
++ PostgreSQL
 
+### 非关系型
 
+#### 键值对
 
-### Terraform
++ Redis
++ Memcached
++ DynamoDB
++ Etcd
 
-+ [Terraform](../md/article/terraform/terraform.md)
-+ [Terraform Provider](../md/article/terraform/provider.md)
+#### 文档型
 
++ MongoDB
++ CouchDB
 
+#### 列族型
 
-## 八股文
++ Cassandra
++ HBase
 
-### 基础
+### 分布式
 
-+ [Java基础](../md/八股文/基础/Java基础.md)
-+ [面向对象](../md/八股文/基础/面向对象.md)
-+ [Java进阶](../md/八股文/基础/Java进阶.md)
-+ [Java反射](../md/八股文/基础/反射.md)
-+ [Java调优](../md/八股文/基础/Java调优.md)
-+ [集合](../md/八股文/基础/集合.md)
-+ [多线程](../md/八股文/基础/多线程.md)
-+ [线程池](../md/八股文/基础/线程池.md)
-+ [锁](../md/八股文/基础/锁.md)
++ Cassandra
++ CockroachDB
 
+### 内存型
 
++ Redis
++ DragonflyDB
 
-### JVM
+### 时序库
 
-+ [JVM](../md/八股文/jvm/JVM.md)
++ InfluxDB
++ TimescaleDB
++ VictoriaMetrics
 
+### 对象数据库
 
++ db4o
++ ObjectDB
 
-### IO
+### 搜索引擎型
 
-+ [IO模型](../md/八股文/IO/IO模型.md)
++ ElasticSearch
++ Solr
 
+### 图数据库
 
++ Neo4j
++ JanusGraph
+
+## 中间件
+
+### 消息
+
++ Kafka
++ RabbitMQ
++ ActiveMQ
+
+### 缓存
+
++ Redis
++ DragonflyDB
++ Caffeine
++ Memcacahed
 
 ### 数据库
 
-+ [SQL](../md/八股文/数据库/SQL.md)
-+ [数据库索引](../md/八股文/数据库/数据库索引.md)
-+ [数据库锁与事务](../md/八股文/数据库/数据库锁与事务.md)
-+ [数据库优化](../md/八股文/数据库/数据库优化.md)
++ MyBatis
++ MyBatis-Plus
++ Hibernate
 
+### 事务
 
++ Seata
 
-### Spring
+### 搜索
 
-+ [Spring](../md/八股文/Spring/Spring.md)
-+ [Spring MVC](../md/八股文/Spring/SpringMvc.md)
-+ [Spring Boot](../md/八股文/Spring/SpringBoot.md)
++ ElasticSearch
++ Solr
++ ManticoreSearch
 
+### RPC
 
++ gRPC
++ Thrift
++ Dubbo
 
-### 微服务
+### 负载均衡
 
-+ [Spring Cloud](../md/八股文/微服务/SpringCloud.md)
-+ [Spring Cloud Alibaba](../md/八股文/微服务/SpringCloudAlibaba.md)
-+ [Spring Cloud Netflix](../md/八股文/微服务/SpringCloudNetflix.md)
-+ [Zookeeper](../md/八股文/微服务/Zookeeper.md)
-+ [分布式锁](../md/八股文/微服务/分布式锁.md)
-+ [分布式事务](../md/八股文/微服务/分布式事务.md)
++ Nginx
++ HAProxy
++ Kong
++ OpenResty
 
+### 配置
 
++ Zookeeper
++ Consul
++ Spring Cloud Config
 
-### 中间件
+### API 网关
 
-+ [Redis](../md/八股文/中间件/Redis.md)
++ Zuul
++ Spring Cloud Gateway
 
+### 日志
 
++ ELK Stack
 
-### ORM
+### 存储
 
-+ [Mybatis](../md/八股文/ORM/Mybatis.md)
++ Minio
+
+### 数据集成
+
++ SeaTunnel
+
+## 容器
+
+### 容器
+
++ Docker
++ Podman
++ containerd
++ rkt
+
+### 容器编排
+
++ Kubernetes
++ OpenShift
++ Docker Swarm
++ Apache Mesos
++ Rancher
+
+## 云计算平台
+
+### 私有云
+
++ OpenStack
+
+## 基础设施即代码（IaC）工具
+
++ Terraform
++ Ansible
++ Chef
++ Puppet
++ Pulumi
+
+## 监控
+
++ Zabbix
++ Prometheus
++ Nagios
++ Grafana
++ Datadog
++ New Relic
++ AppDynamics
++ ntopng
++ libvirt
+
+## LLM
+
++ Ollama
++ LangChain
+
+## 机器学习
+
++ PyTorch
++ TensorFlow
++ DJL
+
+## 算法
+
+- 排序算法
+- 搜索算法
+- 图算法
+- 字符串匹配算法
+- 计算几何算法
+- 数值算法
+- 数据压缩算法
+- 密码和加密算法
+- 机器学习算法
+- 深度学习算法
 
