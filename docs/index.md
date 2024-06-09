@@ -14,5 +14,5 @@ features:
     details: 本博客通过"VuePress2.x"构建，原稿使用"语雀"编写以及排版，最终版使用"Typora"检查格式以兼容"语雀"，部分文章内容也使用"ChatGPT"进行内容校对，尽量保证各个知识点的准确性。
   - title: 感谢
     details: 非常感谢"IntelliJ IDEA"为本项目提供了免费许可证。
-footer: MIT Licensed | Copyright © 2019-2023 Hyfly233
+footer: MIT Licensed | Copyright © 2019-2024 Hyfly233
 ---
