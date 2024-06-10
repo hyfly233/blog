@@ -16,7 +16,6 @@ export default defineUserConfig({
         logo: '/assets/img/game.ico',
         sidebar: 'auto',
         contributors: true,
-        contributorsText: '贡献者列表',
         lastUpdated: true,
         lastUpdatedText: "最后更新时间",
         navbar: navConfig,
