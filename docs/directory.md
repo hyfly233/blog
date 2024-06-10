@@ -4,10 +4,10 @@ title: 目录
 
 ## 语言
 
-+ [Java](../md/article/java/index.md)
-+ [Golang](../md/article/golang/index.md)
-+ [Kotlin](../md/article/kotlin/index.md)
-+ [Python3](../md/article/python3/index.md)
++ [Java](../md/article/language/java/index.md)
++ [Golang](../md/article/language/golang/index.md)
++ [Kotlin](../md/article/language/kotlin/index.md)
++ [Python3](../md/article/language/python3/index.md)
 
 ## 框架
 
@@ -83,132 +83,132 @@ title: 目录
 
 ### 消息
 
-+ [Kafka](../md/article/java/index.md)
-+ [RabbitMQ](../md/article/java/index.md)
-+ [ActiveMQ](../md/article/java/index.md)
++ [Kafka](../md/article/middleware/kafka/index.md)
++ [RabbitMQ](../md/article/middleware/rabbitmq/index.md)
++ [ActiveMQ](../md/article/middleware/activemq/index.md)
 
 ### 缓存
 
-+ [Redis](../md/article/java/index.md)
-+ [DragonflyDB](../md/article/java/index.md)
-+ [Caffeine](../md/article/java/index.md)
-+ [Memcacahed](../md/article/java/index.md)
++ [Redis](../md/article/middleware/redis/index.md)
++ [DragonflyDB](../md/article/middleware/dragonflydb/index.md)
++ [Caffeine](../md/article/middleware/caffeine/index.md)
++ [Memcacahed](../md/article/middleware/memcacahed/index.md)
 
 ### 数据库
 
-+ [MyBatis](../md/article/java/index.md)
-+ [MyBatis-Plus](../md/article/java/index.md)
-+ [Hibernate](../md/article/java/index.md)
++ [MyBatis](../md/article/middleware/mybatis/index.md)
++ [MyBatis-Plus](../md/article/middleware/mybatisplus/index.md)
++ [Hibernate](../md/article/middleware/hibernate/index.md)
 
 ### 事务
 
-+ [Seata](../md/article/java/index.md)
++ [Seata](../md/article/middleware/seata/index.md)
 
 ### 搜索
 
-+ [ElasticSearch](../md/article/java/index.md)
-+ [Solr](../md/article/java/index.md)
-+ [ManticoreSearch](../md/article/java/index.md)
++ [ElasticSearch](../md/article/middleware/elasticsearch/index.md)
++ [Solr](../md/article/middleware/solr/index.md)
++ [ManticoreSearch](../md/article/middleware/manticoresearch/index.md)
 
 ### RPC
 
-+ [gRPC](../md/article/java/index.md)
-+ [Thrift](../md/article/java/index.md)
-+ [Dubbo](../md/article/java/index.md)
++ [gRPC](../md/article/middleware/grpc/index.md)
++ [Thrift](../md/article/middleware/thrift/index.md)
++ [Dubbo](../md/article/middleware/dubbo/index.md)
 
 ### 负载均衡
 
-+ [Nginx](../md/article/java/index.md)
-+ [HAProxy](../md/article/java/index.md)
-+ [Kong](../md/article/java/index.md)
-+ [OpenResty](../md/article/java/index.md)
++ [Nginx](../md/article/middleware/nginx/index.md)
++ [HAProxy](../md/article/middleware/haproxy/index.md)
++ [Kong](../md/article/middleware/kong/index.md)
++ [OpenResty](../md/article/middleware/openresty/index.md)
 
 ### 配置
 
-+ [Zookeeper](../md/article/java/index.md)
-+ [Consul](../md/article/java/index.md)
-+ [Spring Cloud Config](../md/article/java/index.md)
++ [Zookeeper](../md/article/middleware/zookeeper/index.md)
++ [Consul](../md/article/middleware/consul/index.md)
++ [Spring Cloud Config](../md/article/middleware/springCloudConfig/index.md)
 
 ### API 网关
 
-+ [Zuul](../md/article/java/index.md)
-+ [Spring Cloud Gateway](../md/article/java/index.md)
++ [Zuul](../md/article/middleware/zuul/index.md)
++ [Spring Cloud Gateway](../md/article/middleware/springCloudGateway/index.md)
 
 ### 日志
 
-+ [ELK Stack](../md/article/java/index.md)
++ [ELK Stack](../md/article/middleware/elk/index.md)
 
 ### 存储
 
-+ [Minio](../md/article/java/index.md)
++ [Minio](../md/article/middleware/minio/index.md)
 
 ### 数据集成
 
-+ [SeaTunnel](../md/article/java/index.md)
++ [SeaTunnel](../md/article/middleware/seatunnel/index.md)
 
 ## 容器
 
 ### 容器
 
-+ [Docker](../md/article/java/index.md)
-+ [Podman](../md/article/java/index.md)
-+ [containerd](../md/article/java/index.md)
-+ [rkt](../md/article/java/index.md)
++ [Docker](../md/article/container/docker/index.md)
++ [Podman](../md/article/container/podman/index.md)
++ [containerd](../md/article/container/containerd/index.md)
++ [rkt](../md/article/container/rkt/index.md)
 
 ### 容器编排
 
-+ [Kubernetes](../md/article/java/index.md)
-+ [OpenShift](../md/article/java/index.md)
-+ [Docker Swarm](../md/article/java/index.md)
-+ [Apache Mesos](../md/article/java/index.md)
-+ [Rancher](../md/article/java/index.md)
++ [Kubernetes](../md/article/container/kubernetes/index.md)
++ [OpenShift](../md/article/container/openshift/index.md)
++ [Docker Swarm](../md/article/container/dockerSwarm/index.md)
++ [Apache Mesos](../md/article/container/apacheMesos/index.md)
++ [Rancher](../md/article/container/rancher/index.md)
 
 ## 云计算平台
 
 ### 私有云
 
-+ [OpenStack](../md/article/java/index.md)
++ [OpenStack](../md/article/cloud/openstack/index.md)
 
 ## 基础设施即代码（IaC）工具
 
-+ [Terraform](../md/article/java/index.md)
-+ [Ansible](../md/article/java/index.md)
-+ [Chef](../md/article/java/index.md)
-+ [Puppet](../md/article/java/index.md)
-+ [Pulumi](../md/article/java/index.md)
++ [Terraform](../md/article/iac/terraform/index.md)
++ [Ansible](../md/article/iac/ansible/index.md)
++ [Chef](../md/article/iac/chef/index.md)
++ [Puppet](../md/article/iac/puppet/index.md)
++ [Pulumi](../md/article/iac/pulumi/index.md)
 
 ## 监控
 
-+ [Zabbix](../md/article/java/index.md)
-+ [Prometheus](../md/article/java/index.md)
-+ [Nagios](../md/article/java/index.md)
-+ [Grafana](../md/article/java/index.md)
-+ [Datadog](../md/article/java/index.md)
-+ [New Relic](../md/article/java/index.md)
-+ [AppDynamics](../md/article/java/index.md)
-+ [ntopng](../md/article/java/index.md)
-+ [libvirt](../md/article/java/index.md)
++ [Zabbix](../md/article/monitor/zabbix/index.md)
++ [Prometheus](../md/article/monitor/prometheus/index.md)
++ [Nagios](../md/article/monitor/nagios/index.md)
++ [Grafana](../md/article/monitor/grafana/index.md)
++ [Datadog](../md/article/monitor/datadog/index.md)
++ [New Relic](../md/article/monitor/newRelic/index.md)
++ [AppDynamics](../md/article/monitor/appdynamics/index.md)
++ [ntopng](../md/article/monitor/ntopng/index.md)
++ [libvirt](../md/article/monitor/libvirt/index.md)
 
 ## LLM
 
-+ [Ollama](../md/article/java/index.md)
-+ [LangChain](../md/article/java/index.md)
++ [Ollama](../md/article/llm/ollama/index.md)
++ [LangChain](../md/article/llm/langChain/index.md)
 
 ## 机器学习
 
-+ [PyTorch](../md/article/java/index.md)
-+ [TensorFlow](../md/article/java/index.md)
-+ [DJL](../md/article/java/index.md)
++ [PyTorch](../md/article/ml/pytorch/index.md)
++ [TensorFlow](../md/article/ml/tensorflow/index.md)
++ [DJL](../md/article/ml/djl/index.md)
 
 ## 算法
 
-+ [排序算法](../md/article/java/index.md)
-+ [搜索算法](../md/article/java/index.md)
-+ [图算法](../md/article/java/index.md)
-+ [字符串匹配算法](../md/article/java/index.md)
-+ [计算几何算法](../md/article/java/index.md)
-+ [数值算法](../md/article/java/index.md)
-+ [数据压缩算法](../md/article/java/index.md)
-+ [密码和加密算法](../md/article/java/index.md)
-+ [机器学习算法](../md/article/java/index.md)
-+ [深度学习算法](../md/article/java/index.md)
++ [排序算法](../md/article/algorithm/sort/index.md)
++ [搜索算法](../md/article/algorithm/search/index.md)
++ [图算法](../md/article/algorithm/graph/index.md)
++ [字符串匹配算法](../md/article/algorithm/match/index.md)
++ [计算几何算法](../md/article/algorithm/geometric/index.md)
++ [数值算法](../md/article/algorithm/numerical/index.md)
++ [数据压缩算法](../md/article/algorithm/compression/index.md)
++ [密码和加密算法](../md/article/algorithm/encryption/index.md)
++ [机器学习算法](../md/article/algorithm/ml/index.md)
++ [深度学习算法](../md/article/algorithm/dl/index.md)
