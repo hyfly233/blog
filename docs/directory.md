@@ -137,10 +137,13 @@ title: 目录
 ### 日志
 
 + [ELK Stack](../md/article/middleware/elk/index.md)
++ [rsyslog](../md/article/middleware/rsyslog/index.md)
 
 ### 存储
 
 + [Minio](../md/article/middleware/minio/index.md)
++ [Ceph](../md/article/middleware/ceph/index.md)
++ [iscsi](../md/article/middleware/iscsi/index.md)
 
 ### 数据集成
 
@@ -212,3 +215,8 @@ title: 目录
 + [密码和加密算法](../md/article/algorithm/encryption/index.md)
 + [机器学习算法](../md/article/algorithm/ml/index.md)
 + [深度学习算法](../md/article/algorithm/dl/index.md)
+
+## Other
+
++ [I/O 模型](../md/article/other/io/index.md)
++ [编程模型](../md/article/other/pm/index.md)

@@ -80,7 +80,7 @@ yum install zabbix-web-mysql-scl zabbix-apache-conf-scl -y
 >
 > #### 解决
 >
-> ```bash
+> ```bash title="配置源"
 > # step.1
 > cd /etc/yum.repos.d
 > 

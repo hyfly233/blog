@@ -5,7 +5,8 @@ import {defineUserConfig} from 'vuepress'
 import {searchPlugin} from '@vuepress/plugin-search'
 import {backToTopPlugin} from '@vuepress/plugin-back-to-top'
 import {prismjsPlugin} from '@vuepress/plugin-prismjs'
-import {googleAnalyticsPlugin} from "@vuepress/plugin-google-analytics";
+import {googleAnalyticsPlugin} from "@vuepress/plugin-google-analytics"
+import {copyCodePlugin} from '@vuepress/plugin-copy-code'
 
 export default defineUserConfig({
     base: '/blog/',
@@ -26,6 +27,9 @@ export default defineUserConfig({
             maxSuggestions: 10
         }),
         backToTopPlugin(),
+        copyCodePlugin({
+            duration: 2000
+        }),
         prismjsPlugin({
             preloadLanguages: ['markdown', 'jsdoc', 'yaml']
         }),
