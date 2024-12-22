@@ -1,5 +1,5 @@
 ---
-title: 目录
+title: 八股文
 sidebar: false
 ---
 
@@ -7,21 +7,21 @@ sidebar: false
 
 ## 基础
 
-+ [Java基础](../md/基础/Java基础.md)
-+ [面向对象](../md/基础/面向对象.md)
-+ [Java进阶](../md/基础/Java进阶.md)
-+ [Java反射](../md/基础/反射.md)
-+ [Java调优](../md/基础/Java调优.md)
-+ [集合](../md/基础/集合.md)
-+ [多线程](../md/基础/多线程.md)
-+ [线程池](../md/基础/线程池.md)
-+ [锁](../md/基础/锁.md)
++ [Java基础](./java/basic/Java基础.md)
++ [面向对象](./java/basic/面向对象.md)
++ [Java进阶](./java/basic/Java进阶.md)
++ [Java反射](./java/basic/反射.md)
++ [Java调优](./java/basic/Java调优.md)
++ [集合](./java/basic/集合.md)
++ [多线程](./java/basic/多线程.md)
++ [线程池](./java/basic/线程池.md)
++ [锁](./java/basic/锁.md)
 
 
 
 ## JVM
 
-+ [JVM](../md/jvm/JVM.md)
++ [JVM](./java/jvm/jvm.md)
 
 
 

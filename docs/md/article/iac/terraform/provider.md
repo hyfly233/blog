@@ -885,7 +885,7 @@ guarantee to take exactly these actions if you run "terraform apply" now.
 
 导航到该目录。`terraform-provider-hashicups-pf`
 
-```shell-session
+```shell
 $ cd ../..
 ```
 

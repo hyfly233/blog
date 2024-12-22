@@ -1,25 +1,6 @@
 export const navConfig = [
     {text: 'Home', link: '/'},
     {
-        text: '知识点',
-        children: [
-            {
-                text: "JVM",
-                children: [
-                    {text: 'JVM', link: '/md/article/jvm/JVM.md'},
-                    {text: 'JVM 内存模型', link: '/md/article/jvm/JVM内存模型.md'},
-                    {text: '垃圾回收', link: '/md/article/jvm/垃圾回收.md'},
-                ]
-            },
-            {
-                text: "K8s",
-                children: [
-                    {text: '环境搭建', link: '/md/article/k8s/环境搭建.md'}
-                ]
-            }
-        ]
-    },
-    {
         text: '八股文',
         children: [
             {
@@ -46,5 +27,4 @@ export const navConfig = [
             }
         ]
     },
-
 ]

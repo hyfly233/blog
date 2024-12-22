@@ -4,4 +4,4 @@
 
 ## 目录
 
-+ [Query](../md/article/database/victoriametrics/query.md)
++ [Query](./query.md)

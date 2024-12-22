@@ -1022,7 +1022,7 @@ MySQL 每执行一条 DML 语句，会先把记录写入 **redo log buffer（用
 
 
 
-```latex
+```sql
 update T set a =1 where id =666
 ```
 

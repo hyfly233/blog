@@ -195,7 +195,7 @@ docker 部署 Nacos Server，127.0.0.1:8848（默认账号名/密码为 nacos/na
 
 **application.properties** 中配置 Nacos Server 地址
 
-```properties
+```ini
 server.port=8081
 spring.application.name=nacos-provider
 spring.cloud.nacos.discovery=true
@@ -228,7 +228,7 @@ public class NacosProviderDemoApplication {
 
 **application.properties** 中配置 Nacos Server 地址
 
-```properties
+```ini
 server.port=8082
 spring.application.name=nacos-consumer
 spring.cloud.nacos.discovery=true
@@ -355,7 +355,7 @@ Endpoint 暴露的 json 中包含了两种属性:
 
 **application.properties**
 
-```properties
+```ini
 [service_name].ribbon.NFLoadBalancerRuleClassName=com.alibaba.cloud.nacos.ribbon.NacosRule
 ```
 
