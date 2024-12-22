@@ -1,5 +1,5 @@
 ---
-title: Ollama
+title: Python
 ---
 
 ### 基础

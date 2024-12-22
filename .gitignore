@@ -103,11 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
-/yarn.lock
 /deploy.sh
 
 .idea/
-/package-lock.json
 /docs/.vuepress/dist/
 .vscode/launch.json
 

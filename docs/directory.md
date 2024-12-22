@@ -7,7 +7,7 @@ title: 目录
 + [Java](../md/article/language/java/index.md)
 + [Golang](../md/article/language/golang/index.md)
 + [Kotlin](../md/article/language/kotlin/index.md)
-+ [Python3](../md/article/language/python3/index.md)
++ [Python](../md/article/language/python/index.md)
 
 ## 框架
 
@@ -60,8 +60,6 @@ title: 目录
 
 ### 时序库
 
-+ [InfluxDB](../md/article/database/influxdb/index.md)
-+ [TimescaleDB](../md/article/database/timescaledb/index.md)
 + [VictoriaMetrics](../md/article/database/victoriametrics/index.md)
 
 ### 对象数据库
@@ -155,16 +153,8 @@ title: 目录
 
 + [Docker](../md/article/container/docker/index.md)
 + [Podman](../md/article/container/podman/index.md)
-+ [containerd](../md/article/container/containerd/index.md)
-+ [rkt](../md/article/container/rkt/index.md)
-
-### 容器编排
-
 + [Kubernetes](../md/article/container/kubernetes/index.md)
 + [OpenShift](../md/article/container/openshift/index.md)
-+ [Docker Swarm](../md/article/container/dockerSwarm/index.md)
-+ [Apache Mesos](../md/article/container/apacheMesos/index.md)
-+ [Rancher](../md/article/container/rancher/index.md)
 
 ## 云计算平台
 
@@ -176,20 +166,11 @@ title: 目录
 
 + [Terraform](../md/article/iac/terraform/index.md)
 + [Ansible](../md/article/iac/ansible/index.md)
-+ [Chef](../md/article/iac/chef/index.md)
-+ [Puppet](../md/article/iac/puppet/index.md)
-+ [Pulumi](../md/article/iac/pulumi/index.md)
 
 ## 监控
 
 + [Zabbix](../md/article/monitor/zabbix/index.md)
 + [Prometheus](../md/article/monitor/prometheus/index.md)
-+ [Nagios](../md/article/monitor/nagios/index.md)
-+ [Grafana](../md/article/monitor/grafana/index.md)
-+ [Datadog](../md/article/monitor/datadog/index.md)
-+ [New Relic](../md/article/monitor/newRelic/index.md)
-+ [AppDynamics](../md/article/monitor/appdynamics/index.md)
-+ [ntopng](../md/article/monitor/ntopng/index.md)
 + [libvirt](../md/article/monitor/libvirt/index.md)
 
 ## LLM
