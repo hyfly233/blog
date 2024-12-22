@@ -11,15 +11,14 @@
     "deploy": "bash deploy.sh"
   },
   "dependencies": {
-    "vuepress": "^2.0.0-rc.19"
-  },
-  "devDependencies": {
+    "vuepress": "^2.0.0-rc.19",
+    "sass-embedded": "^1.83.0",
     "@vuepress/bundler-vite": "^2.0.0-rc.19",
     "@vuepress/plugin-copy-code": "^2.0.0-rc.34",
     "@vuepress/plugin-prismjs": "^2.0.0-rc.66",
     "@vuepress/plugin-search": "^2.0.0-rc.66",
     "@vuepress/plugin-shiki": "^2.0.0-rc.66",
-    "@vuepress/theme-default": "^2.0.0-rc.66",
-    "sass-embedded": "^1.83.0"
-  }
+    "@vuepress/theme-default": "^2.0.0-rc.66"
+  },
+  "devDependencies": {}
 }
