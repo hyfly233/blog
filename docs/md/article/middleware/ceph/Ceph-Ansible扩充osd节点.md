@@ -1,3 +1,11 @@
+---
+title: Ceph-Ansible扩充osd节点
+sidebar: heading
+---
+
+# Ceph-Ansible扩充osd节点
+
+## 参考资料
 + [https://access.redhat.com/documentation/zh-cn/red_hat_ceph_storage/4/html/operations_guide/ceph-osds-ops](https://access.redhat.com/documentation/zh-cn/red_hat_ceph_storage/4/html/operations_guide/ceph-osds-ops)
 + [https://www.cnblogs.com/lvzhenjiang/p/14908195.html](https://www.cnblogs.com/lvzhenjiang/p/14908195.html)
 

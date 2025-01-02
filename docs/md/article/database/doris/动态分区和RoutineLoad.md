@@ -1,3 +1,8 @@
+---
+title: 动态分区和RoutineLoad
+sidebar: heading
+---
+
 ## 建表语句
 添加 create_history_partition、history_partition_num 属性，将会创建历史分区
 
@@ -28,7 +33,7 @@ PROPERTIES (
 ```
 
 ## 查看分区情况
-```sql
+```bash
 ./mysql -uroot -P9030 -h127.0.0.1
 
 SHOW PARTITIONS FROM testdb.test_table_1;

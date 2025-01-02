@@ -66,7 +66,6 @@ sidebar: false
 + [Redis](../md/article/middleware/redis/index.md)
 + [DragonflyDB](../md/article/middleware/dragonflydb/index.md)
 + [Caffeine](../md/article/middleware/caffeine/index.md)
-+ [Memcacahed](../md/article/middleware/memcacahed/index.md)
 
 ### 数据库
 
@@ -81,7 +80,6 @@ sidebar: false
 ### 搜索
 
 + [ElasticSearch](../md/article/middleware/elasticsearch/index.md)
-+ [Solr](../md/article/middleware/solr/index.md)
 + [ManticoreSearch](../md/article/middleware/manticoresearch/index.md)
 
 ### RPC
@@ -128,7 +126,6 @@ sidebar: false
 ### 容器
 
 + [Docker](../md/article/container/docker/index.md)
-+ [Podman](../md/article/container/podman/index.md)
 + [Kubernetes](../md/article/container/kubernetes/index.md)
 + [OpenShift](../md/article/container/openshift/index.md)
 
@@ -138,7 +135,7 @@ sidebar: false
 
 + [OpenStack](../md/article/cloud/openstack/index.md)
 
-## 基础设施即代码（IaC）工具
+## IaC 工具
 
 + [Terraform](../md/article/iac/terraform/index.md)
 + [Ansible](../md/article/iac/ansible/index.md)
@@ -157,7 +154,6 @@ sidebar: false
 ## 机器学习
 
 + [PyTorch](../md/article/ml/pytorch/index.md)
-+ [TensorFlow](../md/article/ml/tensorflow/index.md)
 + [DJL](../md/article/ml/djl/index.md)
 
 ## 算法

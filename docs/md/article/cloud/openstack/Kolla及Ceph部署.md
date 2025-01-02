@@ -1,3 +1,8 @@
+---
+title: Kolla及Ceph部署
+sidebar: heading
+---
+
 ## 基础配置
 
 - CentOS 7.4 x86
@@ -897,6 +902,12 @@ kolla-ansible -i multinode deploy \
 	-vvvv
 	
 ##################
+# 启动所有节点 openstack 服务
+kolla-ansible -i multinode start \
+	-e virtualenv=/opt/openstack/venv \
+	--yes-i-really-really-mean-it \
+	-vvvv
+
 # 停止所有节点 openstack 服务
 kolla-ansible -i multinode stop \
 	-e virtualenv=/opt/openstack/venv \
