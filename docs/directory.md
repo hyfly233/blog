@@ -35,24 +35,6 @@ sidebar: false
 #### 键值对
 
 + [Redis](../md/article/database/redis/index.md)
-+ [Memcached](../md/article/database/memcached/index.md)
-+ [DynamoDB](../md/article/database/dynamodb/index.md)
-+ [Etcd](../md/article/database/etcd/index.md)
-
-#### 文档型
-
-+ [MongoDB](../md/article/database/mongodb/index.md)
-+ [CouchDB](../md/article/database/couchdb/index.md)
-
-#### 列族型
-
-+ [Cassandra](../md/article/database/cassandra/index.md)
-+ [HBase](../md/article/database/hbase/index.md)
-
-### 分布式
-
-+ [Cassandra](../md/article/database/cassandra/index.md)
-+ [CockroachDB](../md/article/database/cockroachdb/index.md)
 
 ### 内存型
 
@@ -63,20 +45,13 @@ sidebar: false
 
 + [VictoriaMetrics](../md/article/database/victoriametrics/index.md)
 
-### 对象数据库
-
-+ [db4o](../md/article/database/db4o/index.md)
-+ [ObjectDB](../md/article/database/objectdb/index.md)
-
 ### 搜索引擎型
 
 + [ElasticSearch](../md/article/database/elasticsearch/index.md)
-+ [Solr](../md/article/database/solr/index.md)
 
-### 图数据库
+#### MPP数据库
 
-+ [Neo4j](../md/article/database/neo4j/index.md)
-+ [JanusGraph](../md/article/database/janusgraph/index.md)
++ [Doris](../md/article/database/doris/index.md)
 
 ## 中间件
 
