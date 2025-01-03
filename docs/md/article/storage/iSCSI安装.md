@@ -1,16 +1,24 @@
-[https://blog.csdn.net/qq_44777969/article/details/115026137](https://blog.csdn.net/qq_44777969/article/details/115026137)
-[https://www.jianshu.com/p/b48e3fec1303](https://www.jianshu.com/p/b48e3fec1303)
-[https://cshihong.github.io/2018/10/23/ISCSI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/](https://cshihong.github.io/2018/10/23/ISCSI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/)
+---
+title: iSCSI安装
+sidebar: heading
+---
+
+# iSCSI安装
 
 服务器手动和 tgtd 工具安装不能同时进行，可能导致手动安装生成 portals 时出现端口冲突
+
 ## 服务器手动安装
+
 ### 安装 target
+
 ```bash
 yum -y install targetd targetcli
 
 systemctl restart targetd && systemctl enable targetd
 ```
+
 ### 手动分盘
+
 ```bash
 # step.1 对磁盘进行分区：n 进行分盘、w 保存退出
 fdisk /dev/sdd
@@ -18,7 +26,9 @@ fdisk /dev/sdd
 # step.2
 partprobe
 ```
+
 ### 创建 block
+
 ```bash
 # step.1 进入 target 交互页面
 targetcli
@@ -62,7 +72,9 @@ o- / ...........................................................................
   o- iscsi ................................................................. [Targets: 0]
   o- loopback .............................................................. [Targets: 0]
 ```
+
 ### 创建 target
+
 ```bash
 ################### target 交互页面 #######################
 
@@ -96,7 +108,9 @@ o- / ...........................................................................
   |       o- 0.0.0.0:3260 .......................................................... [OK]
   o- loopback .............................................................. [Targets: 0]
 ```
+
 ### 创建 acls
+
 ```bash
 ################### target 交互页面 #######################
 
@@ -136,7 +150,9 @@ o- / ...........................................................................
   |       o- 0.0.0.0:3260 .......................................................... [OK]
   o- loopback .............................................................. [Targets: 0]
 ```
+
 ### 创建 luns
+
 ```bash
 ################### target 交互页面 #######################
 # step.13
@@ -173,7 +189,9 @@ o- / ...........................................................................
   |       o- 0.0.0.0:3260 .......................................................... [OK]
   o- loopback .............................................................. [Targets: 0]
 ```
+
 ### 创建 portals
+
 ```bash
 ################### target 交互页面 #######################
 # step.14
@@ -214,7 +232,9 @@ o- / ...........................................................................
 # step. 保存退出
 exit
 ```
+
 ### 重启 target 服务
+
 ```bash
 # step. 查看更新后的配置
 cat /etc/target/saveconfig.json
@@ -224,6 +244,7 @@ systemctl restart target && systemctl enable target
 ```
 
 ## 服务器 tgtd 工具安装
+
 ```bash
 yum install scsi-target-utils -y
 
@@ -232,8 +253,8 @@ systemctl enable tgtd
 systemctl status tgtd
 ```
 
-
 ## 客户端安装
+
 ```bash
 #
 yum install iscsi-initiator-utils -y
@@ -271,3 +292,8 @@ lsblk
 lsscsi
 ```
 
+## 参考资料
+
++ [https://blog.csdn.net/qq_44777969/article/details/115026137](https://blog.csdn.net/qq_44777969/article/details/115026137)
++ [https://www.jianshu.com/p/b48e3fec1303](https://www.jianshu.com/p/b48e3fec1303)
++ [https://cshihong.github.io/2018/10/23/ISCSI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/](https://cshihong.github.io/2018/10/23/ISCSI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/)

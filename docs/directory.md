@@ -71,7 +71,6 @@ sidebar: false
 
 + [MyBatis](../md/article/middleware/mybatis/index.md)
 + [MyBatis-Plus](../md/article/middleware/mybatisplus/index.md)
-+ [Hibernate](../md/article/middleware/hibernate/index.md)
 
 ### 事务
 
@@ -113,9 +112,7 @@ sidebar: false
 
 ### 存储
 
-+ [Minio](../md/article/middleware/minio/index.md)
-+ [Ceph](../md/article/middleware/ceph/index.md)
-+ [iscsi](../md/article/middleware/iscsi/index.md)
++ [存储](../md/article/storage/index.md)
 
 ### 数据集成
 
@@ -138,13 +135,11 @@ sidebar: false
 ## IaC 工具
 
 + [Terraform](../md/article/iac/terraform/index.md)
-+ [Ansible](../md/article/iac/ansible/index.md)
 
 ## 监控
 
 + [Zabbix](../md/article/monitor/zabbix/index.md)
 + [Prometheus](../md/article/monitor/prometheus/index.md)
-+ [libvirt](../md/article/monitor/libvirt/index.md)
 
 ## LLM
 

@@ -3,7 +3,9 @@ title: Terraform
 ---
 
 ### 命令
-+ [CMD](./terraform.md)
+
++ [Terraform命令](./Terraform命令.md)
 
 ### Provider
-+ [Provider开发](./provider.md)
+
++ [TerraformFramework 实现 Provider](./TerraformFramework实现Provider.md)

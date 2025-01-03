@@ -1,3 +1,3 @@
 # Zabbix
 
-+ [Zabbix 安装](../zabbix/install.md)
++ [Zabbix安装](./zabbix安装.md)

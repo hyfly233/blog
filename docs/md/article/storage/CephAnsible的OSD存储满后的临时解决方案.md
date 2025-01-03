@@ -1,5 +1,5 @@
 ---
-title: Ceph的OSD存储满后的临时解决方案
+title: CephAnsible的OSD存储满后的临时解决方案
 sidebar: heading
 ---
 

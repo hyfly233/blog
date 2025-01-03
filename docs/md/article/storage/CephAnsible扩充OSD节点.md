@@ -1,16 +1,19 @@
 ---
-title: Ceph-Ansible扩充osd节点
+title: CephAnsible扩充OSD节点
 sidebar: heading
 ---
 
 # Ceph-Ansible扩充osd节点
 
 ## 参考资料
+
 + [https://access.redhat.com/documentation/zh-cn/red_hat_ceph_storage/4/html/operations_guide/ceph-osds-ops](https://access.redhat.com/documentation/zh-cn/red_hat_ceph_storage/4/html/operations_guide/ceph-osds-ops)
 + [https://www.cnblogs.com/lvzhenjiang/p/14908195.html](https://www.cnblogs.com/lvzhenjiang/p/14908195.html)
 
 ## 扩充 osd 节点
+
 ### 激活虚拟环境
+
 ```bash
 # step.1 激活虚拟环境
 source /opt/venv/ceph/bin/activate
@@ -18,7 +21,9 @@ source /opt/venv/ceph/bin/activate
 
 source /opt/venv/ceph-2/bin/activate
 ```
+
 ### 编辑 osds.yml
+
 ```bash
 vim /opt/ceph/ceph-ansible/group_vars/osds.yml
 
@@ -28,7 +33,9 @@ devices:
   - /dev/sdd
   - /dev/sde
 ```
+
 ### 部署
+
 ```bash
 cd /opt/ceph/ceph-ansible
 
@@ -43,6 +50,7 @@ ansible-playbook -i hosts infrastructure-playbooks/add-osd.yml \
 ```
 
 ## 添加 osd 节点的硬盘
+
 ```bash
 # 查看硬盘类型
 lsblk -d -o name,rota
@@ -54,7 +62,9 @@ sdc     0
 sdd     0
 sde     1
 ```
+
 ### 编辑 osds.yml
+
 ```bash
 vim /opt/ceph/ceph-ansible/group_vars/osds.yml
 
@@ -66,7 +76,9 @@ devices:
 lvm_volumes:
   - data: /dev/sde
 ```
+
 ### 部署
+
 ```bash
 # step.1
 cd /opt/ceph/ceph-ansible

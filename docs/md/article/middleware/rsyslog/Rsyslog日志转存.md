@@ -1,11 +1,19 @@
+---
+title: Rsyslog日志转存
+sidebar: heading
+---
+
+## Syslog
 
 Syslog 是 Linux 系统默认的日志守护进程
 
 - $template 指令：[https://www.rsyslog.com/doc/master/configuration/properties.html](https://www.rsyslog.com/doc/master/configuration/properties.html)
 
-## 探针日志 Syslog 服务端
+## 日志转存
+
 ### 开启日志接收
 使用 udp 协议接收日志，需要打开注释
+
 ```bash
 # Provides UDP syslog reception 打开 udp
 $ModLoad imudp
@@ -15,13 +23,18 @@ $UDPServerRun 514
 #$ModLoad imtcp
 #$InputTCPServerRun 514
 ```
+
 使用 tcpdump 查看 syslog 客户端是否有发送数据
+
 ```bash
 tcpdump -i eth1 -vvv
 ```
-### 日志转存
+
+### 修改 rsyslog.conf
+
 在 /etc/rsyslog.conf 中添加规则，将 192.168.0.111 发送过来的日志转存到其他文件夹中，得到的日文件名为
-"/var/log/nta/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
+"/var/log/test/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
+
 ```bash
 # 设置日志记录的最大长度
 $MaxMessageSize 32k
@@ -29,8 +42,8 @@ $MaxMessageSize 32k
 # 需要放 *.info 之前，不然会导致 /var/log/message 重复记录日志
 $template CleanMsgFormat,"%fromhost-ip%%msg%\n"
 
-$template nta_FileFormat,"/var/log/nta/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
-if $fromhost-ip == '192.168.0.111' then ?nta_FileFormat;CleanMsgFormat
+$template test_FileFormat,"/var/log/test/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
+if $fromhost-ip == '192.168.0.111' then ?test_FileFormat;CleanMsgFormat
 & ~
 
 # 下面的不需要修改
@@ -38,82 +51,18 @@ if $fromhost-ip == '192.168.0.111' then ?nta_FileFormat;CleanMsgFormat
 # Don't log private authentication messages!
 *.info;mail.none;authpriv.none;cron.none                /var/log/messages
 ```
-重启 syslog 服务端
+
+### 重启 syslog 服务端
+
 ```bash
 # 重启服务
 systemctl restart rsyslog.service && systemctl status rsyslog.service
 
 # 查看转存的日志
-ll /var/log/nta
+ll /var/log/test
 ```
 
-## 防火墙日志
-```bash
-# 设置日志记录的最大长度
-$MaxMessageSize 32k
-
-# 需要放 *.info 之前，不然会导致 /var/log/message 重复记录日志
-$template CleanMsgFormat,"%msg%\n"
-
-$template firewall_FileFormat,"/var/log/firewall/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
-if $fromhost-ip == '192.168.0.17' then ?firewall_FileFormat;CleanMsgFormat
-& ~
-```
-## Corn 脚本
-```shell
-#!/bin/bash
-
-# 设置要清理的目录
-target_directory="/var/log/nta/"
-
-# 计算当前时间减去5小时的时间戳
-five_hours_ago=$(date -d "5 hours ago" +"%s")
-
-# 查找目录中最后一次修改时间超过5个小时的文件并删除
-find "$target_directory"/*/ -type f -mmin +300 -delete
-
-# 输出日志（可选）
-echo "Cleanup completed at $(date)"
-```
-
-```shell
-#!/bin/bash
-
-# 设置要清理的目录
-target_directory="/var/log/firewall/"
-
-# 计算当前时间减去5小时的时间戳
-five_hours_ago=$(date -d "5 hours ago" +"%s")
-
-# 查找目录中最后一次修改时间超过5个小时的文件并删除
-find "$target_directory"/*/ -type f -mmin +300 -delete
-
-# 输出日志（可选）
-echo "Cleanup completed at $(date)"
-```
-
-```shell
-chmod +x cleanup_script.sh
-
-# 打开 crontab 编辑器
-crontab -e
-
-# 添加内容
-0 */5 * * * /var/log/nta/cleanup_script.sh
-
-0 */5 * * * /var/log/firewall/cleanup_script.sh
-
-# 查看 crontab 脚本
-crontab -l
-```
-
-
-```bash
-grep -o 'example' file.txt | wc -l
-
-
-tcpdump -i eth1 src 192.168.0.17 -vvv
-```
+## 完整配置
 
 ```bash
 # rsyslog configuration file
@@ -167,15 +116,8 @@ $IMJournalStateFile imjournal.state
 ## 在消息头前加上了源IP地址
 $template CleanMsgFormat111,"%fromhost-ip% %timestamp:::date-rfc3339% %msg%\n"
 
-$template nta_FileFormat,"/var/log/nta/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
-if $fromhost-ip == '192.168.0.111' then ?nta_FileFormat;CleanMsgFormat111
-& ~
-
-
-$template CleanMsgFormat17,"%fromhost-ip% %timestamp:::date-rfc3339% %msg%\n"
-
-$template firewall_FileFormat,"/var/log/firewall/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
-if $fromhost-ip == '192.168.0.17' then ?firewall_FileFormat;CleanMsgFormat17
+$template test_FileFormat,"/var/log/test/%fromhost-ip%/%syslogtag%-%$YEAR%%$MONTH%%$DAY%%$HOUR%.log"
+if $fromhost-ip == '192.168.0.111' then ?test_FileFormat;CleanMsgFormat111
 & ~
 
 
@@ -225,6 +167,7 @@ local7.*                                                /var/log/boot.log
 
 ```
 
+## 参考
+
 [https://stackoverflow.com/questions/49449301/how-to-change-timestamp-format-on-rsyslog](https://stackoverflow.com/questions/49449301/how-to-change-timestamp-format-on-rsyslog)
 [https://www.rsyslog.com/doc/configuration/properties.html](https://www.rsyslog.com/doc/configuration/properties.html)
-
