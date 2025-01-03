@@ -1,12 +1,15 @@
-# 使用 Terraform 插件框架实现 provider
+---
+title: TerraformFramework实现Provider
+sidebar: heading
+---
+
+# 使用 Terraform Framework 实现 provider
 
 ## 先决条件
 
 - Go 1.19+ 已安装并配置
 - Terraform v1.0.3+ 本地安装
 - Docker 本地安装
-
-
 
 ## 设置开发环境
 
@@ -39,8 +42,6 @@ $ go mod edit -module terraform-provider-hashicups-pf
 ```shell
 $ go mod tidy && go install
 ```
-
-
 
 ### 设置 docker compose
 
@@ -87,9 +88,9 @@ services:
 
 启动 docker 容器
 
+## Provider
 
-
-## 实现 provider
+### 实现 Provider
 
 Provider 使用 `provider.Provider` 接口作为所有实现 provider 细节的起点，此接口需要满足以下条件：
 
@@ -161,9 +162,7 @@ func (p *hashicupsProvider) Resources(_ context.Context) []func() resource.Resou
 }
 ```
 
-
-
-## 实现 provider server
+### 实现 Provider Server
 
 Terraform provider 是与 Terraform 交互以处理每个 data source 和 resource 操作的服务器进程
 
@@ -204,9 +203,7 @@ func main() {
 }
 ```
 
-
-
-## 验证 provider
+### 验证 Provider
 
 运行程序，输出如下内容为正确情况
 
@@ -218,9 +215,7 @@ load any plugins automatically
 exit status 1
 ```
 
- 
-
-## 进行本地 provider 安装
+### 进行本地 Provider 安装
 
 当运行 `Terraform init` 时，Terraform 会安装 provider 并验证它们的版本和校验和
 
@@ -251,9 +246,7 @@ provider_installation {
 }
 ```
 
-
-
-## 本地安装 provider 并使用 Terraform 进行验证
+### 本地安装 Provider 并使用 Terraform 进行验证
 
 编译后的二进制文件将会安装在 `GOBIN` 路径中
 
@@ -261,13 +254,13 @@ provider_installation {
 $ go install .
 ```
 
- 创建目录 `examples/provider-install-verification`，该目录将包含用于验证本地 provider 的 terraform 配置
+创建目录 `examples/provider-install-verification`，该目录将包含用于验证本地 provider 的 terraform 配置
 
 ```shell
 $ mkdir examples/provider-install-verification && cd "$_"
 ```
 
- 使用以下内容创建文件 `examples/provider-install-verification/main.tf` 
+使用以下内容创建文件 `examples/provider-install-verification/main.tf`
 
 ```terraform
 terraform {
@@ -309,9 +302,7 @@ $ terraform plan
 ╵
 ```
 
-
-
-## 实现 provider schema
+### 实现 Provider schema
 
 Terraform Plugin Framework 使用 provider 的 `Schema` 方法来定义可接受的配置属性名称和类型。HashiCups 客户端需要正确配置主机、用户名和密码。Terraform Plugin Framework 的`types` 包含 schema 和 data model，可以使用 Terraform 的空值、未知值或已知值。
 
@@ -337,9 +328,7 @@ func (p *hashicupsProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 }
 ```
 
-
-
-## 实现 provider data model
+### 实现 Provider data model
 
 Terraform Plugin Framework 使用带有 tfsdk 结构字段标签的 Go 语言结构类型，将 schema 定义映射为带有实际数据的 Go 语言类型。结构体中的类型必须与 schema 中的类型保持一致
 
@@ -353,8 +342,6 @@ type hashicupsProviderModel struct {
     Password types.String `tfsdk:"password"`
 }
 ```
-
-
 
 ## 实现客户端配置功能
 
@@ -506,13 +493,11 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
 $ go mod tidy
 ```
 
- 生成并安装更新的 provider 。
+生成并安装更新的 provider
 
 ```shell
 $ go install .
 ```
-
- 
 
 ## 在本地启动 HashiCups
 
@@ -532,8 +517,6 @@ $ curl localhost:19090/health/readyz
 ok
 ```
 
- 
-
 ## 创建 HashiCups 用户
 
 HashiCups 需要用户名和密码来生成 JWT 令牌，用于对受保护的端点进行身份验证。在 HashiCups 上创建一个名为education 的用户，密码为 test123
@@ -549,9 +532,9 @@ $ curl -X POST localhost:19090/signup -d '{"username":"education", "password":"t
 $ export HASHICUPS_TOKEN=ey...
 ```
 
-# 实现 data source
+## Data Source
 
-## 实现初始 data source
+### 初始 data source 代码
 
 实现 `datasource.DataSource` 接口，此接口需要满足以下条件：
 
@@ -599,9 +582,7 @@ func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 }
 ```
 
-
-
-## 将 data source 添加到 provider 
+### 将 data source 添加到 provider
 
 将 data source 添加到 provider 的 `DataSources` 方法中
 
@@ -616,9 +597,7 @@ func (p *hashicupsProvider) DataSources(_ context.Context) []func() datasource.D
 }
 ```
 
-
-
-## 实现 data source 客户端功能
+### 实现 data source 客户端功能
 
 数据源使用可选的 Configure 方法从提供程序获取已配置的客户端。提供者配置 HashiCups 客户端，数据源可以为其操作保存对该客户端的引用。
 
@@ -664,9 +643,7 @@ func (d *coffeesDataSource) Configure(_ context.Context, req datasource.Configur
 }
 ```
 
-
-
-## 实现 data source schema
+### 实现 data source schema
 
 替换 data source 的 Schema 方法
 
@@ -715,9 +692,7 @@ func (d *coffeesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 }
 ```
 
-
-
-## 实现 data source 的 data model
+### 实现 data source 的 data model
 
 使用以下内容向 data source 添加 data model
 
@@ -754,9 +729,7 @@ type coffeesIngredientsModel struct {
 }
 ```
 
-
-
-## 实现 read
+### 实现 data source 的 read
 
 data source 使用 Read 方法根据 schema 数据刷新 Terraform state，读取方法遵循以下步骤：
 
@@ -807,15 +780,13 @@ func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 }
 ```
 
-生成并安装更新的 provider 。
+生成并安装更新的 provider
 
 ```shell
 $ go install .
 ```
 
-
-
-## 验证 data source
+### 验证 data source
 
 导航到该目录 `examples/coffees`
 
@@ -847,7 +818,7 @@ output "edu_coffees" {
 }
 ```
 
-运行 Terraform plan，Terraform将报告它从 HashiCups API 检索到的数据。
+运行 Terraform plan，Terraform将报告它从 HashiCups API 检索到的数据
 
 ```shell
 $ terraform plan
@@ -889,11 +860,11 @@ guarantee to take exactly these actions if you run "terraform apply" now.
 $ cd ../..
 ```
 
-# 实现日志记录
+## 日志记录
 
-## 实现日志消息
+### 实现日志消息
 
-provider 支持通过 `github.com/hashicorp/terraform-plugin-log` 模块的 `tflog` 包进行日志记录。这个包实现了结构化的日志记录和过滤功能。
+provider 支持通过 `github.com/hashicorp/terraform-plugin-log` 模块的 `tflog` 包进行日志记录。这个包实现了结构化的日志记录和过滤功能
 
 编辑`internal/provider/provider.go`
 
@@ -920,9 +891,7 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
     /* ... */
 ```
 
-
-
-## 实现结构化日志字段
+### 实现结构化日志字段
 
 `tflog` 包支持向日志中添加额外的键值对，以实现一致性和跟踪流。这些对可以通过 `tlog.setfield()` 调用添加到 provider 请求的其余部分，或者作为任何日志调用的最终参数内联。
 
@@ -960,9 +929,7 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
 }
 ```
 
-
-
-## 实现日志过滤
+### 实现日志过滤
 
 在 `tflog. Debug(ctx, "Creating HashiCups client") ` 之前添加过滤器来屏蔽用户的密码
 
@@ -977,15 +944,13 @@ func (p *hashicupsProvider) Configure(ctx context.Context, req provider.Configur
     /* ... */
 ```
 
-生成 provider
+### 生成 provider
 
 ```shell
 $ go install .
 ```
 
-
-
-## 查看所有 Terraform 日志输出
+### 查看所有 Terraform 日志输出
 
 Terraform的日志输出由各种环境变量控制，例如 `TF_LOG` 或 `TF_LOG_` 为前缀。
 
@@ -1008,9 +973,7 @@ $ TF_LOG=TRACE terraform plan
 ##...
 ```
 
-
-
-## 保存所有 Terraform 日志输出
+### 保存所有 Terraform 日志输出
 
 运行 terraform plan 同时设置 `TF_LOG` 和 `TF_LOG_PATH`
 
@@ -1020,9 +983,7 @@ $ TF_LOG=TRACE TF_LOG_PATH=trace.txt terraform plan
 
 日志将保存在 `examples/coffees/trace.txt`中
 
-
-
-## 查看特定的 Terraform 日志输出
+### 查看特定的 Terraform 日志输出
 
 日志级别包括 `DEBUG` `INFO` `WARN` `ERROR`
 
@@ -1034,7 +995,7 @@ $ TF_LOG=INFO terraform plan
 ##...
 ```
 
-仅输出 provider 日志
+### 仅输出 provider 日志
 
 ```shell
 $ TF_LOG_PROVIDER=INFO terraform plan
@@ -1046,9 +1007,11 @@ data.hashicups_coffees.edu: Read complete after 0s
 ##...
 ```
 
-## 实现 resource 创建和读取的准备工作
+## Resource
 
-### 步骤
+### 实现 resource 创建和读取的准备工作
+
+#### 步骤
 
 1. 定义初始 resource 类型
 2. 将 resource 添加到 provider 中
@@ -1058,8 +1021,6 @@ data.hashicups_coffees.edu: Read complete after 0s
 6. 定义 resource 的 create 逻辑
 7. 定义 resource 的 read 逻辑
 8. 验证 resource 的行为
-
-
 
 ### 实现初始 resource 类型
 
@@ -1073,8 +1034,6 @@ Provider 使用接口类型 `resource.Resource` 的实现作为 resource 实现�
 4. Read 方法，用于定义刷新 resource 的 Terraform 状态的逻辑
 5. Update 方法，用于定义更新并在成功时设置 resource 的 Terraform 状态的逻辑
 6. Delete 方法，用于定义删除并在成功时移除 resource 的 Terraform 状态的逻辑
-
-
 
 ### 创建文件 order_resource.go
 
@@ -1130,8 +1089,6 @@ func (r *orderResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 }
 ```
 
-
-
 ### 将 resource 添加到 provider 中
 
 provider 使用 `Resources` 方法返回其支持的 resource
@@ -1148,8 +1105,6 @@ func (p *hashicupsProvider) Resources(_ context.Context) []func() resource.Resou
     }
 }
 ```
-
-
 
 ### 实现 resource 客户端功能
 
@@ -1208,8 +1163,6 @@ func (r *orderResource) Configure(_ context.Context, req resource.ConfigureReque
 }
 ```
 
-
-
 ### 实现 Schema
 
 该资源使用 `Schema` 方法来定义支持的 configuration、plan 和 state attribute names/types
@@ -1265,8 +1218,6 @@ func (r *orderResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 }
 ```
 
-
-
 ### 实现 data model
 
 将资源的以下 data model 添加到 order_resource.go
@@ -1296,9 +1247,7 @@ type orderItemCoffeeModel struct {
 }
 ```
 
-
-
-## 实现 create
+### 实现 Resource Create
 
 provider 使用 `Create` 方法基于 data model 创建新资源，create 方法遵循以下步骤
 
@@ -1379,9 +1328,7 @@ func (r *orderResource) Create(ctx context.Context, req resource.CreateRequest, 
 }
 ```
 
-
-
-## 实现 read
+### 实现 Resource Read
 
 provider 使用 `Read` 方法来检索 resource 的信息并更新 Terraform 的 state 以反映 resource 的当前状态。provider 在每个 plan 生成 resource 当前 state 和 configuration 之间的准确差异之前调用此函数，read 方法遵循以下步骤:
 
@@ -1437,15 +1384,13 @@ func (r *orderResource) Read(ctx context.Context, req resource.ReadRequest, resp
 }
 ```
 
-生成并安装 provider
+### 生成并安装 provider
 
 ```shell
 go install .
 ```
 
-
-
-## 验证 resource
+### 验证 resource
 
 创建一个 `examples/order` 目录
 
@@ -1573,8 +1518,6 @@ resource "hashicups_order" "edu" {
 }
 ```
 
-
-
 ### 验证创建的订单
 
 使用 RESTful api 查询订单信息，验证 Terraform 是否通过 API 检索订单详细信息创建了订单
@@ -1587,16 +1530,14 @@ $ curl -X GET  -H "Authorization: ${HASHICUPS_TOKEN}" localhost:19090/orders/1
 
 订单的属性应该与 `hashicups_order.edu` resource 的属性相同
 
-## 实施 resource 更新
+### 实现 Resource update
 
 1. 验证 schema 和 model
 2. 实现 resource update
 3. 使用 plan modifier 增强 plan output
 4. 验证 update 功能
 
-
-
-### 修改 schema 和 model
+#### 修改 schema 和 model
 
 添加 last_updated 的属性
 
@@ -1623,8 +1564,6 @@ type orderResourceModel struct {
     LastUpdated types.String     `tfsdk:"last_updated"`
 }
 ```
-
-
 
 ### 实现 update
 
@@ -1726,8 +1665,6 @@ func (r *orderResource) Update(ctx context.Context, req resource.UpdateRequest, 
 $ go install .
 ```
 
-
-
 ### 验证 update 功能
 
 导航到目录 `examples/order`
@@ -1799,9 +1736,7 @@ Terraform will perform the following actions:
 Plan: 0 to add, 1 to change, 0 to destroy.
 ```
 
-
-
-### 增强 plan output
+#### 增强 plan output
 
 可配置的 Terraform Plugin Framework 属性不应该显示现有状态值的更新，应该使用 `UseStateForUnknown()` plan 修饰符
 
@@ -1816,11 +1751,9 @@ Plan: 0 to add, 1 to change, 0 to destroy.
 },
 ```
 
+### 实现 Resource Delete
 
-
-## 实施资源删除
-
-### 实现 delete
+#### 实现 delete
 
 provider 使用 `Delete` 方法删除现有资源
 
@@ -1853,15 +1786,13 @@ func (r *orderResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 }
 ```
 
-更新 provider
+#### 更新 provider
 
 ```shell
 $ go install .
 ```
 
-
-
-### 验证 delete
+#### 验证 delete
 
 导航到目录 `examples/order`
 
@@ -1884,13 +1815,11 @@ $ curl -X GET -H "Authorization: ${HASHICUPS_TOKEN}" localhost:19090/orders/1
 {}
 ```
 
-## 实现 resource 导入
+### 实现 Resource import
 
 resource 的 import 的方法，能从 `terraform import` 命令中获取给定的订单 id，使得 Terraform 能使用此订单 id 将对应的信息导入到 Terraform state 文件中
 
-
-
-### 实现 import 功能
+#### 实现 import 功能
 
 resource 使用 `ImportState` 方法导入现有资源，import 方法只有一个步骤：
 
@@ -1929,15 +1858,13 @@ func (r *orderResource) ImportState(ctx context.Context, req resource.ImportStat
 }
 ```
 
-生成 provider
+#### 生成 provider
 
 ```shell
 $ go install .
 ```
 
-
-
-### 验证 import 功能
+#### 验证 import 功能
 
 导航到该目录。这包含 Terraform HashiCups 提供程序的示例 Terraform 配置。`examples/order`
 
@@ -2033,13 +1960,9 @@ resource "hashicups_order" "edu" {
 ##...
 ```
 
-
-
 ## 自动化测试
 
 Go 模块 `terra-plugin-testing` 中的  `helper/resource` 包能使 provider 实现自动化验收测试。测试框架建立在标准的 `go test` 命令功能之上，并调用实际的 Terraform 命令，如 `Terraform apply`、`Terraform import` 和 `Terraform destroy`。
-
-
 
 ### 实现 data source id 属性
 
@@ -2087,9 +2010,7 @@ func (d *coffeesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 }
 ```
 
-
-
-### 实施 data source 验收测试
+### 实现 data source 验收测试
 
 Data source 验收测试用于验证从 API 读取后 Terraform state 包含数据
 
@@ -2169,8 +2090,6 @@ func TestAccCoffeesDataSource(t *testing.T) {
 }
 ```
 
-
-
 ### 验证 data source 测试功能
 
 使用 `TF_ACC` 环境变量运行测试
@@ -2182,8 +2101,6 @@ $ TF_ACC=1 go test -count=1 -v
 PASS
 ok      terraform-provider-hashicups-pf/internal/provider   2.120s
 ```
-
-
 
 ### 实现 resource 验收测试功能
 
@@ -2276,8 +2193,6 @@ resource "hashicups_order" "test" {
 }
 ```
 
-
-
 ### 验证 resource 测试功能
 
 使用 `TF_ACC` 环境变量运行测试
@@ -2289,4 +2204,3 @@ $ TF_ACC=1 go test -count=1 -run='TestAccOrderResource' -v
 PASS
 ok      terraform-provider-hashicups-pf/internal/provider   2.754s
 ```
-

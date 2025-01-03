@@ -919,6 +919,9 @@ kolla-ansible -i multinode destroy \
 	-e virtualenv=/opt/openstack/venv \
 	--yes-i-really-really-mean-it \
 	-vvvv
+
+# 重置所有节点的数据库
+kolla-ansible -i multinode mariadb_recovery
 ```
 
 ### 使用 OpenStack

@@ -1,7 +1,18 @@
+---
+title: Zabbix安装
+sidebar: heading
+---
+
+# Zabbix安装
+
 ## 参考资料
+
 - [官方下载 Zabbix](https://www.zabbix.com/download?zabbix=5.0&os_distribution=centos&os_version=7&components=server_frontend_agent&db=mysql&ws=apache)
+
 ## 安装 Zabbix Server
+
 ### 关闭 Selinux
+
 ```bash
 # step.1
 setenforce 0
@@ -12,7 +23,9 @@ vim /etc/selinux/config
 # step.2 修改内容
 SELINUX=disabled
 ```
+
 ### 修改防火墙策略
+
 ```bash
 # 关闭防火墙
 systemctl stop firewalld && systemctl disable firewalld
@@ -25,7 +38,9 @@ firewall-cmd --zone=public --add-port=10051/udp --permanent
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 systemctl restart firewalld
 ```
+
 ### 备份
+
 ```bash
 # step.1
 cd /etc/yum.repos.d
@@ -42,7 +57,9 @@ sudo sed -e 's|^mirrorlist=|#mirrorlist=|g' \
 # step.4
 yum clean all && yum makecache fast
 ```
+
 ### 安装 zabbix
+
 ```bash
 # step.1 配置 zabbix 源
 rpm -ivh https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm
@@ -101,6 +118,7 @@ yum install zabbix-web-mysql-scl zabbix-apache-conf-scl -y
 > ```
 
 ### 创建数据库
+
 ```bash
 # step.1
 yum install mariadb-server -y
@@ -139,7 +157,9 @@ yum -y install wqy-microhei-fonts
 # step.8 修改内容
 cp /usr/share/fonts/wqy-microhei/wqy-microhei.ttc /usr/share/fonts/dejavu/DejaVuSans.ttf
 ```
+
 ### 启动 zabbix
+
 ```bash
 # step.1
 systemctl restart zabbix-server zabbix-agent httpd rh-php72-php-fpm
@@ -150,11 +170,17 @@ systemctl enable zabbix-server zabbix-agent httpd rh-php72-php-fpm
 # step.3 查看 zabbix server 日志
 cat /var/log/zabbix/zabbix_server.log
 ```
+
 浏览器访问 http://xxxx/zabbix ，账号密码 Admin/zabbix
+
 ## 安装 Zabbix Agent
+
 在 Zabbix web 页面点击 Configuration -> Hosts -> Create host 添加主机
+
 ### 安装 zabbix agent
+
 #### 被动模式
+
 ```bash
 # step.1 配置 zabbix 源
 rpm -ivh https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm
@@ -183,8 +209,6 @@ systemctl status zabbix-agent.service
 # step.7 查看 zabbix server 日志
 cat /var/log/zabbix/zabbix_agentd.log
 ```
-
-
 
 ## Docker 部署
 
@@ -302,4 +326,3 @@ cd /opt/docker/zabbix
 
 docker-compose up -d
 ```
-
