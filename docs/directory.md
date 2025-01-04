@@ -141,26 +141,13 @@ sidebar: false
 + [Zabbix](../md/article/monitor/zabbix/index.md)
 + [Prometheus](../md/article/monitor/prometheus/index.md)
 
-## LLM
-
-+ [Ollama](../md/article/llm/ollama/index.md)
-+ [LangChain](../md/article/llm/langChain/index.md)
-
-## 机器学习
-
-+ [PyTorch](../md/article/ml/pytorch/index.md)
-+ [DJL](../md/article/ml/djl/index.md)
-
 ## 算法
 
 + [排序算法](../md/article/algorithm/sort/index.md)
 + [搜索算法](../md/article/algorithm/search/index.md)
 + [图算法](../md/article/algorithm/graph/index.md)
 + [字符串匹配算法](../md/article/algorithm/match/index.md)
-+ [计算几何算法](../md/article/algorithm/geometric/index.md)
-+ [数值算法](../md/article/algorithm/numerical/index.md)
 + [数据压缩算法](../md/article/algorithm/compression/index.md)
-+ [密码和加密算法](../md/article/algorithm/encryption/index.md)
 + [机器学习算法](../md/article/algorithm/ml/index.md)
 + [深度学习算法](../md/article/algorithm/dl/index.md)
 
