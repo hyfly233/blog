@@ -14,7 +14,7 @@ export default defineUserConfig({
     bundler: viteBundler(),
     theme: defaultTheme({
         logo: "/assets/img/game.ico",
-        sidebar: false,
+        sidebar: "heading",
         contributors: true,
         contributorsText: "贡献者",
         lastUpdated: true,
